@@ -7,25 +7,25 @@ from flask import (
     session,
     url_for,
     )
-
+# TO RUN LOCALLY: poetry run python app.py
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-    render_template("index.html")
+    return render_template("index.html")
 
 @app.route("/signup")
 def signup():
-    render_template("signup.html")
+    return render_template("signin.html")
 
 @app.route("/login")
 def login():
-    render_template("login.html")
+    return render_template("login.html")
 
 
 @app.route("/profile/<user>")
-def profile():
-    render_template("profile.html")
+def profile(user):
+    return render_template("profile.html", user=user)
 
 
 if __name__ == "__main__":
