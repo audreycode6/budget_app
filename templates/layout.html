@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang='en-us'>
+    <head>
+        <title>BudgeTing</title>
+        <meta charset='UTF-8'>
+        <link rel='stylesheet' href='{{ url_for("static", filename="stylesheets/application.css") }}'>
+    </head>
+    <body>
+        <main>
+            <!-- TODO add flash messages -->
+             {% block content %}
+             <!-- Filled in by the 'content' block from another template file -->
+             {% endblock %}
+        </main>
+    </body>
+</html>
