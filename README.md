@@ -1,0 +1,2 @@
+Users can create and edit budgets for different durations (monthly/annually).
+Budgets track gross income and take home after deductions, bills, and summarize total saving goals and/or debt totals. Non users can demo creating a budget but won't have the ability to save their budget(s) unless signed in.
