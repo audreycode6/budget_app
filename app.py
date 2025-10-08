@@ -25,7 +25,6 @@ migrate = Migrate(app, db)
 
 print("Using DB:", os.getenv('DATABASE_URL')) # TODO remove in production, this is for checking db is being read
 
-
 @app.route("/")
 def index():
     return render_template("index.html")

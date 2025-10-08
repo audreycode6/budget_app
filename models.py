@@ -1,0 +1,22 @@
+from app import db # import the SQLAlchemy instance
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+    budgets = db.relationship('Budget', backref='user', cascade='all, delete')
+
+class Budget(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    month_duration = db.Column(db.Integer, nullable=False) # 1 = monthly, 12 = yearly
+    gross_income = db.Column(db.Numeric(11,2), nullable=False)
+    items = db.relationship('BudgetItem', backref='budget', cascade='all, delete')
+
+class BudgetItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.String(30), nullable=False)
+    total = db.Column(db.Numeric(11,2), nullable=False)
