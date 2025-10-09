@@ -8,15 +8,20 @@ from flask import (
     session,
     url_for,
     )
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from functools import wraps
 import os
 
 # Load environment variables first
 load_dotenv()
 
-app = Flask(__name__) # TO RUN LOCALLY: poetry run python app.py
+from .extensions import db, migrate
+
+app = Flask(__name__) 
+'''TO RUN LOCALLY:
+navigate to /src and 
+run: poetry run python -m budget_app/app.py
+TODO learn how to use __init__.py to
+initalize app and prevent cirular imports'''
 
 # Configuration
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret')
@@ -24,13 +29,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+db.init_app(app)
+migrate.init_app(app, db)
 
-# Import models at end to avoid circular import issues
-from .models import User
-
-print("Using DB:", os.getenv('DATABASE_URL')) # TODO remove in production, this is for checking db is being read
+from budget_app import models
+from budget_app.models import User, Budget, BudgetItem
 
 def login_required(f):
     @wraps(f)
