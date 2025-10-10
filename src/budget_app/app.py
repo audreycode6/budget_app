@@ -17,11 +17,6 @@ load_dotenv()
 from .extensions import db, migrate
 
 app = Flask(__name__) 
-'''TO RUN LOCALLY:
-navigate to /src and 
-run: poetry run python -m budget_app/app.py
-TODO learn how to use __init__.py to
-initalize app and prevent cirular imports'''
 
 # Configuration
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret')
@@ -51,14 +46,18 @@ def index():
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
+        username = request.form['username'].strip()
+        password = request.form['password'].strip()
+        
+        if not username or not password:
+            flash('Username or password must be filled out.', 'danger')
+            return render_template('signup.html'), 422
+        
         # Check username already exists
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash('Username already taken.', 'danger')
-            return redirect(url_for('signup'))
+            return render_template('signup.html'), 422
         
         new_user = User(username=username)
         new_user.set_password(password)

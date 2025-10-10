@@ -7,7 +7,14 @@
     </head>
     <body>
         <main>
-            <!-- TODO add flash messages -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <p>{{ message }}</p> 
+                <!-- TODO add class to flash messages p tag to format -->
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
              {% block content %}
              <!-- Filled in by the 'content' block from another template file -->
              {% endblock %}
