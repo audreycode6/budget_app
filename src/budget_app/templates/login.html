@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Log in:</h1>
-<form method='post' action='{{url_for("login")}}'>
+<form method='post' action='{{url_for("main.login")}}'>
     <div>
         <label for='username'>Username:
             <input name='username' id='username' value='{{ username }}'>
@@ -15,6 +15,6 @@
         </label>
     </div>
     <br>
-    <button type='submit'>Log In</button>  
+    <button type='submit' class='submit_button button'>Log In</button>  
 </form>
 {% endblock %}

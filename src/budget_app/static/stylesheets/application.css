@@ -1,3 +1,40 @@
 body {
     font-family: "Gill Sans", sans-serif;
 }
+
+.button {
+    font-weight: bold;
+    background-color: rgba(212, 216, 212, 0.842);;
+    color: rgb(72, 66, 54);
+    font-family: 'Courier New', Courier, monospace;
+    border-radius: 5px;
+    border-color: beige;
+}
+.delete_button:hover {
+    background-color: rgb(237, 122, 122);
+}
+
+.submit_button:hover {
+    background-color: rgb(142, 237, 142);
+}
+
+.message {
+    background-color: rgb(105, 211, 223, 0.367);
+    color: rgba(4, 105, 116, 0.796);
+    font-style: italic;
+    padding: 10px;
+    border-style: double;
+    border-color: rgb(105, 211, 223, 0.483);
+}
+
+.error {
+    background-color: rgb(255, 100, 66, 0.505);
+    color: rgb(183, 11, 11);
+    border-color:  rgba(252, 0, 0, 0.116);
+}
+
+.success {
+    background-color: rgb(89, 239, 116, 0.367);
+    color:  rgb(3, 68, 15, 0.623);
+    border-color:  rgb(89, 239, 116, 0.228);
+}

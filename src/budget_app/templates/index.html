@@ -2,15 +2,15 @@
 
 {% block content %}
 <h1>Budget Home</h1>
-{% if session['username'] %}
-<ul>
-    <li><a href='{{ url_for("logout") }}'>Log Out</a></li>
-</ul>
-<h2>Demo ... </h2>
+{% if session.get('user_id') %}
+<form action="{{ url_for('main.logout') }}">
+    <button type="submit" class='delete_button button'>Log Out</button>
+</form>
 {% else %}
 <ul>
-    <li><a href='{{ url_for("signup") }}'>Sign Up</a></li>
-    <li><a href='{{ url_for("login") }}'>Log In</a></li>
+    <li><a href='{{ url_for("main.signup") }}'>Sign Up</a></li>
+    <li><a href='{{ url_for("main.login") }}'>Log In</a></li>
 </ul>
 {% endif %}
+<h2>Demo ... </h2>
 {% endblock %}
