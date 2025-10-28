@@ -72,6 +72,64 @@ class AuthTest(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertIn(empty_error_message, response.get_data(as_text=True))
 
+    def test_succesful_login(self):
+        self.client.post('/signup',
+                                    data={
+                                        "username" : "testuser",
+                                        'password': 'testpassword'
+                                    }) # create user & pw
+
+        response = self.client.post('/login',
+                                    data={
+                                        "username" : "testuser",
+                                        'password': 'testpassword'
+                                    },
+                                    follow_redirects=True)
+        
+        self.assertIn(response.status_code, [200, 302])
+        self.assertIn("Login successful!", response.get_data(as_text=True))
+        self.assertIn("Budget Home", response.get_data(as_text=True))
+        # # self.assertIn('Log Out', response.get_data(as_text=True)) # TODO add functionality, then test
+
+    def test_unsuccesful_login(self):
+        invalid_login_message = 'Invalid username or password.'
+        self.client.post('/signup',
+                                    data={
+                                        "username" : "testuser",
+                                        'password': 'testpassword'
+                                    }) # create user & pw
+
+        response = self.client.post('/login',
+                                    data={
+                                        "username" : "testuser",
+                                        'password': ''
+                                    },
+                                    follow_redirects=True) # empty pw
+        
+        self.assertEqual(response.status_code, 422)
+        self.assertIn(invalid_login_message, response.get_data(as_text=True))
+
+        response = self.client.post('/login',
+                                    data={
+                                        "username" : "",
+                                        'password': 'testpassword'
+                                    },
+                                    follow_redirects=True) # empty username
+        
+        self.assertEqual(response.status_code, 422)
+        self.assertIn(invalid_login_message, response.get_data(as_text=True))
+         
+        response = self.client.post('/login',
+                                    data={
+                                        "username" : "testuser",
+                                        'password': 'testpw'
+                                    },
+                                    follow_redirects=True) # incorrect pw
+        
+        self.assertEqual(response.status_code, 422)
+        self.assertIn(invalid_login_message, response.get_data(as_text=True))
+
+
 
 if __name__ == '__main__':
     unittest.main()

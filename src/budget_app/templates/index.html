@@ -2,7 +2,15 @@
 
 {% block content %}
 <h1>Budget Home</h1>
-<p>SignUp -></p>
-<p>LogIn -></p>
-<p>Demo -></p>
+{% if session['username'] %}
+<ul>
+    <li><a href='{{ url_for("logout") }}'>Log Out</a></li>
+</ul>
+<h2>Demo ... </h2>
+{% else %}
+<ul>
+    <li><a href='{{ url_for("signup") }}'>Sign Up</a></li>
+    <li><a href='{{ url_for("login") }}'>Log In</a></li>
+</ul>
+{% endif %}
 {% endblock %}
