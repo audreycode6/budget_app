@@ -1,0 +1,86 @@
+from flask import (
+    Blueprint,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    )
+from functools import wraps
+
+from .extensions import db
+from .models import User, Budget, BudgetItem
+
+bp = Blueprint('main', __name__)
+
+def is_signed_in():
+    return session.get('user_id') 
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('You must be logged in to access this page', 'danger')
+            return redirect(url_for('main.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@bp.route("/")
+def index():
+    return render_template("index.html")
+
+@bp.route("/signup", methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        password = request.form['password'].strip()
+        
+        if not username or not password:
+            flash('Username or password must be filled out.', 'error')
+            return render_template('signup.html'), 422
+        
+        # Check username already exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already taken.', 'error')
+            return render_template('signup.html'), 422
+        
+        new_user = User(username=username)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Account created! Please log in.')
+        return redirect(url_for('main.login'))
+    
+    return render_template("signup.html")
+
+@bp.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
+            session['user_id'] = user.id # store user_id in session to allow signed in view
+            flash('Login successful!', 'success')
+            return redirect(url_for('main.index')) # TODO maybe switch to profile page 
+        else:
+            flash('Invalid username or password.', 'error')
+            return render_template("login.html", username=username), 422
+
+    return render_template("login.html")
+
+@bp.route('/logout')
+def logout():
+    session.pop('user_id', None) 
+    flash('Logged out successfully.', 'success')
+    return redirect(url_for('main.index'))
+
+@bp.route("/profile/<user>")
+@login_required
+def profile(user):
+    return render_template("profile.html", user=user)
+    # TODO make template

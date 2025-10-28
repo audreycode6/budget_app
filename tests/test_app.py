@@ -1,20 +1,23 @@
 import unittest
-from budget_app.app import app, db
+from budget_app import create_app, db
 from budget_app.models import User
 
 class AuthTest(unittest.TestCase):
     '''Tests for sign up and authentication routes.'''
 
     def setUp(self):
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' # in-memory DB
-        self.client = app.test_client()
+        self.app = create_app({
+            'TESTING': True,
+            'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        })
+        self.client = self.app.test_client()
 
-        with app.app_context():
-            db.create_all() # Builds tables fresh for each test run.
+        with self.app.app_context():
+            db.create_all()
 
     def tearDown(self):
-        with app.app_context():
+        with self.app.app_context():
+            # remove session and drop tables to fully clean state
             db.session.remove()
             db.drop_all()
 
@@ -23,17 +26,17 @@ class AuthTest(unittest.TestCase):
                                     data={
                                         "username" : "testuser",
                                         'password': 'testpassword'
-                                    })
+                                    }, follow_redirects=True)
         
         self.assertIn(response.status_code, [200, 302])
 
-        with app.app_context():
+        with self.app.app_context():
             user = User.query.filter_by(username='testuser').first()
             self.assertIsNotNone(user)
-            self.assertNotEqual('testpassword', User.password_hash) # TODO fix way to test password 
+            self.assertNotEqual('testpassword', user.password_hash) # TODO fix way to test password 
 
     def test_duplicate_username_rejected(self):
-        with app.app_context():
+        with self.app.app_context():
             db.session.add(User(username='audrey', password_hash="fake"))
             db.session.commit()
 
@@ -86,10 +89,21 @@ class AuthTest(unittest.TestCase):
                                     },
                                     follow_redirects=True)
         
+        # inspect session after login: it should have user_id
+        with self.client.session_transaction() as sess:
+            self.assertIn('user_id', sess)
+            user_id = sess['user_id']
+            self.assertIsInstance(user_id, int)
+        
         self.assertIn(response.status_code, [200, 302])
         self.assertIn("Login successful!", response.get_data(as_text=True))
         self.assertIn("Budget Home", response.get_data(as_text=True))
-        # # self.assertIn('Log Out', response.get_data(as_text=True)) # TODO add functionality, then test
+        self.assertIn('Log Out', response.get_data(as_text=True))
+        self.assertNotIn('Sign Up', response.get_data(as_text=True))
+        
+        response = self.client.get('/') # refresh shouldn't have login
+        self.assertNotIn('Log In', response.get_data(as_text=True))
+
 
     def test_unsuccesful_login(self):
         invalid_login_message = 'Invalid username or password.'
@@ -128,8 +142,26 @@ class AuthTest(unittest.TestCase):
         
         self.assertEqual(response.status_code, 422)
         self.assertIn(invalid_login_message, response.get_data(as_text=True))
+        self.assertIn('Log In', response.get_data(as_text=True))
 
-
+    def test_succesful_logout(self):
+        self.client.post('/signup',
+                        data={
+                            "username" : "testuser",
+                            'password': 'testpassword'
+                        }, follow_redirects=True) # create user
+        
+        self.client.post('/login',
+                        data={
+                            "username" : "testuser",
+                            'password': 'testpassword'
+                        }, follow_redirects=True) # log in to set session['user_id']
+        
+        logout_response = self.client.get('/logout', follow_redirects=True)
+        self.assertIn('Logged out successfully.', logout_response.get_data(as_text=True))
+        self.assertIn('Log In', logout_response.get_data(as_text=True))
+        with self.client.session_transaction() as sess:
+            self.assertIsNone(sess.get('user_id'))
 
 if __name__ == '__main__':
     unittest.main()
