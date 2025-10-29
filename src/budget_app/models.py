@@ -15,12 +15,21 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
 class Budget(db.Model):
+    __table_args__ = (db.UniqueConstraint(
+                        'user_id', 
+                        'name', 
+                        name='unique_budget_name_per_user'),
+                     )
+    
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     month_duration = db.Column(db.Integer, nullable=False) # 1 = monthly, 12 = yearly
     gross_income = db.Column(db.Numeric(11,2), nullable=False)
     items = db.relationship('BudgetItem', backref='budget', cascade='all, delete')
+
+    def __repr__(self):
+        return f'<Budget {self.name}>'
 
 class BudgetItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
