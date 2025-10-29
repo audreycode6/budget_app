@@ -4,27 +4,17 @@ from flask import (
     redirect,
     render_template,
     request,
-    session,
     url_for,
     )
-from functools import wraps
-
-from .extensions import db
-from .models import User, Budget, BudgetItem
+from .services.auth.middleware import login_required
+from .services.auth.auth_service import (
+    create_user,
+    remove_user_from_session,
+    valid_login)
+from .services.budget.budget_service import (
+    create_budget_result)
 
 bp = Blueprint('main', __name__)
-
-def is_signed_in():
-    return session.get('user_id') 
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('You must be logged in to access this page', 'danger')
-            return redirect(url_for('main.login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 @bp.route("/")
 def index():
@@ -36,20 +26,15 @@ def signup():
         username = request.form['username'].strip()
         password = request.form['password'].strip()
         
-        if not username or not password:
+        signup_result = create_user(username, password)
+
+        if signup_result == 'empty user or pw':
             flash('Username or password must be filled out.', 'error')
             return render_template('signup.html'), 422
         
-        # Check username already exists
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
+        if signup_result == 'existing user':
             flash('Username already taken.', 'error')
             return render_template('signup.html'), 422
-        
-        new_user = User(username=username)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
 
         flash('Account created! Please log in.')
         return redirect(url_for('main.login'))
@@ -62,22 +47,48 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):
-            session['user_id'] = user.id # store user_id in session to allow signed in view
+        if valid_login(username, password):
             flash('Login successful!', 'success')
             return redirect(url_for('main.index')) # TODO maybe switch to profile page 
-        else:
-            flash('Invalid username or password.', 'error')
-            return render_template("login.html", username=username), 422
+    
+        flash('Invalid username or password.', 'error')
+        return render_template("login.html", username=username), 422
 
     return render_template("login.html")
 
 @bp.route('/logout')
 def logout():
-    session.pop('user_id', None) 
+    remove_user_from_session()
     flash('Logged out successfully.', 'success')
     return redirect(url_for('main.index'))
+
+@bp.route('/create_budget', methods=['GET', 'POST'])
+@login_required
+def create_budget():
+    if request.method == "POST":
+        name = request.form['name'].strip()
+        month_duration_raw = request.form['month_duration']
+        gross_income_raw = request.form['gross_income']
+
+        result = create_budget_result(name, month_duration_raw, gross_income_raw)
+        if isinstance(result, list): # TODO doesnt feel so descriptive but it does the job (?)
+            for error in result:
+                flash(error, 'error')
+            return render_template('create_budget.html', 
+                                   name=name, 
+                                   month_duration=month_duration_raw, 
+                                   gross_income=gross_income_raw)
+
+        flash(f'"{name}" Budget created! TODO redirect to add budget_items', 'success')
+        return redirect(url_for('main.view_budget', budget_id=result))
+    
+    return render_template("create_budget.html")
+
+@bp.route('/view_budget/<budget_id>', methods=['GET', 'POST'])
+@login_required
+def view_budget(budget_id):
+    # TODO
+    return render_template("view_budget.html")
 
 @bp.route("/profile/<user>")
 @login_required

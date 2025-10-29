@@ -1,16 +1,19 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h1>Budget Home</h1>
+<h1>BudgeTing</h1>
 {% if session.get('user_id') %}
 <form action="{{ url_for('main.logout') }}">
     <button type="submit" class='delete_button button'>Log Out</button>
 </form>
+<ul>
+    <li><a href='{{ url_for("main.create_budget") }}'>Create a Budget</a></li>
+</ul>
 {% else %}
 <ul>
     <li><a href='{{ url_for("main.signup") }}'>Sign Up</a></li>
     <li><a href='{{ url_for("main.login") }}'>Log In</a></li>
 </ul>
 {% endif %}
-<h2>Demo ... </h2>
+<p>Demo Creating a Budget... </p>
 {% endblock %}
