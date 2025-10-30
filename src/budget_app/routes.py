@@ -1,94 +1,110 @@
-from flask import (
-    Blueprint,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-    )
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from .services.auth.middleware import login_required
 from .services.auth.auth_service import (
     create_user,
     remove_user_from_session,
-    valid_login)
-from .services.budget.budget_service import (
-    create_budget_result)
+    authenticate_user,
+    get_session,
+)
+from .services.budget.budget_service import create_new_budget, get_budget
 
-bp = Blueprint('main', __name__)
+bp = Blueprint("main", __name__)
+
 
 @bp.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", user=get_session())
 
-@bp.route("/signup", methods=['GET', 'POST'])
+
+@bp.route("/signup", methods=["GET", "POST"])
 def signup():
-    if request.method == 'POST':
-        username = request.form['username'].strip()
-        password = request.form['password'].strip()
-        
-        signup_result = create_user(username, password)
+    if request.method == "GET":
+        return render_template("signup.html")
 
-        if signup_result == 'empty user or pw':
-            flash('Username or password must be filled out.', 'error')
-            return render_template('signup.html'), 422
-        
-        if signup_result == 'existing user':
-            flash('Username already taken.', 'error')
-            return render_template('signup.html'), 422
+    if request.method == "POST":
+        username = request.form["username"].strip()
+        password = request.form["password"].strip()
 
-        flash('Account created! Please log in.')
-        return redirect(url_for('main.login'))
-    
-    return render_template("signup.html")
+        try:
+            create_user(username, password)
+        except ValueError as e:
+            flash(e, "error")
+            return render_template("signup.html"), 422
 
-@bp.route("/login", methods=['GET', 'POST'])
+        flash("Account created! Please log in.")
+        return redirect(url_for("main.login"))
+
+
+@bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+    if request.method == "GET":
+        return render_template("login.html")
 
-        if valid_login(username, password):
-            flash('Login successful!', 'success')
-            return redirect(url_for('main.index')) # TODO maybe switch to profile page 
-    
-        flash('Invalid username or password.', 'error')
-        return render_template("login.html", username=username), 422
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
-    return render_template("login.html")
+        try:
+            authenticate_user(username, password)
 
-@bp.route('/logout')
+        except ValueError as e:
+            flash(e, "error")
+            return render_template("login.html", username=username), 422
+
+        return redirect(url_for("main.index"))  # TODO maybe switch to profile page
+
+
+@bp.route("/logout")
 def logout():
     remove_user_from_session()
-    flash('Logged out successfully.', 'success')
-    return redirect(url_for('main.index'))
+    flash("Logged out successfully.", "success")
+    return redirect(url_for("main.index"))
 
-@bp.route('/create_budget', methods=['GET', 'POST'])
+
+@bp.route("/create_budget", methods=["GET", "POST"])
 @login_required
 def create_budget():
+    if request.method == "GET":
+        return render_template("create_budget.html", user=get_session())
     if request.method == "POST":
-        name = request.form['name'].strip()
-        month_duration_raw = request.form['month_duration']
-        gross_income_raw = request.form['gross_income']
+        name = request.form["name"].strip()
+        month_duration_raw = request.form["month_duration"]
+        gross_income_raw = request.form["gross_income"]
 
-        result = create_budget_result(name, month_duration_raw, gross_income_raw)
-        if isinstance(result, list): # TODO doesnt feel so descriptive but it does the job (?)
-            for error in result:
-                flash(error, 'error')
-            return render_template('create_budget.html', 
-                                   name=name, 
-                                   month_duration=month_duration_raw, 
-                                   gross_income=gross_income_raw)
+        try:
+            budget_id = create_new_budget(
+                name, month_duration_raw, gross_income_raw
+            )  # TODO  try catch
 
-        flash(f'"{name}" Budget created! TODO redirect to add budget_items', 'success')
-        return redirect(url_for('main.view_budget', budget_id=result))
-    
-    return render_template("create_budget.html")
+        except ValueError as e:
+            flash(e, "error")
+            return render_template(
+                "create_budget.html",
+                name=name,
+                month_duration=month_duration_raw,
+                gross_income=gross_income_raw,
+                user=get_session(),
+            )
 
-@bp.route('/view_budget/<budget_id>', methods=['GET', 'POST'])
+        flash(f'"{name}" Budget created! TODO redirect to add budget_items', "success")
+        return redirect(url_for("main.view_budget", budget_id=budget_id))
+
+
+@bp.route("/view_budget/<budget_id>", methods=["GET", "POST"])
 @login_required
 def view_budget(budget_id):
-    # TODO
-    return render_template("view_budget.html")
+    if request.method == "GET":
+        return render_template(
+            "view_budget.html",
+            user=get_session(),
+            budget_id=budget_id,
+            budget_info=get_budget(budget_id),
+        )
+    # TODO get budget data
+    if request.method == "POST":
+        # TODO
+        pass
+
 
 @bp.route("/profile/<user>")
 @login_required

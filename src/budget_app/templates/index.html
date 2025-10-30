@@ -1,19 +1,7 @@
-{% extends "layout.html" %}
-
+{% extends "layout.html" %} 
 {% block content %}
-<h1>BudgeTing</h1>
-{% if session.get('user_id') %}
-<form action="{{ url_for('main.logout') }}">
-    <button type="submit" class='delete_button button'>Log Out</button>
-</form>
-<ul>
-    <li><a href='{{ url_for("main.create_budget") }}'>Create a Budget</a></li>
-</ul>
-{% else %}
-<ul>
-    <li><a href='{{ url_for("main.signup") }}'>Sign Up</a></li>
-    <li><a href='{{ url_for("main.login") }}'>Log In</a></li>
-</ul>
-{% endif %}
-<p>Demo Creating a Budget... </p>
+<div class='container'>
+  <h1>Demo Creating a Budget...</h1>
+</div>
+
 {% endblock %}

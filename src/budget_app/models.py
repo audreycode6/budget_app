@@ -29,7 +29,7 @@ class Budget(db.Model):
     items = db.relationship('BudgetItem', backref='budget', cascade='all, delete')
 
     def __repr__(self):
-        return f'<Budget {self.name}>'
+        return f'{self.name.capitalize()} Budget'
 
 class BudgetItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)

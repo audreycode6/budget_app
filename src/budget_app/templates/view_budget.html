@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
-<a href='{{ url_for("main.index") }}'>Home</a>
-<h1>{budget name here}</h1>
+<h1>{{ budget_info }}</h1>
+<p>budget.id: {{ budget_id }} ...TODO add the data</p>
 <p>Edit link -> </p>
 <p>Delete link -></p>
 {% endblock %}

@@ -92,12 +92,12 @@ class AuthTest(unittest.TestCase):
         # inspect session after login: it should have user_id
         with self.client.session_transaction() as sess:
             self.assertIn('user_id', sess)
-            user_id = sess['user_id']
+            user_id = sess['user_id']['id']
             self.assertIsInstance(user_id, int)
         
         self.assertIn(response.status_code, [200, 302])
-        self.assertIn("Login successful!", response.get_data(as_text=True))
-        self.assertIn("Budget Home", response.get_data(as_text=True))
+        self.assertIn("Logged in as testuser!", response.get_data(as_text=True))
+        self.assertIn("Create a Budget", response.get_data(as_text=True))
         self.assertIn('Log Out', response.get_data(as_text=True))
         self.assertNotIn('Sign Up', response.get_data(as_text=True))
         
