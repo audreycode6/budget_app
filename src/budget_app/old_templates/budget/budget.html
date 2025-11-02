@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container text-center">
+    <h2><b>{{budget_info.name.capitalize()}}</b> Budget Info</h2>
+        <br>
+  <div class="row align-items-start">
+    <div class="col">
+      <b>Gross Income:</b> {{budget_info.gross_income}}
+    </div>
+    <div class="col">
+      <b>Budget Duration:</b> {{budget_info.month_duration}} months
+    </div>
+  </div>
+</div>
+<br>
+{% endblock %}
