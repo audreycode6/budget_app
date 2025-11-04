@@ -13,7 +13,7 @@
 - /api/budget/item/create | create budget items for existing budget
 - /api/budget/edit | edit budget properties
 - /api/budget/item/edit | edit budget item properties
-- /api/budget/delete | delete budget # TODO
+- /api/budget/delete | delete budget
 - /api/budget/item/delete | delete budget item properties
 - GET /api/budgets | get all budgets
 - POST /api/budget | get one budget
@@ -102,3 +102,17 @@ def budget_edit():
 def budget_item_edit():
     body = request.get_json()
     return budget_handler.edit_budget_item(body)
+
+
+@api_blueprint.route("/api/budget/delete", methods=["POST"])
+@auth_handler.login_required
+def budget_delete():
+    body = request.get_json()
+    return budget_handler.delete_budget(body)
+
+
+@api_blueprint.route("/api/budget/item/delete", methods=["POST"])
+@auth_handler.login_required
+def budget_item_delete():
+    body = request.get_json()
+    return budget_handler.delete_budget_item(body)

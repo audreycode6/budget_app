@@ -97,9 +97,7 @@ def edit_budget(budget_id, user_id, attributes_to_edit):
     budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
     if not budget:
         print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
-        raise ValueError(
-            "Could not authenticate user."
-        )  # TODO thoughts on this error message (?)
+        raise ValueError("Invalid budget.")  # TODO thoughts on this error message (?)
 
     for attribute, new_value in attributes_to_edit.items():
         # Validate new_value
@@ -137,7 +135,7 @@ def edit_budget_item(item_id, budget_id, attributes_to_edit):
         print(
             f"Budget item_id: {item_id}, doesn't belong to user with budget_id {budget_id}"
         )
-        raise ValueError("Could not authenticate user.")
+        raise ValueError("Invalid budget item.")
 
     # Validate new_value
     for attribute, new_value in attributes_to_edit.items():
@@ -173,3 +171,36 @@ def attributes_to_update_dict(body, list_of_attributes):
             attributes_to_update[attribute] = new_value
 
     return attributes_to_update
+
+
+def delete_budget(budget_id, user_id):
+    # Retrieve the budget to delete
+    budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
+    if not budget:
+        print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
+        raise ValueError("Invalid budget.")
+    budget_name = budget.name
+    # Delete the object
+    db.session.delete(budget)
+
+    db.session.commit()
+    return budget_name
+
+
+def delete_budget_item(item_id, budget_id):
+    # Retrieve the budget to delete
+    budget_item = BudgetItem.query.filter_by(id=item_id, budget_id=budget_id).first()
+    if not budget_item:
+        print(
+            f"Budget item_id: {item_id}, doesn't belong to user with budget_id {budget_id}"
+        )
+        raise ValueError("Invalid budget item.")
+
+    item_description = (
+        f"Category: '{budget_item.category}' and with Name:'{budget_item.name}'"
+    )
+
+    # Delete the object
+    db.session.delete(budget_item)
+    db.session.commit()
+    return item_description

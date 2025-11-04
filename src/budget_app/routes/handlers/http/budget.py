@@ -3,6 +3,8 @@ from budget_app.services.budget.budget_service import (
     attributes_to_update_dict,
     create_new_budget,
     create_new_budget_item,
+    delete_budget,
+    delete_budget_item,
     edit_budget,
     edit_budget_item,
     get_formatted_budget,
@@ -144,4 +146,44 @@ class BudgetHandler:
             print(e)
             return {"message": "Failed to update budget item."}, 503
 
-    """ budget_item is """
+    def delete_budget(self, body):
+        if not validate_request_body_keys_exist(["budget_id"], body):
+            return {"message": "Missing budget_id"}, 422
+
+        budget_id = body.get("budget_id")
+        user_id = get_session()["id"]
+
+        try:
+            budget_name = delete_budget(budget_id, user_id)
+            return {
+                "message": f"Budget '{budget_name}' and its contents has been deleted"
+            }, 200
+
+        except ValueError as e:
+            print(e)
+            return {"message": str(e)}, 422
+
+        except Exception as e:
+            print(e)
+            return {"message": "Failed to delete budget."}, 503
+
+    def delete_budget_item(self, body):
+        if not validate_request_body_keys_exist(["item_id", "budget_id"], body):
+            return {"message": "Missing item_id and/or budget_id"}, 422
+
+        item_id = body.get("item_id")
+        budget_id = body.get("budget_id")
+
+        try:
+            item_description = delete_budget_item(item_id, budget_id)
+            return {
+                "message": f"Budget item in {item_description} and its contents has been deleted."
+            }, 200
+
+        except ValueError as e:
+            print(e)
+            return {"message": str(e)}, 422
+
+        except Exception as e:
+            print(e)
+            return {"message": "Failed to delete budget."}, 503
