@@ -10,7 +10,7 @@ from budget_app.services.budget.budget_service import (
     get_formatted_budget,
     get_user_budgets,
 )
-from budget_app.utils import validate_request_body_keys_exist
+from budget_app.utils import validate_request_body_keys_exist, stringify_attributes
 
 
 class BudgetHandler:
@@ -42,10 +42,10 @@ class BudgetHandler:
             return {"message": "Failed to retreive budget."}, 503
 
     def create_budget(self, body):
-        if not validate_request_body_keys_exist(
-            ["name", "gross_income", "month_duration"], body
-        ):
-            return {"message": "Missing name, gross_income, and/or month_duration"}, 422
+        if not validate_request_body_keys_exist(BudgetHandler.BUDGET_ATTRIBUTES, body):
+            return {
+                "message": f"Missing attribute(s) to update. Valid attributes are: {stringify_attributes(BudgetHandler.BUDGET_ATTRIBUTES)}"
+            }, 422
 
         name = body.get("name")
         gross_income_raw = body.get("gross_income")
@@ -66,10 +66,11 @@ class BudgetHandler:
             return {"message": "Failed to create budget."}, 503
 
     def create_budget_item(self, body):
-        if not validate_request_body_keys_exist(
-            ["name", "category", "total", "budget_id"], body
-        ):
-            return {"message": "Missing name, category, total, and/or budget_id"}, 422
+        required_attributes = BudgetHandler.BUDGET_ITEM_ATTRIBUTES + ["budget_id"]
+        if not validate_request_body_keys_exist(required_attributes, body):
+            return {
+                "message": f"Missing attribute(s) to update. Valid attributes are: {stringify_attributes(required_attributes)}"
+            }, 422
 
         name = body.get("name")
         category = body.get("category")
@@ -78,7 +79,9 @@ class BudgetHandler:
         user_id = get_session()["id"]
 
         try:
-            budget_item_id = create_new_budget_item(name, category, total, budget_id)
+            budget_item_id = create_new_budget_item(
+                name, category, total, budget_id, user_id
+            )
             budget = get_formatted_budget(budget_id, user_id)
             return {"budget": budget, "budget_item_id": budget_item_id}, 200
 
@@ -98,10 +101,9 @@ class BudgetHandler:
         attributes_to_update = attributes_to_update_dict(
             body, BudgetHandler.BUDGET_ATTRIBUTES
         )
-        # TODO what to do if the attribute name doesnt match the budget_attribute, e.g name = nome (?)
         if not attributes_to_update:
             return {
-                "message": f"Missing attribute(s) to update. Valid attributes are: {', '.join(BudgetHandler.BUDGET_ATTRIBUTES)}"
+                "message": f"Missing attribute(s) to update. Valid attributes are: {stringify_attributes(BudgetHandler.BUDGET_ATTRIBUTES)}"
             }, 422
 
         user_id = get_session()["id"]
@@ -127,17 +129,16 @@ class BudgetHandler:
         )
         if not attributes_to_update:
             return {
-                "message": f"Missing attribute(s) to update. Valid attributes are: {', '.join(BudgetHandler.BUDGET_ITEM_ATTRIBUTES)}"
-            }, 422  # TODO maybe format message better wiht helper func
+                "message": f"Missing attribute(s) to update. Valid attributes are: {stringify_attributes(BudgetHandler.BUDGET_ITEM_ATTRIBUTES)}"
+            }, 422
 
         user_id = get_session()["id"]
         budget_id = body.get("budget_id")
-        item_id = body.get("item_id")  # TODO is this best name, make sure matches
+        item_id = body.get("item_id")
 
         try:
             budget_item_id = edit_budget_item(item_id, budget_id, attributes_to_update)
             updated_budget = get_formatted_budget(budget_id, user_id)
-            # TODO figure out what should be returned
             return {"budget_item_id": budget_item_id, "budget": updated_budget}, 200
         except ValueError as e:
             print(e)

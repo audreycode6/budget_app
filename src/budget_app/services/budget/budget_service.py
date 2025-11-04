@@ -63,24 +63,25 @@ def create_new_budget(user_id, name, month_duration_raw, gross_income_raw):
     return new_budget.id  # used to display correct budget view
 
 
-def create_new_budget_item(name, category, total, budget_id):
+def create_new_budget_item(name, category, total, budget_id, user_id):
     """
     Validate user inputs: name and cost, raise error if invalid
     else insert items into budget_item and return new budget item id
     """
+    budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
+    if not budget:
+        print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
+        raise ValueError("Invalid budget.")
     if not name:
         raise ValueError("Budget item name must not be empty.")
 
-    if (
-        category not in VALID_BUDGET_ITEM_CATEGORY
-    ):  # TODO is this ok here or should be in budget.py?
+    if category not in VALID_BUDGET_ITEM_CATEGORY:
         raise ValueError(f"Category: '{category}' is not valid")
 
     invalid_total_message = validate_positive_float(total)
     if invalid_total_message:
         raise ValueError(f"Total {invalid_total_message}")
 
-    # if no errors, safely convert for DB
     new_budget_item = BudgetItem(
         name=name,
         category=category,
@@ -97,7 +98,9 @@ def edit_budget(budget_id, user_id, attributes_to_edit):
     budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
     if not budget:
         print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
-        raise ValueError("Invalid budget.")  # TODO thoughts on this error message (?)
+        raise ValueError(
+            "Invalid budget."
+        )  # TODO thoughts on this error message (?) MAKE a custom exception class
 
     for attribute, new_value in attributes_to_edit.items():
         # Validate new_value
@@ -145,9 +148,7 @@ def edit_budget_item(item_id, budget_id, attributes_to_edit):
                 raise ValueError("New name must not be empty.")
 
         if attribute == "category":
-            if (
-                new_value not in VALID_BUDGET_ITEM_CATEGORY
-            ):  # TODO is this ok here or should be in budget.py?
+            if new_value not in VALID_BUDGET_ITEM_CATEGORY:
                 raise ValueError(f"Category: '{new_value}' is not valid")
 
         if attribute == "total":
@@ -179,10 +180,11 @@ def delete_budget(budget_id, user_id):
     if not budget:
         print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
         raise ValueError("Invalid budget.")
+
     budget_name = budget.name
+
     # Delete the object
     db.session.delete(budget)
-
     db.session.commit()
     return budget_name
 
