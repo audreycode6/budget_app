@@ -10,10 +10,10 @@
 
 # BUDGET
 - /api/budget/create | create new budget
-- /api/budget/item/create | create budget items for existing budget # TODO
+- /api/budget/item/create | create budget items for existing budget
 - /api/budget/edit | edit budget properties
 - /api/budget/item/edit | edit budget item properties
-- /api/budget/delete | delete budget
+- /api/budget/delete | delete budget # TODO
 - /api/budget/item/delete | delete budget item properties
 - GET /api/budgets | get all budgets
 - POST /api/budget | get one budget
@@ -81,3 +81,24 @@ def budgets():
 def budget_create():
     body = request.get_json()
     return budget_handler.create_budget(body)
+
+
+@api_blueprint.route("/api/budget/item/create", methods=["POST"])
+@auth_handler.login_required
+def budget_item_create():
+    body = request.get_json()
+    return budget_handler.create_budget_item(body)
+
+
+@api_blueprint.route("/api/budget/edit", methods=["POST"])
+@auth_handler.login_required
+def budget_edit():
+    body = request.get_json()
+    return budget_handler.edit_budget(body)
+
+
+@api_blueprint.route("/api/budget/item/edit", methods=["POST"])
+@auth_handler.login_required
+def budget_item_edit():
+    body = request.get_json()
+    return budget_handler.edit_budget_item(body)
