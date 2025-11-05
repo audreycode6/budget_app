@@ -2,6 +2,11 @@ from budget_app.utils import format_float_to_usd
 
 
 def raw_budget_to_budget(raw_budget):
+    """
+    Transform a Budget SQLAlchemy model instance into a serializable dict.
+
+    Arg: raw_budget (Budget): A valid Budget instance with related BudgetItems loaded.
+    """
     return {
         "id": raw_budget.id,
         "name": raw_budget.name,
@@ -12,7 +17,7 @@ def raw_budget_to_budget(raw_budget):
                 "id": item.id,
                 "name": item.name,
                 "category": item.category,
-                "total": item.total,
+                "total": format_float_to_usd(item.total),
             }
             for item in raw_budget.items
         ],

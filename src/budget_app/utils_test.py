@@ -34,6 +34,11 @@ class FormatFloatToUsd(unittest.TestCase):
         response = format_float_to_usd(123.451)
         self.assertEqual(response, "$123.45")
 
+    def test_4plus_digits(self):
+        # add commas for 4+ digits
+        response = format_float_to_usd(1234567)
+        self.assertEqual(response, "$1,234,567.00")
+
 
 class ValidateRequestBodyKeysExist(unittest.TestCase):
 

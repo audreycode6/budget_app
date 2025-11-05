@@ -30,7 +30,9 @@ def get_user_budgets(user_id):
 
 
 def create_new_budget(user_id, name, month_duration_raw, gross_income_raw):
-    """return budget_id if valid input OR raise exceptions"""
+    """
+    return budget_id if valid input OR raise exceptions
+    """
 
     # check name: not empty or unqiue to current user
     if not name:

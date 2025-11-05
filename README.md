@@ -55,9 +55,14 @@ Flask apps often use **init**.py to initialize the app and extensions. Proper st
 
 ## How to run tests
 
-- From project root run: `PYTHONPATH=./src poetry run python -m tests.test_app`
-- for utils.test.py : `PYTHONPATH=./src poetry run python -m budget_app.utils_test`
-  src/budget_app/utils.test.py
+From project root:
+`PYTHONPATH=./src poetry run python -m <path following src>`
+
+`<path following src>` examples:
+
+- for tests.test_app.py : ...`tests.test_app`
+- for utils.test.py : ...`budget_app.utils_test`
+- for budget_app.budget.validate_input_test.py : ...`budget_app.services.budget.validate_input_test`
 
 ## Configuration
 
