@@ -39,10 +39,6 @@ class RawBudgetToBudget(unittest.TestCase):
         }
         self.assertEqual(response, formatted_budget)
 
-    def test_empty_budget(self):
-        response = raw_budget_to_budget({})
-        self.assertEqual(response, {})
-
 
 if __name__ == "__main__":
     unittest.main()

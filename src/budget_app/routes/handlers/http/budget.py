@@ -7,7 +7,7 @@ from budget_app.services.budget.budget_service import (
     delete_budget_item,
     edit_budget,
     edit_budget_item,
-    get_formatted_budget,
+    get_budget,
     get_user_budgets,
 )
 from budget_app.utils import validate_request_body_keys_exist, stringify_attributes
@@ -25,7 +25,7 @@ class BudgetHandler:
         user_id = get_session()["id"]
 
         try:
-            budget = get_formatted_budget(budget_id, user_id)
+            budget = get_budget(budget_id, user_id)
             return {"budget": budget}, 200
         except Exception as e:
             print(e)
@@ -56,7 +56,7 @@ class BudgetHandler:
             budget_id = create_new_budget(
                 user_id, name, month_duration_raw, gross_income_raw
             )
-            budget = get_formatted_budget(budget_id, user_id)
+            budget = get_budget(budget_id, user_id)
             return {"budget": budget}, 200
         except ValueError as e:
             print(e)
@@ -82,7 +82,7 @@ class BudgetHandler:
             budget_item_id = create_new_budget_item(
                 name, category, total, budget_id, user_id
             )
-            budget = get_formatted_budget(budget_id, user_id)
+            budget = get_budget(budget_id, user_id)
             return {"budget": budget, "budget_item_id": budget_item_id}, 200
 
         except ValueError as e:
@@ -110,7 +110,7 @@ class BudgetHandler:
         budget_id = body.get("budget_id")
         try:
             budget_id = edit_budget(budget_id, user_id, attributes_to_update)
-            updated_budget = get_formatted_budget(budget_id, user_id)
+            updated_budget = get_budget(budget_id, user_id)
             # TODO figure out what should be returned
             return {"budget_id": budget_id, "budget": updated_budget}, 200
         except ValueError as e:
@@ -138,7 +138,7 @@ class BudgetHandler:
 
         try:
             budget_item_id = edit_budget_item(item_id, budget_id, attributes_to_update)
-            updated_budget = get_formatted_budget(budget_id, user_id)
+            updated_budget = get_budget(budget_id, user_id)
             return {"budget_item_id": budget_item_id, "budget": updated_budget}, 200
         except ValueError as e:
             print(e)

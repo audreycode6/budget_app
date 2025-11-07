@@ -9,7 +9,7 @@ from ...extensions import db
 VALID_BUDGET_ITEM_CATEGORY = ["deductions", "bills", "savings"]
 
 
-def get_formatted_budget(budget_id, user_id):
+def get_budget(budget_id, user_id):
     raw_budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
 
     if raw_budget is None:
@@ -37,6 +37,7 @@ def create_new_budget(user_id, name, month_duration_raw, gross_income_raw):
     # check name: not empty or unqiue to current user
     if not name:
         raise ValueError("Budget name must not be empty.")
+
     if Budget.query.filter_by(user_id=user_id, name=name).first():
         raise ValueError("You already have a budget with that name.")
 
@@ -96,13 +97,25 @@ def create_new_budget_item(name, category, total, budget_id, user_id):
     return new_budget_item.id
 
 
+def attributes_to_update_dict(
+    body, list_of_attributes
+):  # TODO is this place for this func?
+    attributes_to_update = {}
+    for attribute in list_of_attributes:
+        new_value = body.get(attribute)
+        if new_value is not None:
+            attributes_to_update[attribute] = new_value
+
+    return attributes_to_update
+
+
 def edit_budget(budget_id, user_id, attributes_to_edit):
     budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
     if not budget:
         print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
         raise ValueError(
             "Invalid budget."
-        )  # TODO thoughts on this error message (?) MAKE a custom exception class
+        )  # TODO mayve MAKE a custom exception class instead of using valueerror
 
     for attribute, new_value in attributes_to_edit.items():
         # Validate new_value
@@ -164,16 +177,6 @@ def edit_budget_item(item_id, budget_id, attributes_to_edit):
     db.session.commit()
 
     return item_id  # TODO what should be returned
-
-
-def attributes_to_update_dict(body, list_of_attributes):
-    attributes_to_update = {}
-    for attribute in list_of_attributes:
-        new_value = body.get(attribute)
-        if new_value is not None:
-            attributes_to_update[attribute] = new_value
-
-    return attributes_to_update
 
 
 def delete_budget(budget_id, user_id):
