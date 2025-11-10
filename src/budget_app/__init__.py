@@ -8,7 +8,7 @@ from .extensions import db, migrate
 load_dotenv()
 
 
-def create_app(test_config=None):
+def create_app(test_config=None, verboseLogs=False):
     app = Flask(__name__)
 
     # Default config (production/dev)
@@ -22,11 +22,14 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
 
-    print("Initializing DB...")
     # Initialize extensions
+    if verboseLogs:
+        print("Initializing DB...")
+
     db.init_app(app)
     migrate.init_app(app, db)
-    print("DB successfully initialized!")
+    if verboseLogs:
+        print("DB successfully initialized!")
 
     # Import models so SQLAlchemy knows about them
     from budget_app import models
@@ -40,8 +43,10 @@ def create_app(test_config=None):
     from .routes.web import web_blueprint
 
     app.register_blueprint(api_blueprint)
-    print("Successfully registered api routes...")
+    if verboseLogs:
+        print("Successfully registered api routes...")
     app.register_blueprint(web_blueprint)
-    print("Successfully registered web routes...")
+    if verboseLogs:
+        print("Successfully registered web routes...")
 
     return app

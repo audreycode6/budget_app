@@ -22,6 +22,9 @@ class BaseTestCase(unittest.TestCase):
     Creates an application context object,
     activates that context, telling Flask “everything that runs now belongs to this app.”
     Creates all database tables inside that context.
+    Without an application context object, Flask wouldn’t
+    know which app you’re referring to when you interact
+    with things like the database or configuration
     """
 
     def setUp(self):
@@ -34,7 +37,7 @@ class BaseTestCase(unittest.TestCase):
         )
         self.client = self.app.test_client()
 
-        self.context = self.app.app_context()  # creates an application context object
+        self.context = self.app.app_context()
         self.context.push()  # activates that context
         db.create_all()
 
@@ -49,9 +52,7 @@ class BaseTestCase(unittest.TestCase):
         db.drop_all()  # drops all tables
         self.context.pop()  # deactivates the app context
 
-    def create_budget(
-        self, user_id=10, name="default", month_duration="1", gross_income="3500"
-    ):
+    def create_budget(self, user_id, name, month_duration, gross_income):
         budget = Budget(
             user_id=user_id,
             name=name,
@@ -62,7 +63,7 @@ class BaseTestCase(unittest.TestCase):
         db.session.flush()
         return budget
 
-    def create_item(self, budget, name, category, total="1000"):
+    def create_item(self, budget, name, category, total):
         item = BudgetItem(
             budget_id=budget.id,
             name=name,
@@ -75,10 +76,15 @@ class BaseTestCase(unittest.TestCase):
 
 
 class BudgetDataFixture(BaseTestCase):
+    """Budget Fixture for asssertions on Budget/BudgetItem data:
+    1 budget with 2 budgetitems"""
+
     def setUp(self):
         super().setUp()
 
-        self.raw_budget = self.create_budget(name="mock_name")
+        self.raw_budget = self.create_budget(
+            user_id=10, name="mock_name", month_duration="1", gross_income="3500"
+        )
         self.item1 = self.create_item(
             self.raw_budget, name="Rent", category="bills", total="1200"
         )
@@ -89,7 +95,12 @@ class BudgetDataFixture(BaseTestCase):
 
 
 # @unittest.skip
-class GetBudget(BudgetDataFixture):  # TODO fix name
+class GetBudget(BudgetDataFixture):
+    """
+    get_budget takes in a budget_id and user_id and
+    returns a dictionary of the formatted budget, OR empty dict if not a valid budget
+    """
+
     def setUp(self):
         super().setUp()
 
@@ -132,13 +143,18 @@ class GetBudget(BudgetDataFixture):  # TODO fix name
 
 # @unittest.skip
 class GetUserBudgets(BudgetDataFixture):
+    """
+    get_user_budgets takes in a user_id and
+    returns a list of budget dictionarys for each budget the user has created
+    OR an empty list if budgets for the user_id cannot be found
+    """
 
     def setUp(self):
         super().setUp()
 
         # Create sample data
         self.raw_budget2 = self.create_budget(
-            name="mock_name2", month_duration="12", gross_income="123456"
+            user_id=10, name="mock_name2", month_duration="12", gross_income="123456"
         )
         self.budget2_item1 = self.create_item(
             budget=self.raw_budget2,
@@ -220,6 +236,15 @@ class GetUserBudgets(BudgetDataFixture):
 
 # @unittest.skip
 class CreateNewBudget(BudgetDataFixture):
+    """
+    create_new_budget takes in: user_id, name, month_duration, gross_income
+    (all string types except user_id)
+    and creates a new budget with the arg values and returns the
+    budget_id for the newly created budget
+    OR if invalid budget attributes are passed in it will raise a
+    ValueError with an applicapable error message
+    """
+
     def setUp(self):
         super().setUp()
 
@@ -297,6 +322,14 @@ class CreateNewBudget(BudgetDataFixture):
 
 # @unittest.skip
 class CreateNewBudgetItem(BudgetDataFixture):
+    """
+    create_new_budget_item takes in: name, category, total, budget_id, and user_id
+    (all string types except ids)
+    and creates a new budget_item for the budget if valid arg values and returns
+    the new budget_item id
+    OR if invalid arg values it raises ValueError with applicapable error message
+    """
+
     def setUp(self):
         super().setUp()
 
@@ -359,6 +392,13 @@ class CreateNewBudgetItem(BudgetDataFixture):
 
 # @unittest.skip
 class AttributesToUpdateDict(unittest.TestCase):
+    """
+    attributes_to_update_dict takes in: body (dict/json) with KVP of
+    request body and a list of attributes
+    returns dictionary with attribute_name: attribute_value for all valid KVP
+    OR empty dict if invalid attributes or KVP's
+    """
+
     def setUp(self):
         self.attributes = ["name", "total", "category"]
 
@@ -380,6 +420,12 @@ class AttributesToUpdateDict(unittest.TestCase):
 
 # @unittest.skip
 class EditBudget(BudgetDataFixture):
+    """
+    edit_budget takes in: budget_id, user_id, attributes_edit (json request body/ i.e. dict)
+    updates existing budget based on attributes to edit and returns the budget.id
+    OR if invalid args it raises a ValueError with an applicable error message
+    """
+
     def setUp(self):
         super().setUp()
 
@@ -395,7 +441,9 @@ class EditBudget(BudgetDataFixture):
             edit_budget(1, 10, {"name": ""})
 
     def test_name_value_already_exists(self):
-        self.create_budget(name="test_dont_dupe")
+        self.create_budget(
+            user_id=10, name="test_dont_dupe", month_duration="1", gross_income="3500"
+        )
         with self.assertRaisesRegex(
             ValueError, "You already have a budget with that name."
         ):
@@ -455,6 +503,11 @@ class EditBudget(BudgetDataFixture):
 
 # @unittest.skip
 class EditBudgetItem(BudgetDataFixture):
+    """
+    edit_budget_item takes in: item_id, budget_id, attributes_edit (json request body/ i.e. dict)
+    updates existing budget_item based on attributes to edit and returns the budget_item.id
+    OR if invalid args it raises a ValueError with an applicable error message"""
+
     def setUp(self):
         super().setUp()
 
@@ -534,6 +587,13 @@ class EditBudgetItem(BudgetDataFixture):
 
 # @unittest.skip
 class DeleteBudget(BudgetDataFixture):
+    """
+    delete_budget takes in: budget_id, user_id
+    and deletes the budget and all its items if valid args
+    and returns the budget's name
+    OR raises ValueError with message of invalid budget
+    """
+
     def setUp(self):
         super().setUp()
 
@@ -553,6 +613,13 @@ class DeleteBudget(BudgetDataFixture):
 
 
 class DeleteBudgetItem(BudgetDataFixture):
+    """
+    delete_budget_item takes in: item_id, budget_id
+    and deletes the budget_item from the budget if valid args
+    and returns a description of the item deleted
+    OR raises ValueError with message of invalid budget item
+    """
+
     def setUp(self):
         super().setUp()
 
@@ -578,4 +645,4 @@ class DeleteBudgetItem(BudgetDataFixture):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=2)
