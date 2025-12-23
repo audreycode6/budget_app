@@ -13,6 +13,7 @@ from budget_app.services.budget.budget_service import (
 from budget_app.utils import validate_request_body_keys_exist, stringify_attributes
 
 
+# TODO when testing test_budget.py need to do function mocking for the funcs already tested (get_session, etc...)
 class BudgetHandler:
     BUDGET_ATTRIBUTES = ["name", "gross_income", "month_duration"]
     BUDGET_ITEM_ATTRIBUTES = ["name", "category", "total"]
@@ -111,7 +112,6 @@ class BudgetHandler:
         try:
             budget_id = edit_budget(budget_id, user_id, attributes_to_update)
             updated_budget = get_budget(budget_id, user_id)
-            # TODO figure out what should be returned
             return {"budget_id": budget_id, "budget": updated_budget}, 200
         except ValueError as e:
             print(e)

@@ -19,17 +19,20 @@ def create_user(username, password):
 def authenticate_user(username, password):
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
-        session["user_id"] = {
+        return {
             "id": user.id,
             "username": user.username,
-        }  # store user_id in session to access session info
-        return True
-    else:
-        return False
+        }
+
+    return None
 
 
 def get_session():
-    return session.get("user_id", None)
+    user = session.get("user_id", None)
+    if not user:
+        raise PermissionError("User not authenticated.")
+
+    return user
 
 
 def remove_user_from_session():

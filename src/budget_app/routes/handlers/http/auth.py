@@ -32,13 +32,14 @@ class AuthHandler:
             return {"message": "Username and/or password must be provided."}, 422
 
         try:
-            username = body["username"]
-            password = body["password"]
+            user_data = authenticate_user(body["username"], body["password"])
 
-            if authenticate_user(username, password):
+            if user_data:
+                session["user_id"] = user_data
                 return {"message": "Successfully authenticated."}, 200
             else:
                 return {"message": "Invalid username or password."}, 401
+
         except Exception as e:
             print(e)
             return {"message": "Failed to authenticate user."}, 503
