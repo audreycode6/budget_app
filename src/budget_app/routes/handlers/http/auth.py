@@ -53,7 +53,7 @@ class AuthHandler:
             password = body["password"]
 
             if create_user(username, password):
-                return {"message": "User successfully registed."}, 200
+                return {"message": "User successfully registered."}, 200
             else:
                 return {"message": "Username already exists."}, 422
 

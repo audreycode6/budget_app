@@ -63,6 +63,7 @@ From project root:
 - for tests.test_app.py : ...`tests.test_app`
 - for utils.test.py : ...`budget_app.utils_test`
 - for budget_app.budget.validate_input_test.py : ...`budget_app.services.budget.validate_input_test`
+- for handlers.http.auth.py : ... `budget_app.routes.handlers.http.auth_test`
 
 ## Configuration
 
