@@ -8,10 +8,10 @@ from budget_app.services.budget.budget_service import (
     create_new_budget_item,
     delete_budget,
     delete_budget_item,
-    edit_budget,
+    edit_budget_attributes,
     edit_budget_item,
-    get_budget,
-    get_user_budgets,
+    get_budget_by_budget_and_user_id,
+    get_budgets_by_user_id,
 )
 from ...extensions import db
 import re
@@ -95,7 +95,7 @@ class BudgetDataFixture(BaseTestCase):
 
 
 # @unittest.skip
-class GetBudget(BudgetDataFixture):
+class GetBudgetByBudgetAndUserId(BudgetDataFixture):
     """
     get_budget takes in a budget_id and user_id and
     returns a dictionary of the formatted budget, OR empty dict if not a valid budget
@@ -105,7 +105,9 @@ class GetBudget(BudgetDataFixture):
         super().setUp()
 
     def test_success(self):
-        response = get_budget(budget_id=self.raw_budget.id, user_id=10)
+        response = get_budget_by_budget_and_user_id(
+            budget_id=self.raw_budget.id, user_id=10
+        )
         budget = {
             "id": self.raw_budget.id,
             "name": "mock_name",
@@ -129,20 +131,20 @@ class GetBudget(BudgetDataFixture):
         self.assertEqual(response, budget)
 
     def test_invalid_args(self):
-        response = get_budget(2, 2)
+        response = get_budget_by_budget_and_user_id(2, 2)
         self.assertEqual(response, {})
 
     def test_invalid_budget_id(self):
-        response = get_budget(2, 10)
+        response = get_budget_by_budget_and_user_id(2, 10)
         self.assertEqual(response, {})
 
     def test_invalid_user_id(self):
-        response = get_budget(self.raw_budget.id, 2)
+        response = get_budget_by_budget_and_user_id(self.raw_budget.id, 2)
         self.assertEqual(response, {})
 
 
 # @unittest.skip
-class GetUserBudgets(BudgetDataFixture):
+class GetBudgetsByUserId(BudgetDataFixture):
     """
     get_user_budgets takes in a user_id and
     returns a list of budget dictionarys for each budget the user has created
@@ -174,7 +176,7 @@ class GetUserBudgets(BudgetDataFixture):
 
     def test_many_budgets_success(self):
         # user with id 10 has many budgets
-        response = get_user_budgets(10)
+        response = get_budgets_by_user_id(10)
         formatted_budgets = [
             {
                 "id": self.raw_budget.id,
@@ -216,7 +218,7 @@ class GetUserBudgets(BudgetDataFixture):
 
     def test_single_budget_success(self):
         # user has a single budget
-        response = get_user_budgets(self.raw_budget3.id)
+        response = get_budgets_by_user_id(self.raw_budget3.id)
         formatted_budget = [
             {
                 "id": self.raw_budget3.id,
@@ -230,7 +232,7 @@ class GetUserBudgets(BudgetDataFixture):
 
     def test_invalid_budget_id(self):
         # user with id 1 doesnt exist
-        response = get_user_budgets(1)
+        response = get_budgets_by_user_id(1)
         self.assertEqual(response, [])
 
 
@@ -316,7 +318,7 @@ class CreateNewBudget(BudgetDataFixture):
             gross_income_raw="1234",
         )
         self.assertIsInstance(response, int)
-        formatted_budget = get_budget(response, 10)
+        formatted_budget = get_budget_by_budget_and_user_id(response, 10)
         self.assertEqual("test_success", formatted_budget.get("name"))
 
 
@@ -380,7 +382,7 @@ class CreateNewBudgetItem(BudgetDataFixture):
             user_id=10,
         )
         self.assertEqual(response, 3)  # 3rd item added to budget:1, for user:10
-        budget_items = get_budget(1, 10).get("items")
+        budget_items = get_budget_by_budget_and_user_id(1, 10).get("items")
         expected_item = {
             "id": 3,
             "name": "test_success",
@@ -431,14 +433,14 @@ class EditBudget(BudgetDataFixture):
 
     def test_invalid_budget(self):
         with self.assertRaisesRegex(ValueError, "Invalid budget."):  # invalid budget_id
-            edit_budget(2, 10, {"name": "test_invalid_budget"})
+            edit_budget_attributes(2, 10, {"name": "test_invalid_budget"})
 
         with self.assertRaisesRegex(ValueError, "Invalid budget."):  # invalid_user
-            edit_budget(1, 1, {"name": "test_invalid_budget"})
+            edit_budget_attributes(1, 1, {"name": "test_invalid_budget"})
 
     def test_missing_name_value(self):
         with self.assertRaisesRegex(ValueError, "New name must not be empty."):
-            edit_budget(1, 10, {"name": ""})
+            edit_budget_attributes(1, 10, {"name": ""})
 
     def test_name_value_already_exists(self):
         self.create_budget(
@@ -447,21 +449,21 @@ class EditBudget(BudgetDataFixture):
         with self.assertRaisesRegex(
             ValueError, "You already have a budget with that name."
         ):
-            edit_budget(1, 10, {"name": "test_dont_dupe"})
+            edit_budget_attributes(1, 10, {"name": "test_dont_dupe"})
 
     def test_invalid_gross_income_value(self):
         error_message_negative_num = "gross_income must be a non negative number."
         with self.assertRaisesRegex(ValueError, error_message_negative_num):
-            edit_budget(1, 10, {"gross_income": "-123"})
+            edit_budget_attributes(1, 10, {"gross_income": "-123"})
 
         expected_error_not_num = "gross_income must be a valid number."
         with self.assertRaisesRegex(ValueError, expected_error_not_num):
-            edit_budget(1, 10, {"gross_income": ""})
+            edit_budget_attributes(1, 10, {"gross_income": ""})
 
     def test_invalid_month_duration_value(self):
         expected_error_invalid_int = "Month duration must be 1 (month) or 12 (year)."
         with self.assertRaisesRegex(ValueError, re.escape(expected_error_invalid_int)):
-            edit_budget(1, 10, {"month_duration": "2"})
+            edit_budget_attributes(1, 10, {"month_duration": "2"})
 
         expected_error_invalid_value = (
             "Month duration must be a whole number (1 or 12)."
@@ -469,31 +471,31 @@ class EditBudget(BudgetDataFixture):
         with self.assertRaisesRegex(
             ValueError, re.escape(expected_error_invalid_value)
         ):
-            edit_budget(1, 10, {"month_duration": ""})
+            edit_budget_attributes(1, 10, {"month_duration": ""})
 
     def test_success_all_attributes(self):
-        response = edit_budget(
+        response = edit_budget_attributes(
             1,
             10,
             {"name": "test_success", "month_duration": "12", "gross_income": "22222"},
         )
         self.assertEqual(response, 1)
 
-        budget = get_budget(1, 10)
+        budget = get_budget_by_budget_and_user_id(1, 10)
 
         self.assertEqual(budget.get("name"), "test_success")
         self.assertEqual(budget.get("month_duration"), 12)
         self.assertEqual(budget.get("gross_income"), "$22,222.00")
 
     def test_success_one_attribute(self):
-        response = edit_budget(
+        response = edit_budget_attributes(
             1,
             10,
             {"name": "test_success"},
         )
         self.assertEqual(response, 1)
 
-        budget = get_budget(1, 10)
+        budget = get_budget_by_budget_and_user_id(1, 10)
 
         self.assertEqual(budget.get("name"), "test_success")  # changed
         # attributes stayed the same
@@ -539,7 +541,7 @@ class EditBudgetItem(BudgetDataFixture):
 
     def test_success_all_attributes(self):
         # original budget_item
-        budget_items = get_budget(1, 10).get("items")
+        budget_items = get_budget_by_budget_and_user_id(1, 10).get("items")
         original_item = {
             "id": 1,
             "name": "Rent",
@@ -552,7 +554,7 @@ class EditBudgetItem(BudgetDataFixture):
         edit_budget_item(
             1, 1, {"name": "test_success", "category": "savings", "total": "123"}
         )
-        budget_items = get_budget(1, 10).get("items")
+        budget_items = get_budget_by_budget_and_user_id(1, 10).get("items")
         expected_item = {
             "id": 1,
             "name": "test_success",
@@ -563,7 +565,7 @@ class EditBudgetItem(BudgetDataFixture):
 
     def test_success_one_attribute(self):
         # original budget_item
-        budget_items = get_budget(1, 10).get("items")
+        budget_items = get_budget_by_budget_and_user_id(1, 10).get("items")
         original_item = {
             "id": 1,
             "name": "Rent",
@@ -575,7 +577,7 @@ class EditBudgetItem(BudgetDataFixture):
 
         # edit budget_item
         edit_budget_item(1, 1, {"name": "test_success"})
-        budget_items = get_budget(1, 10).get("items")
+        budget_items = get_budget_by_budget_and_user_id(1, 10).get("items")
         expected_item = {
             "id": 1,
             "name": "test_success",  # changed attribute

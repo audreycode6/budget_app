@@ -5,10 +5,10 @@ from budget_app.services.budget.budget_service import (
     create_new_budget_item,
     delete_budget,
     delete_budget_item,
-    edit_budget,
+    edit_budget_attributes,
     edit_budget_item,
-    get_budget,
-    get_user_budgets,
+    get_budget_by_budget_and_user_id,
+    get_budgets_by_user_id,
 )
 from budget_app.utils import validate_request_body_keys_exist, stringify_attributes
 
@@ -25,21 +25,21 @@ class BudgetHandler:
         user_id = get_session()["id"]
 
         try:
-            budget = get_budget(budget_id, user_id)
+            budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget": budget}, 200
         except Exception as e:
             print(e)
-            return {"message": "Failed to retreive budget."}, 503
+            return {"message": "Unable to retreive budget."}, 503
 
     def get_budgets(self):
         user_id = get_session()["id"]
 
         try:
-            budgets = get_user_budgets(user_id)
+            budgets = get_budgets_by_user_id(user_id)
             return {"budgets": budgets}, 200
         except Exception as e:
             print(e)
-            return {"message": "Failed to retreive budget."}, 503
+            return {"message": "Unable to retreive budget(s)."}, 503
 
     def create_budget(self, body):
         if not validate_request_body_keys_exist(BudgetHandler.BUDGET_ATTRIBUTES, body):
@@ -56,14 +56,14 @@ class BudgetHandler:
             budget_id = create_new_budget(
                 user_id, name, month_duration_raw, gross_income_raw
             )
-            budget = get_budget(budget_id, user_id)
+            budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget": budget}, 200
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
         except Exception as e:
             print(e)
-            return {"message": "Failed to create budget."}, 503
+            return {"message": "Unable to fetch budget."}, 503
 
     def create_budget_item(self, body):
         required_attributes = BudgetHandler.BUDGET_ITEM_ATTRIBUTES + ["budget_id"]
@@ -82,7 +82,7 @@ class BudgetHandler:
             budget_item_id = create_new_budget_item(
                 name, category, total, budget_id, user_id
             )
-            budget = get_budget(budget_id, user_id)
+            budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget": budget, "budget_item_id": budget_item_id}, 200
 
         except ValueError as e:
@@ -90,7 +90,7 @@ class BudgetHandler:
             return {"message": str(e)}, 422
         except Exception as e:
             print(e)
-            return {"message": "Failed to create budget item."}
+            return {"message": "Unable to fetch budget item."}, 503
 
     def edit_budget(self, body):
         if not validate_request_body_keys_exist(["budget_id"], body):
@@ -109,15 +109,15 @@ class BudgetHandler:
         user_id = get_session()["id"]
         budget_id = body.get("budget_id")
         try:
-            budget_id = edit_budget(budget_id, user_id, attributes_to_update)
-            updated_budget = get_budget(budget_id, user_id)
+            budget_id = edit_budget_attributes(budget_id, user_id, attributes_to_update)
+            updated_budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget_id": budget_id, "budget": updated_budget}, 200
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
         except Exception as e:
             print(e)
-            return {"message": "Failed to update budget."}, 503
+            return {"message": "Unable to update budget."}, 503
 
     def edit_budget_item(self, body):
         if not validate_request_body_keys_exist(["budget_id", "item_id"], body):
@@ -137,14 +137,14 @@ class BudgetHandler:
 
         try:
             budget_item_id = edit_budget_item(item_id, budget_id, attributes_to_update)
-            updated_budget = get_budget(budget_id, user_id)
+            updated_budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget_item_id": budget_item_id, "budget": updated_budget}, 200
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
         except Exception as e:
             print(e)
-            return {"message": "Failed to update budget item."}, 503
+            return {"message": "Unable to update budget item."}, 503
 
     def delete_budget(self, body):
         if not validate_request_body_keys_exist(["budget_id"], body):
@@ -165,7 +165,7 @@ class BudgetHandler:
 
         except Exception as e:
             print(e)
-            return {"message": "Failed to delete budget."}, 503
+            return {"message": "Unable to delete budget."}, 503
 
     def delete_budget_item(self, body):
         if not validate_request_body_keys_exist(["item_id", "budget_id"], body):
@@ -186,4 +186,4 @@ class BudgetHandler:
 
         except Exception as e:
             print(e)
-            return {"message": "Failed to delete budget."}, 503
+            return {"message": "Unable to delete budget."}, 503

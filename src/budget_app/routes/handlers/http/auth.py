@@ -10,6 +10,10 @@ from budget_app.utils import validate_request_body_keys_exist
 
 
 class AuthHandler:
+
+    AUTHENTICATE_KEYS = ["username", "password"]
+    REGISTER_KEYS = ["username", "password"]
+
     """
     Auth handler middleware
     """
@@ -28,7 +32,7 @@ class AuthHandler:
     """
 
     def authenticate(self, body):
-        if not validate_request_body_keys_exist(["username", "password"], body):
+        if not validate_request_body_keys_exist(AuthHandler.AUTHENTICATE_KEYS, body):
             return {"message": "Username and/or password must be provided."}, 422
 
         try:
@@ -45,7 +49,7 @@ class AuthHandler:
             return {"message": "Failed to authenticate user."}, 503
 
     def register(self, body):
-        if not validate_request_body_keys_exist(["username", "password"], body):
+        if not validate_request_body_keys_exist(AuthHandler.REGISTER_KEYS, body):
             return {"message": "Username and/or password must be provided."}, 422
 
         try:

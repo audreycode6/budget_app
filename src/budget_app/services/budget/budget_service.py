@@ -9,7 +9,7 @@ from ...extensions import db
 VALID_BUDGET_ITEM_CATEGORY = ["deductions", "bills", "savings"]
 
 
-def get_budget(budget_id, user_id):
+def get_budget_by_budget_and_user_id(budget_id, user_id):
     raw_budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
 
     if raw_budget is None:
@@ -19,7 +19,7 @@ def get_budget(budget_id, user_id):
     return raw_budget_to_budget(raw_budget)
 
 
-def get_user_budgets(user_id):
+def get_budgets_by_user_id(user_id):
     raw_budgets = Budget.query.filter_by(user_id=user_id).all()
 
     if not raw_budgets:
@@ -97,9 +97,7 @@ def create_new_budget_item(name, category, total, budget_id, user_id):
     return new_budget_item.id
 
 
-def attributes_to_update_dict(
-    body, list_of_attributes
-):  # TODO is this place for this func?
+def attributes_to_update_dict(body, list_of_attributes):
     attributes_to_update = {}
     for attribute in list_of_attributes:
         new_value = body.get(attribute)
@@ -109,7 +107,7 @@ def attributes_to_update_dict(
     return attributes_to_update
 
 
-def edit_budget(budget_id, user_id, attributes_to_edit):
+def edit_budget_attributes(budget_id, user_id, attributes_to_edit):
     budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
     if not budget:
         print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
@@ -176,7 +174,7 @@ def edit_budget_item(item_id, budget_id, attributes_to_edit):
 
     db.session.commit()
 
-    return item_id  # TODO what should be returned
+    return item_id
 
 
 def delete_budget(budget_id, user_id):

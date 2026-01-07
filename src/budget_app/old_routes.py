@@ -9,7 +9,7 @@ from .services.auth.auth_service import (
 from .services.budget.budget_service import (
     create_new_budget,
     create_new_budget_item,
-    get_budget,
+    get_budget_by_budget_and_user_id,
 )
 
 bp = Blueprint("main", __name__)
@@ -108,7 +108,9 @@ def create_budget_items(budget_id):
             "budget_items.html",
             user=get_session(),
             budget_id=budget_id,
-            budget_info=get_budget(get_session()["id"], budget_id),
+            budget_info=get_budget_by_budget_and_user_id(
+                get_session()["id"], budget_id
+            ),
         )
     if request.method == "POST":
         id = request.form["id"]
@@ -126,7 +128,9 @@ def create_budget_items(budget_id):
                     "budget_items.html",
                     user=get_session(),
                     budget_id=budget_id,
-                    budget_info=get_budget(get_session()["id"], budget_id),
+                    budget_info=get_budget_by_budget_and_user_id(
+                        get_session()["id"], budget_id
+                    ),
                     name=name,
                     total=total,
                 )  # TODO will i know where name and total goes since 3 forms of this ...?
@@ -138,7 +142,9 @@ def create_budget_items(budget_id):
             "view_budget.html",
             user=get_session(),
             budget_id=budget_id,
-            budget_info=get_budget(get_session()["id"], budget_id),
+            budget_info=get_budget_by_budget_and_user_id(
+                get_session()["id"], budget_id
+            ),
         )
 
 
@@ -149,7 +155,9 @@ def view_budget(budget_id):
         return render_template(
             "view_budget.html",
             budget_id=budget_id,
-            budget_info=get_budget(get_session()["id"], budget_id),
+            budget_info=get_budget_by_budget_and_user_id(
+                get_session()["id"], budget_id
+            ),
         )
     # TODO get budget data
     if request.method == "POST":
