@@ -94,7 +94,6 @@ class BudgetDataFixture(BaseTestCase):
         db.session.commit()
 
 
-# @unittest.skip
 class GetBudgetByBudgetAndUserId(BudgetDataFixture):
     """
     get_budget takes in a budget_id and user_id and
@@ -143,7 +142,6 @@ class GetBudgetByBudgetAndUserId(BudgetDataFixture):
         self.assertEqual(response, {})
 
 
-# @unittest.skip
 class GetBudgetsByUserId(BudgetDataFixture):
     """
     get_user_budgets takes in a user_id and
@@ -236,7 +234,6 @@ class GetBudgetsByUserId(BudgetDataFixture):
         self.assertEqual(response, [])
 
 
-# @unittest.skip
 class CreateNewBudget(BudgetDataFixture):
     """
     create_new_budget takes in: user_id, name, month_duration, gross_income
@@ -322,7 +319,6 @@ class CreateNewBudget(BudgetDataFixture):
         self.assertEqual("test_success", formatted_budget.get("name"))
 
 
-# @unittest.skip
 class CreateNewBudgetItem(BudgetDataFixture):
     """
     create_new_budget_item takes in: name, category, total, budget_id, and user_id
@@ -392,7 +388,6 @@ class CreateNewBudgetItem(BudgetDataFixture):
         self.assertIn(expected_item, budget_items)
 
 
-# @unittest.skip
 class AttributesToUpdateDict(unittest.TestCase):
     """
     attributes_to_update_dict takes in: body (dict/json) with KVP of
@@ -420,7 +415,6 @@ class AttributesToUpdateDict(unittest.TestCase):
         self.assertEqual(response, {})
 
 
-# @unittest.skip
 class EditBudget(BudgetDataFixture):
     """
     edit_budget takes in: budget_id, user_id, attributes_edit (json request body/ i.e. dict)
@@ -503,7 +497,6 @@ class EditBudget(BudgetDataFixture):
         self.assertEqual(budget.get("gross_income"), "$3,500.00")
 
 
-# @unittest.skip
 class EditBudgetItem(BudgetDataFixture):
     """
     edit_budget_item takes in: item_id, budget_id, attributes_edit (json request body/ i.e. dict)
@@ -587,7 +580,6 @@ class EditBudgetItem(BudgetDataFixture):
         self.assertIn(expected_item, budget_items)
 
 
-# @unittest.skip
 class DeleteBudget(BudgetDataFixture):
     """
     delete_budget takes in: budget_id, user_id
@@ -638,7 +630,7 @@ class DeleteBudgetItem(BudgetDataFixture):
         self.assertIsNotNone(budget_item)
 
         response = delete_budget_item_by_item_and_budget_ids(1, 1)
-        item_description = "Category: 'bills' and with Name:'Rent'"
+        item_description = "Category: 'bills' and with Name: 'Rent'"
         self.assertEqual(response, item_description)
 
         # check budget_item no longer exists

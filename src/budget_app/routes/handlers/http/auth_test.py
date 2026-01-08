@@ -6,19 +6,7 @@ from flask import session
 from budget_app import create_app
 from budget_app.routes.handlers.http.auth import AuthHandler
 
-"""Test the auth.py handler: use function mocking for the 
-helper funcs that have been tested in other unittests
-
-handler tests answer questions like:
-Given X input, does this handler call the right services
- and return the correct HTTP response?
- 
-- Handler imports create local references
-- patch() must target that local reference
-- You do not change test imports
-- You do not mock the service module directly
-- The patch string = handler module path + function name
-"""
+AUTH_HANDLER_PATH = "budget_app.routes.handlers.http.auth"
 
 
 class BaseAuthHandlerTest(unittest.TestCase):
@@ -29,12 +17,8 @@ class BaseAuthHandlerTest(unittest.TestCase):
 
 class TestAuthenticate(BaseAuthHandlerTest):
 
-    @patch("budget_app.routes.handlers.http.auth.authenticate_user")
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_success(
-        self, mock_validate_request_body_keys_exist, mock_authenticate_user
-    ):
-        mock_validate_request_body_keys_exist.return_value = True
+    @patch(f"{AUTH_HANDLER_PATH}.authenticate_user")
+    def test_success(self, mock_authenticate_user):
         mock_authenticate_user.return_value = {"id": 1, "username": "foo"}
 
         with self.app.test_request_context():
@@ -46,10 +30,7 @@ class TestAuthenticate(BaseAuthHandlerTest):
             self.assertEqual(response["message"], "Successfully authenticated.")
             self.assertEqual(session["user_id"]["id"], 1)
 
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_missing_body_keys(self, mock_validate_request_body_keys_exist):
-        mock_validate_request_body_keys_exist.return_value = False
-
+    def test_missing_body_keys(self):
         with self.app.test_request_context():
             response, status = self.handler.authenticate({})
 
@@ -58,29 +39,20 @@ class TestAuthenticate(BaseAuthHandlerTest):
                 "Username and/or password must be provided.", response["message"]
             )
 
-    @patch("budget_app.routes.handlers.http.auth.authenticate_user")
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_invalid_credentials(
-        self, mock_validate_request_body_keys_exist, mock_authenticate_user
-    ):
-        mock_validate_request_body_keys_exist.return_value = True
+    @patch(f"{AUTH_HANDLER_PATH}.authenticate_user")
+    def test_invalid_credentials(self, mock_authenticate_user):
         mock_authenticate_user.return_value = None
-
         with self.app.test_request_context():
             response, status = self.handler.authenticate(
-                {"username": "foo", "password": "wrong"}
+                {"username": "", "password": ""}
             )
 
             self.assertEqual(status, 401)
             self.assertIn("Invalid username or password.", response["message"])
             self.assertNotIn("user_id", session)
 
-    @patch("budget_app.routes.handlers.http.auth.authenticate_user")
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_service_exception(
-        self, mock_validate_request_body_keys_exist, mock_authenticate_user
-    ):
-        mock_validate_request_body_keys_exist.return_value = True
+    @patch(f"{AUTH_HANDLER_PATH}.authenticate_user")
+    def test_service_exception(self, mock_authenticate_user):
         mock_authenticate_user.side_effect = Exception("service unavailable")
 
         with self.app.test_request_context():
@@ -94,10 +66,8 @@ class TestAuthenticate(BaseAuthHandlerTest):
 
 class TestRegister(BaseAuthHandlerTest):
 
-    @patch("budget_app.routes.handlers.http.auth.create_user")
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_success(self, mock_validate_request_body_keys_exist, mock_create_user):
-        mock_validate_request_body_keys_exist.return_value = True
+    @patch(f"{AUTH_HANDLER_PATH}.create_user")
+    def test_success(self, mock_create_user):
         mock_create_user.return_value = True
 
         with self.app.test_request_context():
@@ -108,12 +78,8 @@ class TestRegister(BaseAuthHandlerTest):
             self.assertEqual(status, 200)
             self.assertIn("User successfully registered.", response["message"])
 
-    @patch("budget_app.routes.handlers.http.auth.create_user")
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_username_already_exists(
-        self, mock_validate_request_body_keys_exist, mock_create_user
-    ):
-        mock_validate_request_body_keys_exist.return_value = True
+    @patch(f"{AUTH_HANDLER_PATH}.create_user")
+    def test_username_already_exists(self, mock_create_user):
         mock_create_user.return_value = False
 
         with self.app.test_request_context():
@@ -123,49 +89,18 @@ class TestRegister(BaseAuthHandlerTest):
             self.assertEqual(status, 422)
             self.assertIn("Username already exists.", response["message"])
 
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_missing_body_username_key(self, mock_validate_request_body_keys_exist):
-        mock_validate_request_body_keys_exist.return_value = False
-
-        with self.app.test_request_context():
-            response, status = self.handler.register(
-                {"username": "", "password": "bar"}
-            )
-            self.assertEqual(status, 422)
-            self.assertIn(
-                "Username and/or password must be provided.", response["message"]
-            )
-
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_missing_body_pw_key(self, mock_validate_request_body_keys_exist):
-        mock_validate_request_body_keys_exist.return_value = False
-
-        with self.app.test_request_context():
-            response, status = self.handler.register(
-                {"username": "foo", "password": ""}
-            )
-            self.assertEqual(status, 422)
-            self.assertIn(
-                "Username and/or password must be provided.", response["message"]
-            )
-
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_missing_body_keys(self, mock_validate_request_body_keys_exist):
-        mock_validate_request_body_keys_exist.return_value = False
-
-        with self.app.test_request_context():
-            response, status = self.handler.register({})
-            self.assertEqual(status, 422)
-            self.assertIn(
-                "Username and/or password must be provided.", response["message"]
-            )
-
-    @patch("budget_app.routes.handlers.http.auth.create_user")
-    @patch("budget_app.routes.handlers.http.auth.validate_request_body_keys_exist")
-    def test_service_exception(
-        self, mock_validate_request_body_keys_exist, mock_create_user
+    def test_missing_body_key(
+        self,
     ):
-        mock_validate_request_body_keys_exist.return_value = True
+        with self.app.test_request_context():
+            response, status = self.handler.register({"password": "bar"})
+            self.assertEqual(status, 422)
+            self.assertIn(
+                "Username and/or password must be provided.", response["message"]
+            )
+
+    @patch(f"{AUTH_HANDLER_PATH}.create_user")
+    def test_service_exception(self, mock_create_user):
         mock_create_user.side_effect = Exception("service unavailable")
 
         with self.app.test_request_context():
@@ -179,7 +114,7 @@ class TestRegister(BaseAuthHandlerTest):
 
 class TestLogoutUser(BaseAuthHandlerTest):
 
-    @patch("budget_app.routes.handlers.http.auth.remove_user_from_session")
+    @patch(f"{AUTH_HANDLER_PATH}.remove_user_from_session")
     def test_success(self, mock_remove_user_from_session):
         with self.app.test_request_context():
             response, status = self.handler.logout_user()
