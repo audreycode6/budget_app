@@ -50,7 +50,7 @@ class BaseBudgetHandlerTest(unittest.TestCase):
         self.handler = BudgetHandler()
 
 
-@unittest.skip
+# @unittest.skip
 class TestGetBudget(BaseBudgetHandlerTest):
 
     @patch("budget_app.routes.handlers.http.budget.get_budget_by_budget_and_user_id")
@@ -109,7 +109,7 @@ class TestGetBudget(BaseBudgetHandlerTest):
             self.assertIn("No budget_id provided", response["message"])
 
 
-@unittest.skip
+# @unittest.skip
 class TestGetBudgets(BaseBudgetHandlerTest):
 
     @patch("budget_app.routes.handlers.http.budget.get_budgets_by_user_id")
@@ -139,7 +139,7 @@ class TestGetBudgets(BaseBudgetHandlerTest):
             self.assertIn("Unable to retreive budget(s).", response["message"])
 
 
-@unittest.skip
+# @unittest.skip
 class TestCreateBudget(BaseBudgetHandlerTest):
 
     @patch("budget_app.routes.handlers.http.budget.get_budget_by_budget_and_user_id")
@@ -226,7 +226,7 @@ class TestCreateBudget(BaseBudgetHandlerTest):
             self.assertIn("Unable to fetch budget.", response["message"])
 
 
-@unittest.skip
+# @unittest.skip
 class TestCreateBudgetItem(BaseBudgetHandlerTest):
     @patch("budget_app.routes.handlers.http.budget.get_budget_by_budget_and_user_id")
     @patch("budget_app.routes.handlers.http.budget.create_new_budget_item")
@@ -310,6 +310,7 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
             )
 
 
+# @unittest.skip
 class TestEditBudget(BaseBudgetHandlerTest):
     VALID_EDIT_BUDGET_BODY = {
         "budget_id": 1,
@@ -443,16 +444,303 @@ class TestEditBudget(BaseBudgetHandlerTest):
             self.assertIn("Unable to update budget", response["message"])
 
 
+# @unittest.skip
 class TestEditBudgetItem(BaseBudgetHandlerTest):
-    pass
+
+    ATTRIBUTES_TO_UPDATE_BODY = {"name": "new name", "category": "bills", "total": 1234}
+    EDITED_BUDGET_ITEM_OBJ = {
+        "id": 1,
+        "name": "my_budget",
+        "month_duration": 12,
+        "gross_income": 1000,
+        "items": [
+            {"id": 1, "name": "new name", "category": "bills", "total": "$1,234.00"}
+        ],
+    }
+    EDIT_BUDGET_ITEM_BODY = {
+        "item_id": 1,
+        "budget_id": 1,
+        "attributes": {"name": "new name", "category": "bills", "total": 1234},
+    }
+
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_missing_body_keys(self, mock_validate_request_body_keys_exist):
+        mock_validate_request_body_keys_exist.return_value = False
+
+        with self.app.test_request_context():
+            response, status = self.handler.edit_budget_item({})
+            self.assertEqual(422, status)
+            self.assertEqual("Missing budget_id and/or item_id", response["message"])
+
+    @patch("budget_app.routes.handlers.http.budget.attributes_to_update_dict")
+    def test_missing_attributes_to_update(self, mock_attributes_to_update_dict):
+        mock_attributes_to_update_dict.return_value = {}
+
+        with self.app.test_request_context():
+            response, status = self.handler.edit_budget_item(
+                {
+                    "item_id": 1,
+                    "budget_id": 1,
+                    "attributes": {},
+                }
+            )
+            self.assertEqual(422, status)
+            self.assertIn(
+                "Missing attribute(s) to update. Valid attributes are:",
+                response["message"],
+            )
+
+    @patch("budget_app.routes.handlers.http.budget.get_budget_by_budget_and_user_id")
+    @patch("budget_app.routes.handlers.http.budget.edit_budget_item_attributes")
+    @patch("budget_app.routes.handlers.http.budget.get_session")
+    @patch("budget_app.routes.handlers.http.budget.attributes_to_update_dict")
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_success(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_attributes_to_update_dict,
+        mock_get_session,
+        mock_edit_budget_item_attributes,
+        mock_get_budget_by_budget_and_user_id,
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_attributes_to_update_dict.return_value = (
+            TestEditBudgetItem.ATTRIBUTES_TO_UPDATE_BODY
+        )
+        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+        mock_edit_budget_item_attributes.return_value = 1  # item_id -> int shape
+        mock_get_budget_by_budget_and_user_id.return_value = (
+            TestEditBudgetItem.EDITED_BUDGET_ITEM_OBJ
+        )
+        with self.app.test_request_context():
+            response, status = self.handler.edit_budget_item(
+                TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY
+            )
+            self.assertEqual(200, status)
+            self.assertEqual(1, response["budget_item_id"])
+            self.assertEqual(
+                TestEditBudgetItem.EDITED_BUDGET_ITEM_OBJ, response["budget"]
+            )
+
+    @patch("budget_app.routes.handlers.http.budget.get_budget_by_budget_and_user_id")
+    @patch("budget_app.routes.handlers.http.budget.edit_budget_item_attributes")
+    @patch("budget_app.routes.handlers.http.budget.get_session")
+    @patch("budget_app.routes.handlers.http.budget.attributes_to_update_dict")
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_value_error_raised(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_attributes_to_update_dict,
+        mock_get_session,
+        mock_edit_budget_item_attributes,
+        mock_get_budget_by_budget_and_user_id,  # defensive, just to prevent accidental execution
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_attributes_to_update_dict.return_value = (
+            TestEditBudgetItem.ATTRIBUTES_TO_UPDATE_BODY
+        )
+        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+        mock_edit_budget_item_attributes.side_effect = ValueError("Bad request")
+
+        with self.app.test_request_context():
+            response, status = self.handler.edit_budget_item(
+                TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY
+            )
+            self.assertEqual(422, status)
+            self.assertEqual("Bad request", response["message"])
+
+    @patch("budget_app.routes.handlers.http.budget.get_budget_by_budget_and_user_id")
+    @patch("budget_app.routes.handlers.http.budget.edit_budget_item_attributes")
+    @patch("budget_app.routes.handlers.http.budget.get_session")
+    @patch("budget_app.routes.handlers.http.budget.attributes_to_update_dict")
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_exception_raised(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_attributes_to_update_dict,
+        mock_get_session,
+        mock_edit_budget_item_attributes,
+        mock_get_budget_by_budget_and_user_id,  # defensive
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_attributes_to_update_dict.return_value = (
+            TestEditBudgetItem.ATTRIBUTES_TO_UPDATE_BODY
+        )
+        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+        mock_edit_budget_item_attributes.side_effect = Exception("Service unavailable")
+
+        with self.app.test_request_context():
+            response, status = self.handler.edit_budget_item(
+                TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY
+            )
+            self.assertEqual(503, status)
+            self.assertIn("Unable to update budget item", response["message"])
 
 
+# @unittest.skip
 class TestDeleteBudget(BaseBudgetHandlerTest):
-    pass
+    # TODO do i patch to validate_request_body_keys... since it happens first in func ..
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_missing_request_body_keys(
+        self,
+        mock_validate_request_body_keys_exist,
+    ):
+        mock_validate_request_body_keys_exist.return_value = False
+
+        with self.app.test_request_context():
+            response, status = self.handler.delete_budget({})
+            self.assertEqual(422, status)
+            self.assertEqual("Missing budget_id", response["message"])
+
+    @patch(
+        "budget_app.routes.handlers.http.budget.delete_budget_by_budget_and_user_ids"
+    )
+    @patch("budget_app.routes.handlers.http.budget.get_session")
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_success(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_get_session,
+        mock_delete_budget_by_budget_and_user_ids,
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+        mock_delete_budget_by_budget_and_user_ids.return_value = "my budget name"
+
+        with self.app.test_request_context():
+            response, status = self.handler.delete_budget({"budget_id": 1})
+            self.assertEqual(200, status)
+            self.assertIn(
+                "Budget 'my budget name' and its contents has been deleted",
+                response["message"],
+            )
+
+    @patch(
+        "budget_app.routes.handlers.http.budget.delete_budget_by_budget_and_user_ids"
+    )
+    @patch("budget_app.routes.handlers.http.budget.get_session")
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_value_error_raised(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_get_session,
+        mock_delete_budget_by_budget_and_user_ids,
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+        mock_delete_budget_by_budget_and_user_ids.side_effect = ValueError(
+            "Bad request"
+        )
+
+        with self.app.test_request_context():
+            response, status = self.handler.delete_budget({"budget_id": 1})
+            self.assertEqual(422, status)
+            self.assertIn(
+                "Bad request",
+                response["message"],
+            )
+
+    @patch(
+        "budget_app.routes.handlers.http.budget.delete_budget_by_budget_and_user_ids"
+    )
+    @patch("budget_app.routes.handlers.http.budget.get_session")
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_exception_raised(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_get_session,
+        mock_delete_budget_by_budget_and_user_ids,
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+        mock_delete_budget_by_budget_and_user_ids.side_effect = Exception(
+            "Service unavailable"
+        )
+
+        with self.app.test_request_context():
+            response, status = self.handler.delete_budget({"budget_id": 1})
+            self.assertEqual(503, status)
+            self.assertIn(
+                "Unable to delete budget",
+                response["message"],
+            )
 
 
 class TestDeleteBudgetItem(BaseBudgetHandlerTest):
-    pass
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_missing_request_body_keys(self, mock_validate_request_body_keys_exist):
+        mock_validate_request_body_keys_exist.return_value = False
+
+        with self.app.test_request_context():
+            response, status = self.handler.delete_budget_item({})
+            self.assertEqual(422, status)
+            self.assertEqual("Missing item_id and/or budget_id", response["message"])
+
+    @patch(
+        "budget_app.routes.handlers.http.budget.delete_budget_item_by_item_and_budget_ids"
+    )
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_success(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_delete_budget_item_by_item_and_budget_ids,
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_delete_budget_item_by_item_and_budget_ids.return_value = (
+            "Category: 'bills' and with Name: 'internet'"
+        )
+
+        with self.app.test_request_context():
+            response, status = self.handler.delete_budget_item(
+                {"item_id": 1, "budget_id": 1}
+            )
+            self.assertEqual(200, status)
+            self.assertEqual(
+                "Budget item in Category: 'bills' and with Name: 'internet' and its contents has been deleted.",
+                response["message"],
+            )
+
+    @patch(
+        "budget_app.routes.handlers.http.budget.delete_budget_item_by_item_and_budget_ids"
+    )
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_value_error_raised(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_delete_budget_item_by_item_and_budget_ids,
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_delete_budget_item_by_item_and_budget_ids.side_effect = ValueError(
+            "Bad request"
+        )
+
+        with self.app.test_request_context():
+            response, status = self.handler.delete_budget_item(
+                {"item_id": 1, "budget_id": 1}
+            )
+            self.assertEqual(422, status)
+            self.assertEqual("Bad request", response["message"])
+
+    @patch(
+        "budget_app.routes.handlers.http.budget.delete_budget_item_by_item_and_budget_ids"
+    )
+    @patch("budget_app.routes.handlers.http.budget.validate_request_body_keys_exist")
+    def test_exception_raised(
+        self,
+        mock_validate_request_body_keys_exist,
+        mock_delete_budget_item_by_item_and_budget_ids,
+    ):
+        mock_validate_request_body_keys_exist.return_value = True
+        mock_delete_budget_item_by_item_and_budget_ids.side_effect = Exception(
+            "Service unavailable"
+        )
+
+        with self.app.test_request_context():
+            response, status = self.handler.delete_budget_item(
+                {"item_id": 1, "budget_id": 1}
+            )
+            self.assertEqual(503, status)
+            self.assertIn("Unable to delete budget", response["message"])
 
 
 if __name__ == "__main__":

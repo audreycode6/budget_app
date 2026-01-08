@@ -145,7 +145,7 @@ def edit_budget_attributes(budget_id, user_id, attributes_to_edit):
     return budget.id
 
 
-def edit_budget_item(item_id, budget_id, attributes_to_edit):
+def edit_budget_item_attributes(item_id, budget_id, attributes_to_edit):
     budget_item = BudgetItem.query.filter_by(id=item_id, budget_id=budget_id).first()
     if not budget_item:
         print(
@@ -177,7 +177,7 @@ def edit_budget_item(item_id, budget_id, attributes_to_edit):
     return item_id
 
 
-def delete_budget(budget_id, user_id):
+def delete_budget_by_budget_and_user_ids(budget_id, user_id):
     # Retrieve the budget to delete
     budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
     if not budget:
@@ -192,7 +192,7 @@ def delete_budget(budget_id, user_id):
     return budget_name
 
 
-def delete_budget_item(item_id, budget_id):
+def delete_budget_item_by_item_and_budget_ids(item_id, budget_id):
     # Retrieve the budget to delete
     budget_item = BudgetItem.query.filter_by(id=item_id, budget_id=budget_id).first()
     if not budget_item:
@@ -202,7 +202,7 @@ def delete_budget_item(item_id, budget_id):
         raise ValueError("Invalid budget item.")
 
     item_description = (
-        f"Category: '{budget_item.category}' and with Name:'{budget_item.name}'"
+        f"Category: '{budget_item.category}' and with Name: '{budget_item.name}'"
     )
 
     # Delete the object
