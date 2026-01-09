@@ -12,6 +12,17 @@ from budget_app.services.budget.budget_service import (
 )
 from budget_app.utils import validate_request_body_keys_exist, stringify_attributes
 
+"""TODO check
+
+- add service call assertions 
+    mock_create_new_budget.assert_called_once_with(
+            1, "Test Budget", 1, 1000
+        )
+- Assert “service not called” on validation failures
+    If a function should return early, assert that downstream dependencies were NOT called.
+    mock_create_new_budget.assert_not_called()
+"""
+
 
 class BudgetHandler:
     BUDGET_ATTRIBUTES = ["name", "gross_income", "month_duration"]
@@ -95,8 +106,6 @@ class BudgetHandler:
     def edit_budget(self, body):
         if not validate_request_body_keys_exist(["budget_id"], body):
             return {"message": "Missing budget_id"}, 422
-
-        BudgetHandler.BUDGET_ATTRIBUTES = ["name", "gross_income", "month_duration"]
 
         attributes_to_update = attributes_to_update_dict(
             body, BudgetHandler.BUDGET_ATTRIBUTES

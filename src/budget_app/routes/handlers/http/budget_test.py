@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch
 
+from flask import session
+
 from budget_app import create_app
 from budget_app.routes.handlers.http.budget import BudgetHandler
 
@@ -48,16 +50,13 @@ class BaseBudgetHandlerTest(unittest.TestCase):
 class TestGetBudget(BaseBudgetHandlerTest):
 
     @patch(f"{BUDGET_HANDLER_PATH}.get_budget_by_budget_and_user_id")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
-    def test_success(self, mock_get_session, mock_get_budget_by_budget_and_user_id):
-        mock_get_session.return_value = (
-            BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
-        )  # TODO do i need to mock for use of session value?
+    def test_success(self, mock_get_budget_by_budget_and_user_id):
         mock_get_budget_by_budget_and_user_id.return_value = (
             BaseBudgetHandlerTest.VALID_BUDGET_OBJECT
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.get_budget(
                 BaseBudgetHandlerTest.VALID_GET_BUDGET_BODY
             )
@@ -67,18 +66,16 @@ class TestGetBudget(BaseBudgetHandlerTest):
             )
 
     @patch(f"{BUDGET_HANDLER_PATH}.get_budget_by_budget_and_user_id")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_exception_raised(
         self,
-        mock_get_session,
         mock_get_budget_by_budget_and_user_id,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_get_budget_by_budget_and_user_id.side_effect = Exception(
             "service unavailable"
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.get_budget(
                 BaseBudgetHandlerTest.VALID_GET_BUDGET_BODY
             )
@@ -87,7 +84,7 @@ class TestGetBudget(BaseBudgetHandlerTest):
 
     def test_missing_body_keys(self):
         with self.app.test_request_context():
-            response, status = self.handler.get_budget("bad input")
+            response, status = self.handler.get_budget({})
             self.assertEqual(status, 422)
             self.assertIn("No budget_id provided", response["message"])
 
@@ -95,14 +92,13 @@ class TestGetBudget(BaseBudgetHandlerTest):
 class TestGetBudgets(BaseBudgetHandlerTest):
 
     @patch(f"{BUDGET_HANDLER_PATH}.get_budgets_by_user_id")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
-    def test_success(self, mock_get_session, mock_get_budgets_by_user_id):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+    def test_success(self, mock_get_budgets_by_user_id):
         mock_get_budgets_by_user_id.return_value = (
             BaseBudgetHandlerTest.VALID_GET_BUDGETS_BODY
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.get_budgets()
             self.assertEqual(status, 200)
             self.assertEqual(
@@ -110,12 +106,11 @@ class TestGetBudgets(BaseBudgetHandlerTest):
             )
 
     @patch(f"{BUDGET_HANDLER_PATH}.get_budgets_by_user_id")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
-    def test_exception_raised(self, mock_get_session, mock_get_budgets_by_user_id):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+    def test_exception_raised(self, mock_get_budgets_by_user_id):
         mock_get_budgets_by_user_id.side_effect = Exception("service unavailable")
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.get_budgets()
             self.assertEqual(status, 503)
             self.assertIn("Unable to retreive budget(s).", response["message"])
@@ -123,24 +118,20 @@ class TestGetBudgets(BaseBudgetHandlerTest):
 
 class TestCreateBudget(BaseBudgetHandlerTest):
 
-    @patch(
-        f"{BUDGET_HANDLER_PATH}.get_budget_by_budget_and_user_id"
-    )  # TODO are these valid to patch/ mock?
+    @patch(f"{BUDGET_HANDLER_PATH}.get_budget_by_budget_and_user_id")
     @patch(f"{BUDGET_HANDLER_PATH}.create_new_budget")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_success(
         self,
-        mock_get_session,
         mock_create_new_budget,
         mock_get_budget_by_budget_and_user_id,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_create_new_budget.return_value = 1  # new_budget.id is int shape
         mock_get_budget_by_budget_and_user_id.return_value = (
             BaseBudgetHandlerTest.VALID_BUDGET_OBJECT
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.create_budget(
                 BaseBudgetHandlerTest.VALID_CREATE_BUDGET_BODY
             )
@@ -160,16 +151,14 @@ class TestCreateBudget(BaseBudgetHandlerTest):
             )
 
     @patch(f"{BUDGET_HANDLER_PATH}.create_new_budget")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_value_error_exception(
         self,
-        mock_get_session,
         mock_create_new_budget,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_create_new_budget.side_effect = ValueError("bad request")
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.create_budget(
                 BaseBudgetHandlerTest.VALID_CREATE_BUDGET_BODY
             )
@@ -177,16 +166,14 @@ class TestCreateBudget(BaseBudgetHandlerTest):
             self.assertIn("bad request", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.create_new_budget")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_exception_raised(
         self,
-        mock_get_session,
         mock_create_new_budget,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_create_new_budget.side_effect = Exception("service unavailable")
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.create_budget(
                 BaseBudgetHandlerTest.VALID_CREATE_BUDGET_BODY
             )
@@ -197,24 +184,21 @@ class TestCreateBudget(BaseBudgetHandlerTest):
 class TestCreateBudgetItem(BaseBudgetHandlerTest):
     @patch(f"{BUDGET_HANDLER_PATH}.get_budget_by_budget_and_user_id")
     @patch(f"{BUDGET_HANDLER_PATH}.create_new_budget_item")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_success(
         self,
-        mock_get_session,
         mock_create_new_budget_item,
         mock_get_budget_by_budget_and_user_id,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_create_new_budget_item.return_value = 1  # new_budget_item.id -> int shape
         mock_get_budget_by_budget_and_user_id.return_value = (
             BaseBudgetHandlerTest.VALID_BUDGET_OBJECT_WITH_ITEMS
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.create_budget_item(
                 BaseBudgetHandlerTest.VALID_BUDGET_ITEM_BODY
             )
-            print(f"TEST {response}")
             self.assertEqual(200, status)
             self.assertEqual(
                 BaseBudgetHandlerTest.VALID_BUDGET_OBJECT_WITH_ITEMS,
@@ -223,16 +207,14 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
             self.assertEqual(1, response["budget_item_id"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.create_new_budget_item")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_value_error_exception(
         self,
-        mock_get_session,
         mock_create_new_budget_item,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_create_new_budget_item.side_effect = ValueError("Bad request")
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.create_budget_item(
                 BaseBudgetHandlerTest.VALID_BUDGET_ITEM_BODY
             )
@@ -240,16 +222,14 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
             self.assertIn("Bad request", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.create_new_budget_item")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_exception_raised(
         self,
-        mock_get_session,
         mock_create_new_budget_item,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_create_new_budget_item.side_effect = Exception("Service unavailable")
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.create_budget_item(
                 BaseBudgetHandlerTest.VALID_BUDGET_ITEM_BODY
             )
@@ -258,7 +238,7 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
 
     def test_missing_body_keys(self):
         with self.app.test_request_context():
-            response, status = self.handler.create_budget_item("bad input")
+            response, status = self.handler.create_budget_item({})
             self.assertEqual(status, 422)
             self.assertIn(
                 "Missing attribute(s) to update. Valid attributes are:",
@@ -285,20 +265,18 @@ class TestEditBudget(BaseBudgetHandlerTest):
 
     @patch(f"{BUDGET_HANDLER_PATH}.get_budget_by_budget_and_user_id")
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_attributes")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_success(
         self,
-        mock_get_session,
         mock_edit_budget_attributes,
         mock_get_budget_by_budget_and_user_id,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_edit_budget_attributes.return_value = 1  # budget.id -> int shape
         mock_get_budget_by_budget_and_user_id.return_value = (
             TestEditBudget.EDITED_BUDGET_OBJ
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.edit_budget(
                 TestEditBudget.VALID_EDIT_BUDGET_BODY
             )
@@ -317,26 +295,19 @@ class TestEditBudget(BaseBudgetHandlerTest):
 
     def test_missing_body_keys(self):
         with self.app.test_request_context():
-            response, status = self.handler.edit_budget("bad input")
+            response, status = self.handler.edit_budget({})
             self.assertEqual(422, status)
             self.assertEqual("Missing budget_id", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_attributes")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
-    @patch(f"{BUDGET_HANDLER_PATH}.attributes_to_update_dict")
     def test_value_error_raised(
         self,
-        mock_attributes_to_update_dict,
-        mock_get_session,
         mock_edit_budget_attributes,
     ):
-        mock_attributes_to_update_dict.return_value = (
-            TestEditBudget.ATTRIBUTES_TO_UPDATE_BODY
-        )
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_edit_budget_attributes.side_effect = ValueError("Bad request")
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.edit_budget(
                 {
                     "budget_id": 1,
@@ -348,21 +319,14 @@ class TestEditBudget(BaseBudgetHandlerTest):
             self.assertEqual("Bad request", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_attributes")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
-    @patch(f"{BUDGET_HANDLER_PATH}.attributes_to_update_dict")
     def test_exception_raised(
         self,
-        mock_attributes_to_update_dict,
-        mock_get_session,
         mock_edit_budget_attributes,
     ):
-        mock_attributes_to_update_dict.return_value = (
-            TestEditBudget.ATTRIBUTES_TO_UPDATE_BODY
-        )
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_edit_budget_attributes.side_effect = Exception("Service unavailable")
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.edit_budget(
                 TestEditBudget.VALID_EDIT_BUDGET_BODY
             )
@@ -392,7 +356,7 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
 
     def test_missing_body_keys(self):
         with self.app.test_request_context():
-            response, status = self.handler.edit_budget_item("bad input")
+            response, status = self.handler.edit_budget_item({})
             self.assertEqual(422, status)
             self.assertEqual("Missing budget_id and/or item_id", response["message"])
 
@@ -412,19 +376,17 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
 
     @patch(f"{BUDGET_HANDLER_PATH}.get_budget_by_budget_and_user_id")
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_item_attributes")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_success(
         self,
-        mock_get_session,
         mock_edit_budget_item_attributes,
         mock_get_budget_by_budget_and_user_id,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_edit_budget_item_attributes.return_value = 1  # item_id -> int shape
         mock_get_budget_by_budget_and_user_id.return_value = (
             TestEditBudgetItem.EDITED_BUDGET_ITEM_OBJ
         )
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.edit_budget_item(
                 TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY
             )
@@ -435,15 +397,13 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
             )
 
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_item_attributes")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_value_error_raised(
         self,
-        mock_get_session,
         mock_edit_budget_item_attributes,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_edit_budget_item_attributes.side_effect = ValueError("Bad request")
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.edit_budget_item(
                 {
                     "item_id": 1,
@@ -457,16 +417,14 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
             self.assertEqual("Bad request", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_item_attributes")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_exception_raised(
         self,
-        mock_get_session,
         mock_edit_budget_item_attributes,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_edit_budget_item_attributes.side_effect = Exception("Service unavailable")
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.edit_budget_item(
                 TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY
             )
@@ -477,21 +435,19 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
 class TestDeleteBudget(BaseBudgetHandlerTest):
     def test_missing_request_body_keys(self):
         with self.app.test_request_context():
-            response, status = self.handler.delete_budget("bad input")
+            response, status = self.handler.delete_budget({})
             self.assertEqual(422, status)
             self.assertEqual("Missing budget_id", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.delete_budget_by_budget_and_user_ids")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_success(
         self,
-        mock_get_session,
         mock_delete_budget_by_budget_and_user_ids,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_delete_budget_by_budget_and_user_ids.return_value = "my budget name"
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.delete_budget({"budget_id": 1})
             self.assertEqual(200, status)
             self.assertIn(
@@ -500,18 +456,16 @@ class TestDeleteBudget(BaseBudgetHandlerTest):
             )
 
     @patch(f"{BUDGET_HANDLER_PATH}.delete_budget_by_budget_and_user_ids")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_value_error_raised(
         self,
-        mock_get_session,
         mock_delete_budget_by_budget_and_user_ids,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_delete_budget_by_budget_and_user_ids.side_effect = ValueError(
             "Bad request"
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.delete_budget({"budget_id": None})
             self.assertEqual(422, status)
             self.assertIn(
@@ -520,18 +474,16 @@ class TestDeleteBudget(BaseBudgetHandlerTest):
             )
 
     @patch(f"{BUDGET_HANDLER_PATH}.delete_budget_by_budget_and_user_ids")
-    @patch(f"{BUDGET_HANDLER_PATH}.get_session")
     def test_exception_raised(
         self,
-        mock_get_session,
         mock_delete_budget_by_budget_and_user_ids,
     ):
-        mock_get_session.return_value = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
         mock_delete_budget_by_budget_and_user_ids.side_effect = Exception(
             "Service unavailable"
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.delete_budget({"budget_id": 1})
             self.assertEqual(503, status)
             self.assertIn(
@@ -544,7 +496,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
 
     def test_missing_request_body_keys(self):
         with self.app.test_request_context():
-            response, status = self.handler.delete_budget_item("bad input")
+            response, status = self.handler.delete_budget_item({})
             self.assertEqual(422, status)
             self.assertEqual("Missing item_id and/or budget_id", response["message"])
 
