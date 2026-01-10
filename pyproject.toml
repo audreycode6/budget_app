@@ -23,3 +23,7 @@ packages = [{include = "budget_app", from = "src"}]
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.scripts]
+app = "budget_app.cli:main"
