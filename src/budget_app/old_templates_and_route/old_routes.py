@@ -1,16 +1,18 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from .services.auth.middleware import login_required
-from .services.auth.auth_service import (
+from ..services.auth import login_required
+from ..services.auth.auth_service import (
     create_user,
     remove_user_from_session,
     authenticate_user,
     get_session,
 )
-from .services.budget.budget_service import (
+from ..services.budget.budget_service import (
     create_new_budget,
     create_new_budget_item,
     get_budget_by_budget_and_user_id,
 )
+
+# OLD
 
 bp = Blueprint("main", __name__)
 
