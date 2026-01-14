@@ -56,6 +56,9 @@ class AuthHandler:
             username = body["username"]
             password = body["password"]
 
+            if not username or not password:
+                return {"message": "Username and/or password must not be empty."}, 422
+
             if create_user(username, password):
                 return {"message": "User successfully registered."}, 200
             else:

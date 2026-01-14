@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Budgets</title>
+    <link rel="stylesheet" href="/static/stylesheets/application.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+    <h1>Log In</h1>
+    <form id="login-form">
+      <label for="username">
+        Username:
+        <input id="username" name="username" />
+        <!-- TODO interpolate the username if error so they dont need to retype if failure .. -->
+      </label>
+      <label for="password">
+        Password:
+        <input id="password" name="password" type="password" />
+      </label>
+      <button type="submit">Log In</button>
+    </form>
+
+    <div id="error"></div>
+    <script src="/static/js/nav.js" defer></script>
+    <script src="/static/js/login.js" defer></script>
+  </body>
+</html>

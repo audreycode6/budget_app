@@ -2,14 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Budgets</title>
+    <title>BudgeTing</title>
     <link rel="stylesheet" href="/static/stylesheets/application.css" />
   </head>
   <body>
+    <div id="navbar"></div>
+
     <h1>Your Budgets</h1>
     <ul id="budgets-list">
       <!-- JS will fill this -->
     </ul>
-    <script src="static/js/budgets.js"></script>
+    <p id="empty_budgets" style="display: none">No budgets yet ...</p>
+    <div id="error"></div>
+    <script src="/static/js/nav.js" defer></script>
+    <script src="static/js/budgets.js" defer></script>
   </body>
 </html>

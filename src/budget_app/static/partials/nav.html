@@ -1,0 +1,26 @@
+<nav>
+  <ul>
+    <!-- TODO the home (demo/intro page) -->
+    <li data-path="/">
+      <a class="nav-link" aria-current="page" href="#">Home</a>
+    </li>
+    <!-- logged out view -->
+    <li data-auth="logged-out" data-path="/login" hidden>
+      <a href="/login">Log In</a>
+    </li>
+    <li data-auth="logged-out" data-path="/register" hidden>
+      <a href="/register">Create an Account</a>
+    </li>
+
+    <!-- logged in view -->
+    <li data-auth="logged-in" data-path="/budgets" hidden>
+      <a href="/budgets">Budgets</a>
+    </li>
+    <li data-auth="logged-in" data-path="/budget" hidden>
+      <a href="#">Create Budget</a>
+    </li>
+    <li data-auth="logged-in" data-path="/logout" hidden>
+      <a href="#" id="logout-link">Log Out</a>
+    </li>
+  </ul>
+</nav>

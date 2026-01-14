@@ -36,8 +36,9 @@ AUTH ROUTES
 
 
 @api_blueprint.route("/api/health", methods=["GET"])
+@auth_handler.login_required
 def health():
-    return {"health": True}, 200
+    return {"status": "ok"}, 200
 
 
 @api_blueprint.route("/api/auth/login", methods=["POST"])

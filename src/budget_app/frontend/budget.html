@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BudgeTing</title>
+    <link rel="stylesheet" href="/static/stylesheets/application.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+
+    <main>
+      <h1 id="budget-title"></h1>
+
+      <section id="budget-meta">
+        <div>
+          <h3>Gross Income:</h3>
+          <p id="budget-gross"></p>
+        </div>
+        <div>
+          <h3>Duration <small>(Months)</small> :</h3>
+          <p id="budget-duration"></p>
+        </div>
+      </section>
+
+      <section>
+        <h3>Items</h3>
+        <ul id="budget-items"></ul>
+        <p id="empty-budget-items" style="display: none">No items yet ...</p>
+      </section>
+
+      <div id="budget-error" role="alert"></div>
+    </main>
+    <script src="/static/js/nav.js" defer></script>
+    <script src="/static/js/budget.js" defer></script>
+  </body>
+</html>
