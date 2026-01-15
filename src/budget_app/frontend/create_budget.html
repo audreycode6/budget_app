@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BudgeTing</title>
+    <link rel="stylesheet" href="/static/stylesheets/application.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+
+    <h1>Create a Budget</h1>
+    <form id="create-budget-form">
+      <section id="budget-attribute-form">
+        <div>
+          <label for="name">
+            Budget Name:
+            <input id="name" name="name" placeholder="Cool Budget Name" />
+          </label>
+        </div>
+        <div>
+          <label for="gross_income">
+            Gross Income: $
+            <input id="gross_income" name="gross_income" placeholder="1234" />
+          </label>
+        </div>
+        <div>
+          <label for="month_duration">
+            Duration <small>(in months):</small>
+            <input
+              id="month_duration"
+              name="month_duration"
+              placeholder="1 OR 12"
+            />
+          </label>
+        </div>
+      </section>
+
+      <button type="submit">Create Budget</button>
+    </form>
+
+    <div id="error"></div>
+    <script src="/static/js/nav.js" defer></script>
+    <script src="static/js/create_budget.js" defer></script>
+  </body>
+</html>

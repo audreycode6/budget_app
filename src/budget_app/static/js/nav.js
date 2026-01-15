@@ -1,6 +1,7 @@
 async function loadNav() {
   // load navbar HTML
   try {
+    // TODO change to use js to check if user is logged in rather than network request
     const navRes = await fetch('/static/partials/nav.html');
     if (!navRes.ok) {
       console.error('Failed to load nav partial', navRes.status);
@@ -15,6 +16,7 @@ async function loadNav() {
   // check auth state
   try {
     const res = await fetch('/api/health', { credentials: 'include' });
+    // todo doesnt credentials mean that they are logged in ..?
     const loggedIn = res.ok;
     const currentPath = window.location.pathname;
 

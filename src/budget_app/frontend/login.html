@@ -7,17 +7,21 @@
   </head>
   <body>
     <div id="navbar"></div>
+
     <h1>Log In</h1>
     <form id="login-form">
-      <label for="username">
-        Username:
-        <input id="username" name="username" />
-        <!-- TODO interpolate the username if error so they dont need to retype if failure .. -->
-      </label>
-      <label for="password">
-        Password:
-        <input id="password" name="password" type="password" />
-      </label>
+      <section id="budget-attribute-form">
+        <label for="username">
+          Username:
+          <input id="username" name="username" />
+          <!-- TODO interpolate the username if error so they dont need to retype if failure .. -->
+        </label>
+        <label for="password">
+          Password:
+          <input id="password" name="password" type="password" />
+        </label>
+      </section>
+
       <button type="submit">Log In</button>
     </form>
 

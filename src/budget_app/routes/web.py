@@ -37,24 +37,25 @@ def budgets_page():
 
 @web_blueprint.route("/budget")
 # TODO view single budget by budget.id and user.id
-# LEFT OFF HERE
+# TODO fix so id is in path ... ? if thats good practice ..?
 def budget_page():
     return _send_frontend("budget.html")
 
 
 # TODO index home page - demo and intro
 
-# @web_blueprint.route("/create_budget")
-# # TODO take in budget name, month duration, gross income
-# def create_budget_page():  # TODO budget or budget_items
-#     return _send_frontend("create_budget.html")
+
+@web_blueprint.route("/create_budget")
+# TODO take in budget name, month duration, gross income
+def create_budget_page():  # TODO budget or budget_items
+    return _send_frontend("create_budget.html")
 
 
-# @web_blueprint.route("/create_budget_items")
-# def create_budget_items_page():
-#     # TODO take in item id, item name, item category, item total
-#     """while loop of create_new_budget_item until they click done/submit"""
-#     return _send_frontend("create_budget_items.html")
+@web_blueprint.route("/create_budget_items")
+def create_budget_items_page():
+    # TODO take in item id, item name, item category, item total
+    """while loop of create_new_budget_item until they click done/submit"""
+    return _send_frontend("create_budget_items.html")
 
 
 # @web_blueprint.route("/edit_budget")

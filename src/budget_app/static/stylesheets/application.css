@@ -13,8 +13,17 @@
 #budget-meta p {
   margin: 0;
 }
+#budget-attribute-form {
+  font-weight: bold;
+}
+#budget-attribute-form > div {
+  display: flex;
+  align-items: baseline;
+  padding-bottom: 10px;
+}
 
-.container {
+/* OLD */
+/* .container {
   margin-top: 5px;
   font-family: 'Gill Sans', sans-serif;
 }
@@ -70,4 +79,4 @@
 
 #navbarSupportedContent {
   color: black;
-}
+} */

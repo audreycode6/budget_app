@@ -76,6 +76,9 @@ class BudgetHandler:
             print(e)
             return {"message": "Unable to fetch budget."}, 503
 
+    def get_item_categories_list(self):  # TODO check and add test ..?
+        return BudgetHandler.BUDGET_ITEM_ATTRIBUTES
+
     def create_budget_item(self, body):
         required_attributes = BudgetHandler.BUDGET_ITEM_ATTRIBUTES + ["budget_id"]
         if not validate_request_body_keys_exist(required_attributes, body):
