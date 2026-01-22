@@ -24,16 +24,24 @@ async function loadBudgets() {
     }
 
     budgets.forEach((budget) => {
-      const li = document.createElement('li');
+      const row = document.createElement('div');
+      row.className =
+        'list-group-item d-flex justify-content-between align-items-center';
 
-      // create anchor to /budget?id=ID
-      const a = document.createElement('a');
-      a.href = `/budget/${encodeURIComponent(budget.id)}`;
-      a.textContent = `${budget.name} - ${budget.gross_income}`;
-      a.setAttribute('aria-label', `View budget ${budget.name}`); // accessibility
-      // TODO wondering if its bad practice to have html in the js?
-      li.appendChild(a);
-      list.appendChild(li);
+      const info = document.createElement('div');
+      info.innerHTML = `<div class="fw-semibold">${budget.name}</div>`;
+
+      const actions = document.createElement('div');
+      actions.innerHTML = `<a href="/budget/${encodeURIComponent(budget.id)}"
+                            class="btn btn-sm btn-outline-primary"
+                            aria-label="View budget ${budget.name}">
+                            View
+                          </a>
+                        `;
+
+      row.appendChild(info);
+      row.appendChild(actions);
+      list.appendChild(row);
     });
   } catch (err) {
     document.getElementById('error').textContent = err.message;

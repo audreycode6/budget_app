@@ -22,6 +22,10 @@
   padding-bottom: 10px;
 }
 
+.list-group-item:hover {
+  background-color: #aef8d8;
+}
+
 /* OLD */
 /* .container {
   margin-top: 5px;

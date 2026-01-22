@@ -13,11 +13,16 @@
   <body>
     <div id="navbar"></div>
     <main class="container py-4">
-      <h1>Your Budgets</h1>
-      <ul id="budgets-list">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Your Budgets</h1>
+      </div>
+
+      <div id="budgets-list" class="list-group">
         <!-- JS will fill this -->
-      </ul>
+      </div>
+
       <p id="empty_budgets" style="display: none">No budgets yet ...</p>
+
       <div id="error"></div>
     </main>
 
