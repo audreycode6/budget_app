@@ -22,9 +22,6 @@ async function loadBudget() {
   const payload = await fetchBudget(budgetId);
   const budget = payload?.budget ?? payload;
 
-  const editLink = document.getElementById('edit-budget-link');
-  editLink.href = `/budget/${budgetId}/edit`;
-
   const errorEl = document.getElementById('budget-error');
   const emptyMsg = document.getElementById('empty-budget-items');
   const categoriesContainer = document.getElementById('budget-categories');
@@ -77,6 +74,25 @@ async function loadBudget() {
     },
   });
 }
+
+/* =========================================================
+   edit budget
+========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const editBtn = document.getElementById('edit-budget-btn');
+  if (!editBtn) return;
+
+  editBtn.addEventListener('click', async () => {
+    const budgetId = getBudgetIdFromUrl();
+
+    if (!budgetId) {
+      alert('Invalid budget.');
+      return;
+    }
+
+    window.location.href = `/budget/${budgetId}/edit`;
+  });
+});
 
 /* =========================================================
    delete budget
