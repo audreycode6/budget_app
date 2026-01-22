@@ -1,0 +1,57 @@
+{% block content %} # OLDDD
+<div class="container">
+  <h1>Demo Creating a Budget...</h1>
+  <div class="container">
+    <h1>Log in</h1>
+    <form method="post" id="auth_login_form">
+      <div>
+        <label for="username"
+          >Username:
+          <input name="username" id="username" value="{{ username }}" />
+        </label>
+      </div>
+      <br />
+      <div>
+        <label for="password"
+          >Password:
+          <input name="password" id="password" type="password" />
+        </label>
+      </div>
+      <br />
+      <button type="submit" class="submit_button button">Log In</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document
+    .getElementById('auth_login_form')
+    .addEventListener('submit', function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const formData = new FormData(this);
+      const jsonData = {};
+      formData.forEach((value, key) => {
+        jsonData[key] = value;
+      });
+
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonData), // Send JSON data
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            // Successfully authenticated
+            window.location.replace('/budgets');
+          } else {
+            console.log(response);
+          }
+        })
+        .catch((error) => console.error('Error:', error));
+    });
+</script>
+
+{% endblock %}

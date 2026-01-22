@@ -89,7 +89,6 @@ def budget_item_create():
     return budget_handler.create_budget_item(body)
 
 
-# TODO make route for getting the category options for budget item creation
 @api_blueprint.route("/api/budget/item/categories", methods=["GET"])
 def get_budget_item_categories():
     categories = budget_handler.get_item_categories_list()

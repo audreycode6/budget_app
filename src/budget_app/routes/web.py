@@ -31,7 +31,6 @@ def logout_page():
 
 @web_blueprint.route("/budgets")
 def budgets_page():
-    # TODO add link to individual budget
     return _send_frontend("budgets.html")
 
 
@@ -41,48 +40,27 @@ def budget_page(budget_id):
     return _send_frontend("budget.html")
 
 
-# TODO see if route with <int:budget_id> works ...
-
-
 @web_blueprint.route("/create_budget")
-# TODO take in budget name, month duration, gross income
-def create_budget_page():  # TODO budget or budget_items
+def create_budget_page():
     return _send_frontend("create_budget.html")
 
 
 @web_blueprint.route("/create_budget_items")
 def create_budget_items_page():
-    # TODO take in item id, item name, item category, item total
-    """while loop of create_new_budget_item until they click done/submit"""
     return _send_frontend("create_budget_items.html")
 
 
 @web_blueprint.route("/budget/<int:budget_id>/edit")
-# TODO take in budget.id, user.id and attributes to update dict (name, month_dration, gross_incmoe)
-def edit_budget_page(budget_id):  # TODO
+def edit_budget_page(budget_id):
     return _send_frontend("edit_budget.html")
 
 
-# TODO see if route with <int:budget_id> works ...
-
-
-# @web_blueprint.route("/edit_budget_item")
-# # TODO take in budget id and item.id + attributes to update dict (name, total, category, )
-# def edit_budget_item_page():  # TODO
-#     return _send_frontend("edit_budget_item.html")
-
-
 @web_blueprint.route("/delete_budget")
-
-# TODO redirect to index/profile page of all users budgets
-def delete_budget_page():  # TODO
+def delete_budget_page():
     return _send_frontend("budgets.html")
 
 
-# @web_blueprint.route("/delete_item")
-# # TODO redirect to budget with its update (item gone)
-# def create_budget_page():  # TODO
-#     return _send_frontend("budget.html")
-
-
 # TODO index home page - demo and intro
+@web_blueprint.route("/")
+def index_page():
+    return _send_frontend("index.html")
