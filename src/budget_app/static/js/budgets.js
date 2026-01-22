@@ -29,7 +29,7 @@ async function loadBudgets() {
 
       // create anchor to /budget?id=ID
       const a = document.createElement('a');
-      a.href = `/budget?id=${encodeURIComponent(budget.id)}`;
+      a.href = `/budget/${encodeURIComponent(budget.id)}`;
       a.textContent = `${budget.name} - ${budget.gross_income}`;
       a.setAttribute('aria-label', `View budget ${budget.name}`); // accessibility
       // TODO wondering if its bad practice to have html in the js?

@@ -13,9 +13,9 @@
 #budget-meta p {
   margin: 0;
 }
-#budget-attribute-form {
+/* #budget-attribute-form {
   font-weight: bold;
-}
+} */
 #budget-attribute-form > div {
   display: flex;
   align-items: baseline;

@@ -64,11 +64,9 @@ BUDGET ROUTES
 """
 
 
-@api_blueprint.route("/api/budget", methods=["POST"])
-@auth_handler.login_required
-def budget():
-    body = request.get_json()
-    return budget_handler.get_budget(body)
+@api_blueprint.route("/api/budget/<int:budget_id>", methods=["GET"])
+def get_budget_by_id(budget_id):
+    return budget_handler.get_budget({"budget_id": budget_id})
 
 
 @api_blueprint.route("/api/budgets", methods=["GET"])
@@ -94,7 +92,8 @@ def budget_item_create():
 # TODO make route for getting the category options for budget item creation
 @api_blueprint.route("/api/budget/item/categories", methods=["GET"])
 def get_budget_item_categories():
-    return budget_handler.get_item_categories_list()
+    categories = budget_handler.get_item_categories_list()
+    return {"categories": categories}, 200
 
 
 @api_blueprint.route("/api/budget/edit", methods=["POST"])

@@ -1,0 +1,77 @@
+<div
+  class="modal fade"
+  id="editItemModal"
+  tabindex="-1"
+  aria-labelledby="editItemModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <form id="edit-item-form" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editItemModalLabel">Edit budget item</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="edit-item-id" name="item_id" />
+
+        <div class="md-3">
+          <label for="edit-item-name" class="form-label">Name</label>
+          <input
+            id="edit-item-name"
+            name="name"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <div class="md-3">
+          <label for="edit-item-category" class="form-label">Category</label>
+          <select
+            id="edit-item-category"
+            name="category"
+            class="form-select"
+            required
+          >
+            <option value="">Choose category</option>
+            <!-- categories loaded dynamically -->
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="edit-item-total" class="form-label">Total</label>
+          <input
+            id="edit-item-total"
+            name="total"
+            class="form-control"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+          />
+        </div>
+
+        <div
+          id="edit-item-error"
+          class="text-danger"
+          role="alert"
+          stlye="display:none"
+        ></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button id="edit-item-submit" type="submit" class="btn btn-primary">
+          Save Item
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

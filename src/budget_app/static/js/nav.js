@@ -30,7 +30,8 @@ async function loadNav() {
 
     document.querySelectorAll('[data-path]').forEach((el) => {
       if (el.dataset.path === currentPath) {
-        el.hidden = true;
+        el.classList.add('active');
+        el.setAttribute('aria-current', 'page');
       }
     });
 

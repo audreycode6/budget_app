@@ -35,14 +35,13 @@ def budgets_page():
     return _send_frontend("budgets.html")
 
 
-@web_blueprint.route("/budget")
-# TODO view single budget by budget.id and user.id
-# TODO fix so id is in path ... ? if thats good practice ..?
-def budget_page():
+@web_blueprint.route("/budget/<int:budget_id>")
+# TODO fix so that can only see your budget/ error display correctly
+def budget_page(budget_id):
     return _send_frontend("budget.html")
 
 
-# TODO index home page - demo and intro
+# TODO see if route with <int:budget_id> works ...
 
 
 @web_blueprint.route("/create_budget")
@@ -58,10 +57,13 @@ def create_budget_items_page():
     return _send_frontend("create_budget_items.html")
 
 
-# @web_blueprint.route("/edit_budget")
-# # TODO take in budget.id, user.id and attributes to update dict (name, month_dration, gross_incmoe)
-# def edit_budget_page():  # TODO
-#     return _send_frontend("edit_budget.html")
+@web_blueprint.route("/budget/<int:budget_id>/edit")
+# TODO take in budget.id, user.id and attributes to update dict (name, month_dration, gross_incmoe)
+def edit_budget_page(budget_id):  # TODO
+    return _send_frontend("edit_budget.html")
+
+
+# TODO see if route with <int:budget_id> works ...
 
 
 # @web_blueprint.route("/edit_budget_item")
@@ -70,14 +72,17 @@ def create_budget_items_page():
 #     return _send_frontend("edit_budget_item.html")
 
 
-# @web_blueprint.route("/delete_budget")
+@web_blueprint.route("/delete_budget")
 
-# # TODO redirect to index/profile page of all users budgets
-# def delete_budget_page():  # TODO
-#     return _send_frontend("budgets.html")
+# TODO redirect to index/profile page of all users budgets
+def delete_budget_page():  # TODO
+    return _send_frontend("budgets.html")
 
 
 # @web_blueprint.route("/delete_item")
 # # TODO redirect to budget with its update (item gone)
 # def create_budget_page():  # TODO
 #     return _send_frontend("budget.html")
+
+
+# TODO index home page - demo and intro

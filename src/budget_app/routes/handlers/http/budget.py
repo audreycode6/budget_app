@@ -8,6 +8,7 @@ from budget_app.services.budget.budget_service import (
     edit_budget_attributes,
     edit_budget_item_attributes,
     get_budget_by_budget_and_user_id,
+    get_budget_item_category_list,
     get_budgets_by_user_id,
 )
 from budget_app.utils import validate_request_body_keys_exist, stringify_attributes
@@ -37,6 +38,7 @@ class BudgetHandler:
 
         try:
             budget = get_budget_by_budget_and_user_id(budget_id, user_id)
+            print(f"TESTing {budget}")
             return {"budget": budget}, 200
         except Exception as e:
             print(e)
@@ -68,6 +70,7 @@ class BudgetHandler:
                 user_id, name, month_duration_raw, gross_income_raw
             )
             budget = get_budget_by_budget_and_user_id(budget_id, user_id)
+            print(budget)
             return {"budget": budget}, 200
         except ValueError as e:
             print(e)
@@ -77,7 +80,7 @@ class BudgetHandler:
             return {"message": "Unable to fetch budget."}, 503
 
     def get_item_categories_list(self):  # TODO check and add test ..?
-        return BudgetHandler.BUDGET_ITEM_ATTRIBUTES
+        return get_budget_item_category_list()
 
     def create_budget_item(self, body):
         required_attributes = BudgetHandler.BUDGET_ITEM_ATTRIBUTES + ["budget_id"]

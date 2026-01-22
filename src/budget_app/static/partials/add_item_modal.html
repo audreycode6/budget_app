@@ -1,0 +1,80 @@
+<!-- partial: add_item_modal.html -->
+<div
+  class="modal fade"
+  id="addItemModal"
+  tabindex="-1"
+  aria-labelledby="addItemModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <form id="add-item-form" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addItemModalLabel">Add budget item</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="item-category" class="form-label">Category</label>
+          <select
+            id="item-category"
+            name="category"
+            class="form-select"
+            required
+          >
+            <option value="">Choose category</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="item-name" class="form-label">Name</label>
+          <input
+            id="item-name"
+            name="name"
+            type="text"
+            class="form-control"
+            placeholder="Groceries"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="item-total" class="form-label">Total</label>
+          <p class="text-muted small mb-3">
+            Item totals should be entered for the same period as this budget.
+          </p>
+          <input
+            id="item-total"
+            name="total"
+            type="number"
+            step="0.01"
+            class="form-control"
+            placeholder="123.45"
+            required
+          />
+        </div>
+
+        <div
+          id="add-item-error"
+          class="text-danger"
+          role="alert"
+          style="display: none"
+        ></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button id="add-item-submit" type="submit" class="btn btn-primary">
+          Add item
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

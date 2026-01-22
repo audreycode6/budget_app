@@ -15,14 +15,18 @@ document
         body: JSON.stringify({ name, gross_income, month_duration }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         const err = data.message;
         throw new Error(err || 'Budget creation failed');
       }
 
       // success
-      window.location.href = '/budgets';
+      const budgetId = data?.budget?.id;
+      if (!budgetId) throw new Error('Missing budget id in response');
+
+      window.location.href = `/budget/${budgetId}`;
     } catch (err) {
       document.getElementById('error').textContent = err.message;
     }

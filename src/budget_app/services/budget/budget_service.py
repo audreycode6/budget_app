@@ -66,6 +66,10 @@ def create_new_budget(user_id, name, month_duration_raw, gross_income_raw):
     return new_budget.id  # used to display correct budget view
 
 
+def get_budget_item_category_list():
+    return VALID_BUDGET_ITEM_CATEGORY
+
+
 def create_new_budget_item(name, category, total, budget_id, user_id):
     """
     Validate user inputs: name and cost, raise error if invalid
