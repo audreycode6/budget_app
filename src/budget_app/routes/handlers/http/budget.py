@@ -38,7 +38,6 @@ class BudgetHandler:
 
         try:
             budget = get_budget_by_budget_and_user_id(budget_id, user_id)
-            print(f"TESTing {budget}")
             return {"budget": budget}, 200
         except Exception as e:
             print(e)

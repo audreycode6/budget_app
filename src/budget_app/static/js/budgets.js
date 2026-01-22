@@ -9,8 +9,7 @@ async function loadBudgets() {
 
     const data = await response.json();
     const err = data.message;
-    const { budgets } = data; // object destructuring
-    // const budgets = data.budgets;
+    const { budgets } = data;
 
     const list = document.getElementById('budgets-list');
     list.innerHTML = '';

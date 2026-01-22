@@ -21,19 +21,13 @@ async function loadBudget() {
   const budgetId = getBudgetIdFromUrl();
   const payload = await fetchBudget(budgetId);
   const budget = payload?.budget ?? payload;
+
   const editLink = document.getElementById('edit-budget-link');
   editLink.href = `/budget/${budgetId}/edit`;
+
   const errorEl = document.getElementById('budget-error');
   const emptyMsg = document.getElementById('empty-budget-items');
   const categoriesContainer = document.getElementById('budget-categories');
-  categoriesContainer.innerHTML = '';
-
-  if (!budget.items || budget.items.length === 0) {
-    emptyMsg.style.display = 'block';
-    return;
-  }
-
-  emptyMsg.style.display = 'none';
 
   // header/meta
   document.getElementById(
@@ -43,6 +37,14 @@ async function loadBudget() {
   document.getElementById('budget-duration').textContent = String(
     budget.month_duration
   );
+
+  categoriesContainer.innerHTML = '';
+
+  if (!budget.items || budget.items.length === 0) {
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
 
   const container = document.getElementById('budget-categories');
   container.innerHTML = '';
@@ -68,27 +70,11 @@ async function loadBudget() {
       document.getElementById('edit-item-total').value =
         dataset.itemTotal ?? '';
 
-      // 🔑 THIS IS THE FIX
       await loadEditItemCategories(dataset.itemCategory);
 
       const modalEl = document.getElementById('editItemModal');
       bootstrap.Modal.getOrCreateInstance(modalEl).show();
     },
-    // onEdit: (dataset) => {
-    //   // prefill edit modal fields (ids must match modal partial)
-    //   const idEl = document.getElementById('edit-item-id');
-    //   const nameEl = document.getElementById('edit-item-name');
-    //   const catEl = document.getElementById('edit-item-category');
-    //   const totalEl = document.getElementById('edit-item-total');
-
-    //   if (idEl) idEl.value = dataset.itemId ?? '';
-    //   if (nameEl) nameEl.value = dataset.itemName ?? '';
-    //   if (catEl) catEl.value = dataset.itemCategory ?? '';
-    //   if (totalEl) totalEl.value = dataset.itemTotal ?? '';
-
-    //   const modalEl = document.getElementById('editItemModal');
-    //   if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
-    // },
   });
 }
 
