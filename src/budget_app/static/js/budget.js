@@ -44,6 +44,7 @@ const API_ENDPOINTS = {
   CATEGORIES: '/api/budget/item/categories',
   CREATE_ITEM: '/api/budget/item/create',
   DELETE_ITEM: '/api/budget/item/delete',
+  DELETE_BUDGET: '/api/budget/delete',
 };
 
 const PARTIAL_URLS = {
@@ -219,7 +220,7 @@ function setupDeleteBudgetButton() {
     deleteBtn.textContent = 'Deleting...';
 
     try {
-      const res = await fetch(API_ENDPOINTS.DELETE_ITEM, {
+      const res = await fetch(API_ENDPOINTS.DELETE_BUDGET, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

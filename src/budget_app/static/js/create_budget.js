@@ -1,3 +1,5 @@
+import { displayError, setFormDisabled } from './utils/ui.js';
+
 /* =========================================================
    Constants
 ========================================================= */
@@ -12,46 +14,6 @@ const ELEMENT_IDS = {
 const API_ENDPOINTS = {
   CREATE_BUDGET: '/api/budget/create',
 };
-
-/* =========================================================
-   Utilities
-========================================================= */
-
-/**
- * Displays or hides error message
- * @param {string} message - Error message to display (or empty to hide)
- */
-function displayError(message = '') {
-  const errorEl = document.getElementById(ELEMENT_IDS.ERROR);
-  if (!errorEl) return;
-
-  if (message) {
-    errorEl.textContent = message;
-    errorEl.style.display = 'block';
-  } else {
-    errorEl.style.display = 'none';
-  }
-}
-
-/**
- * Sets disabled state on form submit button
- * @param {HTMLFormElement} form - The form element
- * @param {boolean} disabled - Whether to disable the button
- */
-function setFormDisabled(form, disabled) {
-  const submitBtn = form?.querySelector('[type="submit"]');
-  if (!submitBtn) return;
-
-  submitBtn.disabled = disabled;
-  if (disabled) {
-    submitBtn.setAttribute('aria-busy', 'true');
-    submitBtn.dataset.originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Creating...';
-  } else {
-    submitBtn.removeAttribute('aria-busy');
-    submitBtn.textContent = submitBtn.dataset.originalText || 'Create Budget';
-  }
-}
 
 /* =========================================================
    Form Submission
@@ -71,8 +33,11 @@ async function handleCreateBudget(e) {
   };
 
   // Show loading state
-  setFormDisabled(form, true);
-  displayError(); // Clear previous errors
+  setFormDisabled(form, true, {
+    loadingText: 'Creating...',
+    defaultText: 'Create Budget',
+  });
+  displayError(ELEMENT_IDS.ERROR); // Clear previous errors
 
   try {
     const response = await fetch(API_ENDPOINTS.CREATE_BUDGET, {
@@ -96,7 +61,7 @@ async function handleCreateBudget(e) {
     window.location.href = `/budget/${budgetId}`;
   } catch (err) {
     console.error('Create budget failed:', err);
-    displayError(err.message || 'Failed to create budget');
+    displayError(ELEMENT_IDS.ERROR, err.message || 'Failed to create budget');
     setFormDisabled(form, false);
   }
 }

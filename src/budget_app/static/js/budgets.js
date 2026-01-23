@@ -1,4 +1,5 @@
 import { el } from './utils/dom.js';
+import { displayError } from './utils/ui.js';
 
 /* =========================================================
    Constants
@@ -43,22 +44,6 @@ function createBudgetRow(budget) {
 }
 
 /**
- * Displays or hides error message
- * @param {string} message - Error message to display (or empty to hide)
- */
-function displayError(message = '') {
-  const errorEl = document.getElementById(ELEMENT_IDS.ERROR);
-  if (!errorEl) return;
-
-  if (message) {
-    errorEl.textContent = message;
-    errorEl.style.display = 'block';
-  } else {
-    errorEl.style.display = 'none';
-  }
-}
-
-/**
  * Displays or hides empty state message
  * @param {boolean} show - Whether to show the empty message
  */
@@ -81,7 +66,7 @@ async function loadBudgets() {
   if (!list) return;
 
   try {
-    displayError(); // Clear previous errors
+    displayError(ELEMENT_IDS.ERROR); // Clear previous errors
 
     const response = await fetch('/api/budgets', { credentials: 'include' });
 
@@ -111,7 +96,7 @@ async function loadBudgets() {
     });
   } catch (err) {
     console.error('Failed to load budgets:', err);
-    displayError(err.message || 'Failed to load budgets');
+    displayError(ELEMENT_IDS.ERROR, err.message || 'Failed to load budgets');
   }
 }
 
