@@ -69,7 +69,7 @@ export function buildCategoryAccordion({
             // formatted display total
             el('span', { text: item.total }),
 
-            // Edit button (visible label)
+            // Edit button
             el(
               'button',
               {
@@ -84,7 +84,7 @@ export function buildCategoryAccordion({
               [el('span', { text: 'Edit' })]
             ),
 
-            // Delete button (visible label)
+            // Delete button
             el(
               'button',
               {

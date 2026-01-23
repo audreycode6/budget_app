@@ -11,94 +11,155 @@ import {
 import { bindItemActions } from './components/item_actions.js';
 import { setupEditItemModal } from './modals/edit_item_modal.js';
 
+/* =========================================================
+   Constants
+========================================================= */
+const ELEMENT_IDS = {
+  BUDGET_TITLE: 'budget-title',
+  BUDGET_GROSS: 'budget-gross',
+  BUDGET_DURATION: 'budget-duration',
+  BUDGET_ERROR: 'budget-error',
+  BUDGET_CATEGORIES: 'budget-categories',
+  EMPTY_MESSAGE: 'empty-budget-items',
+  EDIT_BUDGET_BTN: 'edit-budget-btn',
+  DELETE_BUDGET_BTN: 'delete-budget-btn',
+  ADD_ITEM_FORM: 'add-item-form',
+  ADD_ITEM_MODAL: 'addItemModal',
+  ADD_ITEM_ERROR: 'add-item-error',
+  ADD_ITEM_MODAL_CONTAINER: 'add-item-modal-container',
+  EDIT_ITEM_MODAL_CONTAINER: 'edit-item-modal-container',
+  EDIT_ITEM_MODAL: 'editItemModal',
+  ITEM_CATEGORY: 'item-category',
+  ITEM_NAME: 'item-name',
+  ITEM_TOTAL: 'item-total',
+  EDIT_ITEM_CATEGORY: 'edit-item-category',
+};
+
+const API_ENDPOINTS = {
+  BUDGET: '/api/budget',
+  CATEGORIES: '/api/budget/item/categories',
+  CREATE_ITEM: '/api/budget/item/create',
+  DELETE_ITEM: '/api/budget/item/delete',
+};
+
+const PARTIAL_URLS = {
+  ADD_ITEM_MODAL: '/static/partials/add_item_modal.html',
+  EDIT_ITEM_MODAL: '/static/partials/edit_item_modal.html',
+};
+
+/* =========================================================
+   Utilities
+========================================================= */
 function formatCategoryLabel(cat) {
   return String(cat)
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-async function loadBudget() {
-  const budgetId = getBudgetIdFromUrl();
-  const payload = await fetchBudget(budgetId);
-  const budget = payload?.budget ?? payload;
-
-  const errorEl = document.getElementById('budget-error');
-  const emptyMsg = document.getElementById('empty-budget-items');
-  const categoriesContainer = document.getElementById('budget-categories');
-
-  // header/meta
-  document.getElementById(
-    'budget-title'
-  ).textContent = `Budget: "${budget.name}"`;
-  document.getElementById('budget-gross').textContent = budget.gross_income;
-  document.getElementById('budget-duration').textContent = String(
-    budget.month_duration
-  );
-
-  categoriesContainer.innerHTML = '';
-
-  if (!budget.items || budget.items.length === 0) {
-    emptyMsg.style.display = 'block';
-    return;
+function getElement(id) {
+  const el = document.getElementById(id);
+  if (!el) {
+    console.warn(`Element not found: ${id}`);
   }
-  emptyMsg.style.display = 'none';
+  return el;
+}
 
-  const container = document.getElementById('budget-categories');
-  container.innerHTML = '';
+async function loadBudget() {
+  try {
+    const budgetId = getBudgetIdFromUrl();
+    if (!budgetId) {
+      throw new Error('Invalid budget ID');
+    }
 
-  const grouped = groupItemsByCategory(budget.items);
+    const payload = await fetchBudget(budgetId);
+    const budget = payload?.budget ?? payload;
 
-  Object.entries(grouped).forEach(([category, data]) => {
-    const accordion = buildCategoryAccordion({ category, data });
-    container.appendChild(accordion);
+    const errorEl = getElement(ELEMENT_IDS.BUDGET_ERROR);
+    const emptyMsg = getElement(ELEMENT_IDS.EMPTY_MESSAGE);
+    const categoriesContainer = getElement(ELEMENT_IDS.BUDGET_CATEGORIES);
 
-    const collapseEl = accordion.querySelector('.accordion-collapse');
-    restoreAccordionState({ budgetId, category, collapseEl });
-    bindAccordionPersistence({ budgetId, category, collapseEl });
-  });
+    // Clear any previous errors
+    if (errorEl) errorEl.style.display = 'none';
 
-  bindItemActions({
-    container,
-    budgetId,
-    onRefresh: loadBudget,
-    onEdit: async (dataset) => {
-      document.getElementById('edit-item-id').value = dataset.itemId ?? '';
-      document.getElementById('edit-item-name').value = dataset.itemName ?? '';
-      document.getElementById('edit-item-total').value =
-        dataset.itemTotal ?? '';
+    // Update header/meta
+    const titleEl = getElement(ELEMENT_IDS.BUDGET_TITLE);
+    const grossEl = getElement(ELEMENT_IDS.BUDGET_GROSS);
+    const durationEl = getElement(ELEMENT_IDS.BUDGET_DURATION);
 
-      await loadEditItemCategories(dataset.itemCategory);
+    if (titleEl) titleEl.textContent = `Budget: "${budget.name}"`;
+    if (grossEl) grossEl.textContent = budget.gross_income;
+    if (durationEl) durationEl.textContent = String(budget.month_duration);
 
-      const modalEl = document.getElementById('editItemModal');
-      bootstrap.Modal.getOrCreateInstance(modalEl).show();
-    },
-  });
+    categoriesContainer.innerHTML = '';
+
+    // Handle empty state
+    if (!budget.items || budget.items.length === 0) {
+      if (emptyMsg) emptyMsg.style.display = 'block';
+      return;
+    }
+
+    if (emptyMsg) emptyMsg.style.display = 'none';
+
+    // Build category accordions
+    const grouped = groupItemsByCategory(budget.items);
+
+    Object.entries(grouped).forEach(([category, data]) => {
+      const accordion = buildCategoryAccordion({ category, data });
+      categoriesContainer.appendChild(accordion);
+
+      const collapseEl = accordion.querySelector('.accordion-collapse');
+      restoreAccordionState({ budgetId, category, collapseEl });
+      bindAccordionPersistence({ budgetId, category, collapseEl });
+    });
+
+    // Bind item actions (edit/delete)
+    bindItemActions({
+      container: categoriesContainer,
+      budgetId,
+      onRefresh: loadBudget,
+      onEdit: async (dataset) => {
+        await populateCategorySelect(
+          ELEMENT_IDS.EDIT_ITEM_CATEGORY,
+          dataset.itemCategory
+        );
+
+        getElement(ELEMENT_IDS.EDIT_ITEM_MODAL).value = dataset.itemId ?? '';
+        getElement(ELEMENT_IDS.ITEM_NAME).value = dataset.itemName ?? '';
+        getElement(ELEMENT_IDS.ITEM_TOTAL).value = dataset.itemTotal ?? '';
+
+        const modalEl = getElement(ELEMENT_IDS.EDIT_ITEM_MODAL);
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+      },
+    });
+  } catch (err) {
+    console.error('Failed to load budget:', err);
+    const errorEl = getElement(ELEMENT_IDS.BUDGET_ERROR);
+    if (errorEl) {
+      errorEl.textContent = err.message || 'Failed to load budget';
+      errorEl.style.display = 'block';
+    }
+  }
 }
 
 /* =========================================================
-   edit budget
+   Budget Actions (Edit/Delete)
 ========================================================= */
-document.addEventListener('DOMContentLoaded', () => {
-  const editBtn = document.getElementById('edit-budget-btn');
+function setupEditBudgetButton() {
+  const editBtn = getElement(ELEMENT_IDS.EDIT_BUDGET_BTN);
   if (!editBtn) return;
 
-  editBtn.addEventListener('click', async () => {
+  editBtn.addEventListener('click', () => {
     const budgetId = getBudgetIdFromUrl();
-
     if (!budgetId) {
       alert('Invalid budget.');
       return;
     }
-
     window.location.href = `/budget/${budgetId}/edit`;
   });
-});
+}
 
-/* =========================================================
-   delete budget
-========================================================= */
-document.addEventListener('DOMContentLoaded', () => {
-  const deleteBtn = document.getElementById('delete-budget-btn');
+function setupDeleteBudgetButton() {
+  const deleteBtn = getElement(ELEMENT_IDS.DELETE_BUDGET_BTN);
   if (!deleteBtn) return;
 
   deleteBtn.addEventListener('click', async () => {
@@ -115,106 +176,116 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!confirmed) return;
 
-    const res = await fetch('/api/budget/delete', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ budget_id: budgetId }),
-    });
+    try {
+      const res = await fetch(API_ENDPOINTS.DELETE_ITEM, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ budget_id: budgetId }),
+      });
 
-    if (!res.ok) {
-      const data = await res.json();
-      alert(data.message || 'Failed to delete budget.');
-      return;
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to delete budget');
+      }
+
+      window.location.href = '/budgets';
+    } catch (err) {
+      console.error('Delete budget failed:', err);
+      alert(err.message || 'Failed to delete budget.');
     }
-    window.location.href = '/budgets';
   });
-});
+}
 
 /* =========================================================
-   categories
+   Category Management
 ========================================================= */
-
 async function fetchCategoriesFromApi() {
-  const res = await fetch('/api/budget/item/categories', {
-    credentials: 'include',
-  });
-  if (!res.ok) throw new Error('Failed to load categories');
-  const payload = await res.json();
-  return Array.isArray(payload) ? payload : payload.categories;
+  try {
+    const res = await fetch(API_ENDPOINTS.CATEGORIES, {
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Failed to load categories');
+    const payload = await res.json();
+    return Array.isArray(payload) ? payload : payload.categories;
+  } catch (err) {
+    console.error('Fetch categories failed:', err);
+    throw err;
+  }
 }
 
-async function loadEditItemCategories(selectedCategory) {
-  const select = document.getElementById('edit-item-category');
+/**
+ * Populates a category select element with options.
+ * @param {string} selectId - The ID of the select element
+ * @param {string} selectedCategory - The category to pre-select (optional)
+ */
+async function populateCategorySelect(selectId, selectedCategory = null) {
+  const select = getElement(selectId);
   if (!select) return;
 
-  const categories = await fetchCategoriesFromApi();
+  try {
+    const categories = await fetchCategoriesFromApi();
 
-  // remove old options except placeholder
-  select
-    .querySelectorAll('option:not(:first-child)')
-    .forEach((o) => o.remove());
+    // Remove old options except placeholder
+    select
+      .querySelectorAll('option:not(:first-child)')
+      .forEach((o) => o.remove());
 
-  categories.forEach((cat) => {
-    const opt = document.createElement('option');
-    opt.value = cat;
-    opt.textContent = formatCategoryLabel(cat);
+    categories.forEach((cat) => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = formatCategoryLabel(cat);
 
-    if (cat === selectedCategory) {
-      opt.selected = true;
-    }
+      if (cat === selectedCategory) {
+        opt.selected = true;
+      }
 
-    select.appendChild(opt);
-  });
-}
-
-async function loadBudgetItemCategories() {
-  const select = document.getElementById('item-category');
-  if (!select) return;
-
-  const categories = await fetchCategoriesFromApi();
-  select
-    .querySelectorAll('option:not(:first-child)')
-    .forEach((o) => o.remove());
-
-  categories.forEach((cat) => {
-    const opt = document.createElement('option');
-    opt.value = cat;
-    opt.textContent = formatCategoryLabel(cat);
-    select.appendChild(opt);
-  });
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('Failed to populate category select:', err);
+  }
 }
 
 /* =========================================================
-   modal logic
+   Modal Loading & Setup
 ========================================================= */
-
 async function loadAddItemModalPartial() {
-  const container = document.getElementById('add-item-modal-container');
+  const container = getElement(ELEMENT_IDS.ADD_ITEM_MODAL_CONTAINER);
   if (!container) return;
 
-  const res = await fetch('/static/partials/add_item_modal.html');
-  container.innerHTML = await res.text();
+  try {
+    const res = await fetch(PARTIAL_URLS.ADD_ITEM_MODAL);
+    if (!res.ok) throw new Error('Failed to load add item modal');
+    container.innerHTML = await res.text();
+  } catch (err) {
+    console.error('Failed to load add item modal:', err);
+  }
 }
 
 async function loadEditItemModalPartial() {
-  const container = document.getElementById('edit-item-modal-container');
+  const container = getElement(ELEMENT_IDS.EDIT_ITEM_MODAL_CONTAINER);
   if (!container) return;
 
-  const res = await fetch('/static/partials/edit_item_modal.html');
-  container.innerHTML = await res.text();
+  try {
+    const res = await fetch(PARTIAL_URLS.EDIT_ITEM_MODAL);
+    if (!res.ok) throw new Error('Failed to load edit item modal');
+    container.innerHTML = await res.text();
+  } catch (err) {
+    console.error('Failed to load edit item modal:', err);
+  }
 }
 
 function setupAddItemModal() {
-  const form = document.getElementById('add-item-form');
-  const modalEl = document.getElementById('addItemModal');
-  const errorEl = document.getElementById('add-item-error');
+  const form = getElement(ELEMENT_IDS.ADD_ITEM_FORM);
+  const modalEl = getElement(ELEMENT_IDS.ADD_ITEM_MODAL);
+  const errorEl = getElement(ELEMENT_IDS.ADD_ITEM_ERROR);
 
   if (!form || !modalEl) return;
 
-  modalEl.addEventListener('show.bs.modal', () => {
+  modalEl.addEventListener('show.bs.modal', async () => {
     if (errorEl) errorEl.style.display = 'none';
-    loadBudgetItemCategories();
+    await populateCategorySelect(ELEMENT_IDS.ITEM_CATEGORY);
   });
 
   form.addEventListener('submit', async (e) => {
@@ -225,38 +296,56 @@ function setupAddItemModal() {
 
     const payload = {
       budget_id: budgetId,
-      category: document.getElementById('item-category').value,
-      name: document.getElementById('item-name').value.trim(),
-      total: Number(document.getElementById('item-total').value),
+      category: getElement(ELEMENT_IDS.ITEM_CATEGORY).value,
+      name: getElement(ELEMENT_IDS.ITEM_NAME).value.trim(),
+      total: Number(getElement(ELEMENT_IDS.ITEM_TOTAL).value),
     };
 
-    const res = await fetch('/api/budget/item/create', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch(API_ENDPOINTS.CREATE_ITEM, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      errorEl.textContent = data.message || 'Failed to add item';
-      errorEl.style.display = 'block';
-      return;
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to add item');
+      }
+
+      bootstrap.Modal.getInstance(modalEl).hide();
+      form.reset();
+      await loadBudget();
+    } catch (err) {
+      console.error('Add item failed:', err);
+      if (errorEl) {
+        errorEl.textContent = err.message || 'Failed to add item';
+        errorEl.style.display = 'block';
+      }
     }
-
-    bootstrap.Modal.getInstance(modalEl).hide();
-    form.reset();
-    await loadBudget();
   });
 }
 
+/* =========================================================
+   Initialization
+========================================================= */
 document.addEventListener('DOMContentLoaded', async () => {
   const budgetId = getBudgetIdFromUrl();
+  if (!budgetId) {
+    console.error('No budget ID found in URL');
+    return;
+  }
 
-  await Promise.all([loadAddItemModalPartial, loadEditItemModalPartial]);
+  // Load modal partials in parallel
+  await Promise.all([loadAddItemModalPartial(), loadEditItemModalPartial()]);
 
+  // Setup all event listeners
+  setupEditBudgetButton();
+  setupDeleteBudgetButton();
   setupAddItemModal();
   setupEditItemModal({ budgetId, onSuccess: loadBudget });
 
+  // Load initial budget data
   await loadBudget();
 });
