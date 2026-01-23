@@ -13,29 +13,47 @@ const API_ENDPOINTS = {
   BUDGET: '/api/budget',
 };
 
+/**
+ * Loads item data for editing
+ * @param {number} itemId - The item ID to load
+ * @param {number} budgetId - The budget ID
+ * @returns {Promise<void>}
+ */
 async function loadItemForEdit(itemId, budgetId) {
-  const res = await fetch(
-    `${API_ENDPOINTS.BUDGET}/${budgetId}/item/${itemId}`,
-    {
-      credentials: 'include',
+  try {
+    const res = await fetch(
+      `${API_ENDPOINTS.BUDGET}/${budgetId}/item/${itemId}`,
+      {
+        credentials: 'include',
+      }
+    );
+
+    if (!res.ok) {
+      console.error('Failed to load item');
+      return;
     }
-  );
 
-  if (!res.ok) {
-    console.error('Failed to load item');
-    return;
+    const { item } = await res.json();
+
+    document.getElementById(ELEMENT_IDS.ITEM_NAME).value = item.name;
+    document.getElementById(ELEMENT_IDS.ITEM_CATEGORY).value = item.category;
+    document.getElementById(ELEMENT_IDS.ITEM_TOTAL).value = item.total_raw;
+  } catch (err) {
+    console.error('Error loading item for edit:', err);
   }
-
-  const { item } = await res.json();
-
-  document.getElementById(ELEMENT_IDS.ITEM_NAME).value = item.name;
-  document.getElementById(ELEMENT_IDS.ITEM_CATEGORY).value = item.category;
-  document.getElementById(ELEMENT_IDS.ITEM_TOTAL).value = item.total_raw;
 }
 
+/**
+ * Sets up event handlers for the edit item modal
+ * @param {Object} options - Configuration object
+ * @param {number} options.budgetId - The current budget ID
+ * @param {Function} options.onSuccess - Callback function on successful edit
+ */
 export function setupEditItemModal({ budgetId, onSuccess }) {
   const modalEl = document.getElementById(ELEMENT_IDS.EDIT_ITEM_MODAL);
   const form = document.getElementById(ELEMENT_IDS.EDIT_ITEM_FORM);
+  const submitBtn = form?.querySelector('[type="submit"]');
+
   if (!modalEl || !form) return;
 
   modalEl.addEventListener('show.bs.modal', async (e) => {
@@ -64,19 +82,34 @@ export function setupEditItemModal({ budgetId, onSuccess }) {
       total,
     };
 
+    // Show loading state
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.setAttribute('aria-busy', 'true');
+      submitBtn.textContent = 'Saving...';
+    }
+
     try {
       const res = await editBudgetItem(payload);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(data.message || 'Failed to edit item');
-        return;
+        throw new Error(data.message || 'Failed to edit item');
       }
 
       bootstrap.Modal.getInstance(modalEl).hide();
-      if (typeof onSuccess === 'function') onSuccess();
+      if (typeof onSuccess === 'function') {
+        await onSuccess();
+      }
     } catch (err) {
       console.error('Edit item failed', err);
-      alert('Failed to edit item.');
+      alert(err.message || 'Failed to edit item.');
+    } finally {
+      // Restore button state
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.removeAttribute('aria-busy');
+        submitBtn.textContent = 'Save Item';
+      }
     }
   });
 }

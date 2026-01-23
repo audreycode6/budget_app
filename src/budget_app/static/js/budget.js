@@ -55,12 +55,47 @@ const PARTIAL_URLS = {
    Utilities
 ========================================================= */
 
+/**
+ * Safely retrieves a DOM element by ID with warning if not found
+ * @param {string} id - The element ID
+ * @returns {HTMLElement | null}
+ */
 function getElement(id) {
   const el = document.getElementById(id);
   if (!el) {
     console.warn(`Element not found: ${id}`);
   }
   return el;
+}
+
+/**
+ * Displays or hides error message element
+ * @param {HTMLElement | null} errorEl - The error element
+ * @param {string} message - Error message to display (or empty to hide)
+ */
+function displayError(errorEl, message = '') {
+  if (!errorEl) return;
+  if (message) {
+    errorEl.textContent = message;
+    errorEl.style.display = 'block';
+  } else {
+    errorEl.style.display = 'none';
+  }
+}
+
+/**
+ * Sets disabled state on buttons and form elements
+ * @param {HTMLElement | null} element - The element to enable/disable
+ * @param {boolean} disabled - Whether to disable the element
+ */
+function setElementDisabled(element, disabled) {
+  if (!element) return;
+  element.disabled = disabled;
+  if (disabled) {
+    element.setAttribute('aria-busy', 'true');
+  } else {
+    element.removeAttribute('aria-busy');
+  }
 }
 
 async function loadBudget() {
@@ -78,7 +113,7 @@ async function loadBudget() {
     const categoriesContainer = getElement(ELEMENT_IDS.BUDGET_CATEGORIES);
 
     // Clear any previous errors
-    if (errorEl) errorEl.style.display = 'none';
+    displayError(errorEl);
 
     // Update header/meta
     const titleEl = getElement(ELEMENT_IDS.BUDGET_TITLE);
@@ -133,16 +168,17 @@ async function loadBudget() {
   } catch (err) {
     console.error('Failed to load budget:', err);
     const errorEl = getElement(ELEMENT_IDS.BUDGET_ERROR);
-    if (errorEl) {
-      errorEl.textContent = err.message || 'Failed to load budget';
-      errorEl.style.display = 'block';
-    }
+    displayError(errorEl, err.message || 'Failed to load budget');
   }
 }
 
 /* =========================================================
    Budget Actions (Edit/Delete)
 ========================================================= */
+
+/**
+ * Sets up click handler for edit budget button
+ */
 function setupEditBudgetButton() {
   const editBtn = getElement(ELEMENT_IDS.EDIT_BUDGET_BTN);
   if (!editBtn) return;
@@ -157,6 +193,9 @@ function setupEditBudgetButton() {
   });
 }
 
+/**
+ * Sets up click handler for delete budget button with confirmation
+ */
 function setupDeleteBudgetButton() {
   const deleteBtn = getElement(ELEMENT_IDS.DELETE_BUDGET_BTN);
   if (!deleteBtn) return;
@@ -175,6 +214,10 @@ function setupDeleteBudgetButton() {
 
     if (!confirmed) return;
 
+    setElementDisabled(deleteBtn, true);
+    const originalText = deleteBtn.textContent;
+    deleteBtn.textContent = 'Deleting...';
+
     try {
       const res = await fetch(API_ENDPOINTS.DELETE_ITEM, {
         method: 'POST',
@@ -192,6 +235,8 @@ function setupDeleteBudgetButton() {
     } catch (err) {
       console.error('Delete budget failed:', err);
       alert(err.message || 'Failed to delete budget.');
+      setElementDisabled(deleteBtn, false);
+      deleteBtn.textContent = originalText;
     }
   });
 }
@@ -199,6 +244,11 @@ function setupDeleteBudgetButton() {
 /* =========================================================
    Category Management
 ========================================================= */
+/**
+ * Fetches available budget categories from the API
+ * @returns {Promise<Array<string>>}
+ * @throws {Error} if fetch fails
+ */
 async function fetchCategoriesFromApi() {
   try {
     const res = await fetch(API_ENDPOINTS.CATEGORIES, {
@@ -249,6 +299,11 @@ async function populateCategorySelect(selectId, selectedCategory = null) {
 /* =========================================================
    Modal Loading & Setup
 ========================================================= */
+
+/**
+ * Loads the add item modal HTML partial
+ * @returns {Promise<void>}
+ */
 async function loadAddItemModalPartial() {
   const container = getElement(ELEMENT_IDS.ADD_ITEM_MODAL_CONTAINER);
   if (!container) return;
@@ -262,6 +317,10 @@ async function loadAddItemModalPartial() {
   }
 }
 
+/**
+ * Loads the edit item modal HTML partial
+ * @returns {Promise<void>}
+ */
 async function loadEditItemModalPartial() {
   const container = getElement(ELEMENT_IDS.EDIT_ITEM_MODAL_CONTAINER);
   if (!container) return;
@@ -279,11 +338,12 @@ function setupAddItemModal() {
   const form = getElement(ELEMENT_IDS.ADD_ITEM_FORM);
   const modalEl = getElement(ELEMENT_IDS.ADD_ITEM_MODAL);
   const errorEl = getElement(ELEMENT_IDS.ADD_ITEM_ERROR);
+  const submitBtn = form?.querySelector('[type="submit"]');
 
   if (!form || !modalEl) return;
 
   modalEl.addEventListener('show.bs.modal', async () => {
-    if (errorEl) errorEl.style.display = 'none';
+    displayError(errorEl);
     await populateCategorySelect(ELEMENT_IDS.ITEM_CATEGORY);
   });
 
@@ -299,6 +359,11 @@ function setupAddItemModal() {
       name: getElement(ELEMENT_IDS.ITEM_NAME).value.trim(),
       total: Number(getElement(ELEMENT_IDS.ITEM_TOTAL).value),
     };
+
+    // Disable submit and show loading state
+    setElementDisabled(submitBtn, true);
+    if (submitBtn) submitBtn.textContent = 'Adding...';
+    displayError(errorEl);
 
     try {
       const res = await fetch(API_ENDPOINTS.CREATE_ITEM, {
@@ -318,10 +383,10 @@ function setupAddItemModal() {
       await loadBudget();
     } catch (err) {
       console.error('Add item failed:', err);
-      if (errorEl) {
-        errorEl.textContent = err.message || 'Failed to add item';
-        errorEl.style.display = 'block';
-      }
+      displayError(errorEl, err.message || 'Failed to add item');
+    } finally {
+      setElementDisabled(submitBtn, false);
+      if (submitBtn) submitBtn.textContent = 'Add item';
     }
   });
 }
@@ -329,22 +394,33 @@ function setupAddItemModal() {
 /* =========================================================
    Initialization
 ========================================================= */
-document.addEventListener('DOMContentLoaded', async () => {
+
+/**
+ * Initializes all budget page functionality
+ * Loads modals, sets up event handlers, and fetches budget data
+ */
+async function initializeBudgetPage() {
   const budgetId = getBudgetIdFromUrl();
   if (!budgetId) {
     console.error('No budget ID found in URL');
     return;
   }
 
-  // Load modal partials in parallel
-  await Promise.all([loadAddItemModalPartial(), loadEditItemModalPartial()]);
+  try {
+    // Load modal partials in parallel
+    await Promise.all([loadAddItemModalPartial(), loadEditItemModalPartial()]);
 
-  // Setup all event listeners
-  setupEditBudgetButton();
-  setupDeleteBudgetButton();
-  setupAddItemModal();
-  setupEditItemModal({ budgetId, onSuccess: loadBudget });
+    // Setup all event listeners
+    setupEditBudgetButton();
+    setupDeleteBudgetButton();
+    setupAddItemModal();
+    setupEditItemModal({ budgetId, onSuccess: loadBudget });
 
-  // Load initial budget data
-  await loadBudget();
-});
+    // Load initial budget data
+    await loadBudget();
+  } catch (err) {
+    console.error('Failed to initialize budget page:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initializeBudgetPage);
