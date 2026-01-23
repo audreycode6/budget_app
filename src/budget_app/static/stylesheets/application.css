@@ -13,9 +13,7 @@
 #budget-meta p {
   margin: 0;
 }
-/* #budget-attribute-form {
-  font-weight: bold;
-} */
+
 #budget-attribute-form > div {
   display: flex;
   align-items: baseline;
@@ -24,6 +22,12 @@
 
 .list-group-item:hover {
   background-color: #ccf7d3;
+}
+
+#welcome-intro {
+  border: 30px solid #a8b545;
+
+  background-color: #a8b545;
 }
 
 /* OLD */

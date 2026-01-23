@@ -14,19 +14,22 @@
   </head>
   <body>
     <div id="navbar"></div>
+    <section id="welcome-intro" class="d-flex align-items-center gap-3">
+      <h1>Welcome to BudgeTing!</h1>
+      <p>
+        A Python/Flask application backed by PostgreSQL that allows users to
+        create and manage budgets across different time horizons (monthly or
+        annually). Users can: - create and edit budgets - track gross income,
+        deductions, bills, savings, and debt - demo budget creation without an
+        account (persistence requires authentication)
+      </p>
+    </section>
     <main class="container py-4">
-      <section id="welcome-intro" class="d-flex align-items-center gap-3">
-        <h1>Welcome to BudgeTing!</h1>
-        <p>
-          A Python/Flask application backed by PostgreSQL that allows users to
-          create and manage budgets across different time horizons (monthly or
-          annually). Users can: - create and edit budgets - track gross income,
-          deductions, bills, savings, and debt - demo budget creation without an
-          account (persistence requires authentication)
-        </p>
-      </section>
       <section class="mb-4">
         <h3>Demo</h3>
+        <p class="text-muted">
+          This demo resets when you leave the page. Sign in to save budgets.
+        </p>
       </section>
     </main>
 

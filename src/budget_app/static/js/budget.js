@@ -253,8 +253,7 @@ function setupAddItemModal() {
 document.addEventListener('DOMContentLoaded', async () => {
   const budgetId = getBudgetIdFromUrl();
 
-  await loadAddItemModalPartial();
-  await loadEditItemModalPartial();
+  await Promise.all([loadAddItemModalPartial, loadEditItemModalPartial]);
 
   setupAddItemModal();
   setupEditItemModal({ budgetId, onSuccess: loadBudget });
