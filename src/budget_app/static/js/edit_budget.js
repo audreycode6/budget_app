@@ -13,7 +13,7 @@ async function loadBudgetForEdit() {
   });
 
   if (!res.ok) {
-    documentgetElementById('error').textContent = 'Failed to load budget';
+    document.getElementById('error').textContent = 'Failed to load budget';
     return;
   }
 

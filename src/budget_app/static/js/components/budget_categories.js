@@ -6,9 +6,7 @@ export function groupItemsByCategory(items) {
     if (!groups[item.category]) {
       groups[item.category] = { total: 0, items: [] };
     }
-    groups[item.category].total += Number(
-      item.total_raw ?? item.total_raw ?? 0
-    );
+    groups[item.category].total += Number(item.total_raw ?? item.total ?? 0);
     groups[item.category].items.push(item);
   });
   return groups;

@@ -16,7 +16,7 @@ async function loadNav() {
   // check auth state
   try {
     const res = await fetch('/api/health', { credentials: 'include' });
-    // todo doesnt credentials mean that they are logged in ..?
+    // TODO doesnt credentials mean that they are logged in ..?
     const loggedIn = res.ok;
     const currentPath = window.location.pathname;
 

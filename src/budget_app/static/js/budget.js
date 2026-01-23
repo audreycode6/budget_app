@@ -10,6 +10,7 @@ import {
 } from './components/accordion_state.js';
 import { bindItemActions } from './components/item_actions.js';
 import { setupEditItemModal } from './modals/edit_item_modal.js';
+import { formatCategoryLabel } from './components/budget_categories.js';
 
 /* =========================================================
    Constants
@@ -53,11 +54,6 @@ const PARTIAL_URLS = {
 /* =========================================================
    Utilities
 ========================================================= */
-function formatCategoryLabel(cat) {
-  return String(cat)
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
 
 function getElement(id) {
   const el = document.getElementById(id);

@@ -18,8 +18,8 @@ async function loadBudgets() {
       throw new Error(err || `Failed to load budgets (${response.status})`);
 
     if (!budgets || budgets.length === 0) {
-      const budget_info = document.getElementById('empty_budgets');
-      budget_info.style.display = 'inline';
+      const emptyBudgetsMessage = document.getElementById('empty_budgets');
+      emptyBudgetsMessage.style.display = 'inline';
       return;
     }
 

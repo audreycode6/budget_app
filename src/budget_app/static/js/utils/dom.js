@@ -4,7 +4,7 @@ export function el(tag, options = {}, children = []) {
   Object.entries(options).forEach(([key, value]) => {
     if (key === 'class') {
       element.className = value;
-    } else if (key == 'text') {
+    } else if (key === 'text') {
       element.textContent = value;
     } else if (key.startsWith('data-')) {
       element.setAttribute(key, value);

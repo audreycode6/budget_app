@@ -10,7 +10,6 @@ document
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        //   TODO check no credentials header right?
         body: JSON.stringify({ username, password }),
       });
 

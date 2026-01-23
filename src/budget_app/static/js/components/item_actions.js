@@ -3,7 +3,6 @@ import { deleteBudgetItem } from '../services/budget_api.js';
 export function bindItemActions({ container, budgetId, onRefresh, onEdit }) {
   if (!container) return;
 
-  // ✅ PREVENT MULTIPLE BINDINGS
   if (container.dataset.itemActionsBound === 'true') return;
   container.dataset.itemActionsBound = 'true';
 
