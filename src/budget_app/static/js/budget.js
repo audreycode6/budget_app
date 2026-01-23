@@ -32,6 +32,9 @@ const ELEMENT_IDS = {
   ITEM_CATEGORY: 'item-category',
   ITEM_NAME: 'item-name',
   ITEM_TOTAL: 'item-total',
+  EDIT_ITEM_ID: 'edit-item-id',
+  EDIT_ITEM_NAME: 'edit-item-name',
+  EDIT_ITEM_TOTAL: 'edit-item-total',
   EDIT_ITEM_CATEGORY: 'edit-item-category',
 };
 
@@ -123,9 +126,9 @@ async function loadBudget() {
           dataset.itemCategory
         );
 
-        getElement(ELEMENT_IDS.EDIT_ITEM_MODAL).value = dataset.itemId ?? '';
-        getElement(ELEMENT_IDS.ITEM_NAME).value = dataset.itemName ?? '';
-        getElement(ELEMENT_IDS.ITEM_TOTAL).value = dataset.itemTotal ?? '';
+        getElement(ELEMENT_IDS.EDIT_ITEM_ID).value = dataset.itemId ?? '';
+        getElement(ELEMENT_IDS.EDIT_ITEM_NAME).value = dataset.itemName ?? '';
+        getElement(ELEMENT_IDS.EDIT_ITEM_TOTAL).value = dataset.itemTotal ?? '';
 
         const modalEl = getElement(ELEMENT_IDS.EDIT_ITEM_MODAL);
         bootstrap.Modal.getOrCreateInstance(modalEl).show();
