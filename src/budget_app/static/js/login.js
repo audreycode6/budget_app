@@ -67,13 +67,27 @@ async function handleLogin(e) {
 ========================================================= */
 
 /**
- * Initializes the login form
+ * Initializes the login form and displays any success messages
  */
 function initializeLoginForm() {
   const form = document.getElementById(ELEMENT_IDS.FORM);
   if (!form) return;
 
   form.addEventListener('submit', handleLogin);
+
+  // Check for success message from previous page (e.g., after registration)
+  const successMessage = localStorage.getItem('successMessage');
+  if (successMessage) {
+    // Display success message at top of page
+    const errorEl = document.getElementById(ELEMENT_IDS.ERROR);
+    if (errorEl) {
+      errorEl.textContent = successMessage;
+      errorEl.className = 'text-success'; // Change color to green for success
+      errorEl.style.display = 'block';
+    }
+    // Clear the message so it doesn't show again
+    localStorage.removeItem('successMessage');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', initializeLoginForm);
