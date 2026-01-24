@@ -1,6 +1,8 @@
 // Constants
 const ELEMENT_IDS = {
   NAVBAR: 'navbar',
+  NAVBAR_COLLAPSE: 'navbarNav',
+  NAVBAR_TOGGLER: 'navbar-toggler',
   LOGOUT_LINK: 'logout-link',
 };
 
@@ -30,11 +32,41 @@ async function loadNavHTML() {
       return false;
     }
     document.getElementById(ELEMENT_IDS.NAVBAR).innerHTML = await res.text();
+    initializeNavToggler();
     return true;
   } catch (err) {
     console.error('Error fetching nav partial', err);
     return false;
   }
+}
+
+/**
+ * Initialize the navbar toggler for mobile collapse/expand.
+ * Bootstrap's collapse plugin doesn't auto-initialize dynamically injected elements,
+ * so we need to either initialize it manually or add a click handler.
+ */
+function initializeNavToggler() {
+  const toggler = document.querySelector(`.${ELEMENT_IDS.NAVBAR_TOGGLER}`);
+  const collapse = document.getElementById(ELEMENT_IDS.NAVBAR_COLLAPSE);
+
+  if (!toggler || !collapse) return;
+
+  // Try to use Bootstrap's Collapse API if available
+  if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+    new bootstrap.Collapse(collapse, { toggle: false });
+  }
+
+  // Add click handler to toggle collapse manually
+  toggler.addEventListener('click', () => {
+    collapse.classList.toggle('show');
+  });
+
+  // Close menu when a nav link is clicked (for better UX)
+  document.querySelectorAll(SELECTORS.NAV_LINK).forEach((link) => {
+    link.addEventListener('click', () => {
+      collapse.classList.remove('show');
+    });
+  });
 }
 
 /**

@@ -1,31 +1,46 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-      <a class="navbar-brand" href="/">BudgeTing</a>
-      <li class="nav-item">
-        <a class="nav-link" data-path="/" href="/">Home</a>
-      </li>
+    <a class="navbar-brand" href="/">BudgeTing</a>
 
-      <li class="nav-item" data-auth="logged-out" hidden>
-        <a class="nav-link" data-path="/register" href="/register">
-          Create Account
-        </a>
-      </li>
-      <li class="nav-item" data-auth="logged-out" hidden>
-        <a class="nav-link" data-path="/login" href="/login">Log In</a>
-      </li>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <li class="nav-item" data-auth="logged-in" hidden>
-        <a class="nav-link" data-path="/create_budget" href="/create_budget">
-          Create Budget
-        </a>
-      </li>
-      <li class="nav-item" data-auth="logged-in" hidden>
-        <a class="nav-link" data-path="/budgets" href="/budgets">Budgets</a>
-      </li>
-      <li class="nav-item" data-auth="logged-in" hidden>
-        <a class="nav-link text-danger" href="#" id="logout-link">Log Out</a>
-      </li>
-    </ul>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mb-2 mb-lg-0 w-100">
+        <li class="nav-item">
+          <a class="nav-link" data-path="/" href="/">Home</a>
+        </li>
+
+        <li class="nav-item" data-auth="logged-out" hidden>
+          <a class="nav-link" data-path="/register" href="/register">
+            Create Account
+          </a>
+        </li>
+        <li class="nav-item" data-auth="logged-out" hidden>
+          <a class="nav-link" data-path="/login" href="/login">Log In</a>
+        </li>
+
+        <li class="nav-item" data-auth="logged-in" hidden>
+          <a class="nav-link" data-path="/create_budget" href="/create_budget">
+            Create Budget
+          </a>
+        </li>
+        <li class="nav-item" data-auth="logged-in" hidden>
+          <a class="nav-link" data-path="/budgets" href="/budgets">Budgets</a>
+        </li>
+        <li class="nav-item logout-item" data-auth="logged-in" hidden>
+          <a class="nav-link text-danger" href="#" id="logout-link">Log Out</a>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>

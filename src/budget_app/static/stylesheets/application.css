@@ -29,3 +29,10 @@
 
   background-color: #a8b545;
 }
+
+/* Push logout to the right on large screens only */
+@media (min-width: 992px) {
+  .logout-item {
+    margin-left: auto;
+  }
+}
