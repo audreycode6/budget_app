@@ -29,7 +29,7 @@ def get_budgets_by_user_id(user_id):
     return [raw_budget_to_budget(budget) for budget in raw_budgets]
 
 
-def create_new_budget(user_id, name, month_duration_raw, gross_income_raw):
+def create_new_budget(user_id, name, month_duration_raw, gross_income):
     """
     return budget_id if valid input OR raise exceptions
     """
@@ -47,13 +47,13 @@ def create_new_budget(user_id, name, month_duration_raw, gross_income_raw):
         raise ValueError(invalid_month_duration_message)
 
     # check gross_income is number >= 0
-    invalid_gross_income_message = validate_positive_float(gross_income_raw)
+    invalid_gross_income_message = validate_positive_float(gross_income)
     if invalid_gross_income_message:
         raise ValueError(f"Gross income {invalid_gross_income_message}")
 
     # if no errors, safely convert for DB
     month_duration = int(month_duration_raw)
-    gross_income = float(gross_income_raw)
+    gross_income = float(gross_income)
 
     new_budget = Budget(
         name=name,

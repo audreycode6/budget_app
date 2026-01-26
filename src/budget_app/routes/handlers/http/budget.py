@@ -60,13 +60,13 @@ class BudgetHandler:
             }, 422
 
         name = body.get("name")
-        gross_income_raw = body.get("gross_income")
+        gross_income = body.get("gross_income")
         month_duration_raw = body.get("month_duration")
         user_id = get_session()["id"]
 
         try:
             budget_id = create_new_budget(
-                user_id, name, month_duration_raw, gross_income_raw
+                user_id, name, month_duration_raw, gross_income
             )
             budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             print(budget)

@@ -7,7 +7,7 @@ import { displayError, setFormDisabled } from './utils/ui.js';
 const ELEMENT_IDS = {
   FORM: 'edit-budget-form',
   NAME: 'name',
-  GROSS_INCOME: 'gross_income_raw',
+  GROSS_INCOME: 'gross_income',
   MONTH_DURATION: 'month_duration',
   CANCEL_LINK: 'cancel-link',
   ERROR: 'error',
@@ -55,7 +55,7 @@ async function loadBudgetForEdit() {
     const cancelLinkEl = document.getElementById(ELEMENT_IDS.CANCEL_LINK);
 
     if (nameEl) nameEl.value = budget.name;
-    if (grossIncomeEl) grossIncomeEl.value = budget.gross_income_raw;
+    if (grossIncomeEl) grossIncomeEl.value = budget.gross_income;
     if (durationEl) durationEl.value = budget.month_duration;
     if (cancelLinkEl) cancelLinkEl.href = `${PAGE_ROUTES.BUDGET}/${budgetId}`;
   } catch (err) {
@@ -86,7 +86,7 @@ async function handleEditBudget(e) {
     budget_id: budgetId,
     name: document.getElementById(ELEMENT_IDS.NAME).value,
     gross_income: parseFloat(
-      document.getElementById(ELEMENT_IDS.GROSS_INCOME).value
+      document.getElementById(ELEMENT_IDS.GROSS_INCOME).value,
     ),
     month_duration: document.getElementById(ELEMENT_IDS.MONTH_DURATION).value,
   };
