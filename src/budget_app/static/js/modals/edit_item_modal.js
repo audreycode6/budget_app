@@ -25,7 +25,7 @@ async function loadItemForEdit(itemId, budgetId) {
       `${API_ENDPOINTS.BUDGET}/${budgetId}/item/${itemId}`,
       {
         credentials: 'include',
-      }
+      },
     );
 
     if (!res.ok) {
@@ -37,7 +37,7 @@ async function loadItemForEdit(itemId, budgetId) {
 
     document.getElementById(ELEMENT_IDS.ITEM_NAME).value = item.name;
     document.getElementById(ELEMENT_IDS.ITEM_CATEGORY).value = item.category;
-    document.getElementById(ELEMENT_IDS.ITEM_TOTAL).value = item.total_raw;
+    document.getElementById(ELEMENT_IDS.ITEM_TOTAL).value = item.total;
   } catch (err) {
     console.error('Error loading item for edit:', err);
   }
@@ -58,7 +58,7 @@ export function setupEditItemModal({ budgetId, onSuccess }) {
 
   modalEl.addEventListener('show.bs.modal', async (e) => {
     const itemId = Number(
-      document.getElementById(ELEMENT_IDS.EDIT_ITEM_ID).value
+      document.getElementById(ELEMENT_IDS.EDIT_ITEM_ID).value,
     );
     if (itemId) {
       await loadItemForEdit(itemId, budgetId);
@@ -69,7 +69,7 @@ export function setupEditItemModal({ budgetId, onSuccess }) {
     e.preventDefault();
 
     const itemId = Number(
-      document.getElementById(ELEMENT_IDS.EDIT_ITEM_ID).value
+      document.getElementById(ELEMENT_IDS.EDIT_ITEM_ID).value,
     );
     const name = document.getElementById(ELEMENT_IDS.ITEM_NAME).value.trim();
     const category = document.getElementById(ELEMENT_IDS.ITEM_CATEGORY).value;

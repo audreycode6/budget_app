@@ -6,7 +6,7 @@ export function groupItemsByCategory(items) {
     if (!groups[item.category]) {
       groups[item.category] = { total: 0, items: [] };
     }
-    groups[item.category].total += Number(item.total_raw ?? item.total ?? 0);
+    groups[item.category].total += Number(item.total ?? 0);
     groups[item.category].items.push(item);
   });
   return groups;
@@ -46,7 +46,7 @@ export function buildCategoryAccordion({
         el('span', { text: label }),
         el('strong', { text: `$${data.total.toFixed(2)}` }),
       ]),
-    ]
+    ],
   );
 
   header.appendChild(button);
@@ -74,12 +74,12 @@ export function buildCategoryAccordion({
                 class: 'btn btn-sm btn-outline-secondary item-edit',
                 'data-item-id': String(item.id),
                 'data-item-name': item.name,
-                'data-item-total': String(item.total_raw ?? item.total),
+                'data-item-total': String(item.total),
                 'data-item-category': item.category,
                 type: 'button',
                 title: 'Edit item',
               },
-              [el('span', { text: 'Edit' })]
+              [el('span', { text: 'Edit' })],
             ),
 
             // Delete button
@@ -91,12 +91,12 @@ export function buildCategoryAccordion({
                 type: 'button',
                 title: 'Delete item',
               },
-              [el('span', { text: 'Delete' })]
+              [el('span', { text: 'Delete' })],
             ),
           ]),
-        ]
-      )
-    )
+        ],
+      ),
+    ),
   );
 
   const collapse = el(
@@ -107,7 +107,7 @@ export function buildCategoryAccordion({
       'aria-labelledby': `heading-${categoryId}`,
       // note: NO data-bs-parent so multiple can be open at once
     },
-    [el('div', { class: 'accordion-body p-0' }, [itemsList])]
+    [el('div', { class: 'accordion-body p-0' }, [itemsList])],
   );
 
   return el('div', { class: 'accordion-item' }, [header, collapse]);

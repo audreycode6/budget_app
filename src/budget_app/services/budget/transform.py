@@ -22,7 +22,6 @@ def raw_budget_to_budget(raw_budget):
                 "name": item.name,
                 "category": item.category,
                 "total": item.total,
-                # "total_raw": float(item.total),
             }
             for item in raw_budget.items
         ],
