@@ -39,7 +39,7 @@ function createBudgetRow(budget) {
       class:
         'list-group-item d-flex justify-content-between align-items-center',
     },
-    [info, actions]
+    [info, actions],
   );
 }
 
@@ -53,6 +53,19 @@ function displayEmptyState(show) {
     emptyEl.style.display = show ? 'inline' : 'none';
   }
 }
+
+/**
+ * Sets up click handler for create budget button
+ */
+function setupCreateBudgetButton() {
+  const createBtn = document.getElementById('create-budget-btn');
+  if (!createBtn) return;
+  createBtn.addEventListener('click', () => {
+    window.location.href = '/create_budget';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', setupCreateBudgetButton);
 
 /* =========================================================
    Budget Loading
@@ -77,7 +90,7 @@ async function loadBudgets() {
 
     if (!response.ok) {
       throw new Error(
-        data.message || `Failed to load budgets (${response.status})`
+        data.message || `Failed to load budgets (${response.status})`,
       );
     }
 
