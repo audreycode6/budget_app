@@ -35,8 +35,13 @@ AUTH ROUTES
 """
 
 
-@api_blueprint.route("/api/health", methods=["GET"])
+@api_blueprint.route("/api/auth/authenticated")
 @auth_handler.login_required
+def authenticate_user():
+    return {}, 200
+
+
+@api_blueprint.route("/api/health", methods=["GET"])
 def health():
     return {"status": "ok"}, 200
 

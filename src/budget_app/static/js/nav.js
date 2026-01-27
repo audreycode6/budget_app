@@ -7,7 +7,7 @@ const ELEMENT_IDS = {
 };
 
 const API_ENDPOINTS = {
-  HEALTH: '/api/health',
+  AUTHENTICATE: '/api/auth/authenticated',
   LOGOUT: '/api/auth/logout',
 };
 
@@ -76,7 +76,9 @@ function initializeNavToggler() {
  */
 async function checkAuthState() {
   try {
-    const res = await fetch(API_ENDPOINTS.HEALTH, { credentials: 'include' });
+    const res = await fetch(API_ENDPOINTS.AUTHENTICATE, {
+      credentials: 'include',
+    });
     return res.ok; // true if logged in (200), false if logged out (4xx)
   } catch (err) {
     console.error('Error checking auth state', err);
