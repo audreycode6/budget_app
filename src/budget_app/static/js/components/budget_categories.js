@@ -1,4 +1,5 @@
 import { el } from '../utils/dom.js';
+import { formatFloatToUSD } from '../utils/format_currency.js';
 
 export function groupItemsByCategory(items) {
   const groups = {};
@@ -44,7 +45,7 @@ export function buildCategoryAccordion({
     [
       el('div', { class: 'd-flex justify-content-between w-100 pe-3' }, [
         el('span', { text: label }),
-        el('strong', { text: `$${data.total.toFixed(2)}` }),
+        el('strong', { text: `${formatFloatToUSD(data.total)}` }),
       ]),
     ],
   );
@@ -65,7 +66,7 @@ export function buildCategoryAccordion({
           el('span', { text: item.name }),
           el('div', { class: 'd-flex gap-2 align-items-center' }, [
             // formatted display total
-            el('span', { text: item.total }),
+            el('span', { text: `${formatFloatToUSD(item.total)}` }),
 
             // Edit button
             el(

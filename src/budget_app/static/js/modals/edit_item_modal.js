@@ -91,10 +91,6 @@ export function setupEditItemModal({ budgetId, onSuccess }) {
 
     try {
       const res = await editBudgetItem(payload);
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Failed to edit item');
-      }
 
       bootstrap.Modal.getInstance(modalEl).hide();
       if (typeof onSuccess === 'function') {

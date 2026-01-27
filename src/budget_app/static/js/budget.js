@@ -11,6 +11,7 @@ import {
 import { bindItemActions } from './components/item_actions.js';
 import { setupEditItemModal } from './modals/edit_item_modal.js';
 import { formatCategoryLabel } from './components/budget_categories.js';
+import { formatFloatToUSD } from './utils/format_currency.js';
 
 /* =========================================================
    Constants
@@ -122,7 +123,7 @@ async function loadBudget() {
     const durationEl = getElement(ELEMENT_IDS.BUDGET_DURATION);
 
     if (titleEl) titleEl.textContent = `Budget: "${budget.name}"`;
-    if (grossEl) grossEl.textContent = budget.gross_income;
+    if (grossEl) grossEl.textContent = formatFloatToUSD(budget.gross_income);
     if (durationEl) durationEl.textContent = String(budget.month_duration);
 
     categoriesContainer.innerHTML = '';
@@ -155,7 +156,7 @@ async function loadBudget() {
       onEdit: async (dataset) => {
         await populateCategorySelect(
           ELEMENT_IDS.EDIT_ITEM_CATEGORY,
-          dataset.itemCategory
+          dataset.itemCategory,
         );
 
         getElement(ELEMENT_IDS.EDIT_ITEM_ID).value = dataset.itemId ?? '';
@@ -210,7 +211,7 @@ function setupDeleteBudgetButton() {
     }
 
     const confirmed = window.confirm(
-      'Are you sure you want to delete this budget?\n\nThis action cannot be undone.'
+      'Are you sure you want to delete this budget?\n\nThis action cannot be undone.',
     );
 
     if (!confirmed) return;
