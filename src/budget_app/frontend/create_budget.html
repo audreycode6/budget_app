@@ -10,61 +10,65 @@
     />
     <link rel="stylesheet" href="/static/stylesheets/application.css" />
   </head>
-  <body>
-    <div id="navbar"></div>
-    <main class="container py-4">
-      <h1>Create a Budget</h1>
-      <form id="create-budget-form">
-        <section id="budget-attribute-form">
-          <div>
-            <label for="name">
-              Budget Name
-              <input id="name" name="name" placeholder="Cool Budget Name" />
-            </label>
-          </div>
-          <div>
-            <label for="gross_income">
-              Gross Income
-              <small><em class="text-muted">- before deductions </em></small> $
-              <input
-                id="gross_income"
-                name="gross_income"
-                min="0"
-                type="number"
-                placeholder="1234"
-              />
-            </label>
-          </div>
-          <!-- <div class="d-flex align-items-center"> -->
-          <div class="mb-3">
-            <label for="month_duration" class="form-label"
-              >Duration
-              <small class="text-muted"
-                ><em
-                  >- choose whether this budget represents one month or one full
-                  year</em
-                >
-              </small>
-            </label>
-            <select
-              id="month_duration"
-              name="month_duration"
-              class="form-select"
-              required
-            >
-              <option value="">Select</option>
-              <option value="1">1 month</option>
-              <option value="12">1 year</option>
-            </select>
-          </div>
-        </section>
-        <button type="submit" class="btn btn-primary">Create Budget</button>
-      </form>
+  <div id="app" class="auth-hidden">
+    <body>
+      <div id="navbar"></div>
+      <main class="container py-4">
+        <h1>Create a Budget</h1>
+        <form id="create-budget-form">
+          <section id="budget-attribute-form">
+            <div>
+              <label for="name">
+                Budget Name
+                <input id="name" name="name" placeholder="Cool Budget Name" />
+              </label>
+            </div>
+            <div>
+              <label for="gross_income">
+                Gross Income
+                <small><em class="text-muted">- before deductions </em></small>
+                $
+                <input
+                  id="gross_income"
+                  name="gross_income"
+                  min="0"
+                  type="number"
+                  placeholder="1234"
+                />
+              </label>
+            </div>
+            <div class="mb-3">
+              <label for="month_duration" class="form-label"
+                >Duration
+                <small class="text-muted"
+                  ><em
+                    >- choose whether this budget represents one month or one
+                    full year</em
+                  >
+                </small>
+              </label>
+              <select
+                id="month_duration"
+                name="month_duration"
+                class="form-select"
+                required
+              >
+                <option value="">Select</option>
+                <option value="1">1 month</option>
+                <option value="12">1 year</option>
+              </select>
+            </div>
+          </section>
+          <button type="submit" class="btn btn-primary">Create Budget</button>
+        </form>
 
-      <div id="error" role="alert" class="text-danger"></div>
-    </main>
+        <div id="error" role="alert" class="text-danger"></div>
+      </main>
 
-    <script type="module" src="/static/js/nav.js" defer></script>
-    <script type="module" src="/static/js/create_budget.js" defer></script>
-  </body>
+      <script type="module" src="/static/js/services/auth.js"></script>
+
+      <script type="module" src="/static/js/nav.js" defer></script>
+      <script type="module" src="/static/js/create_budget.js" defer></script>
+    </body>
+  </div>
 </html>

@@ -12,69 +12,73 @@
     />
     <link rel="stylesheet" href="/static/stylesheets/application.css" />
   </head>
-  <body>
-    <div id="navbar"></div>
+  <div id="app" class="auth-hidden">
+    <body>
+      <div id="navbar"></div>
 
-    <main class="container py-4">
-      <section id="budget-heading" class="d-flex align-items-center gap-3">
-        <h1 id="budget-title"></h1>
-        <button id="edit-budget-btn" class="btn btn-sm btn-outline-secondary">
-          Edit Budget
-        </button>
-        <button id="delete-budget-btn" class="btn btn-sm btn-outline-danger">
-          Delete Budget
-        </button>
-      </section>
-      <section id="budget-meta" class="mb-3 d-flex gap-4">
-        <div>
-          <h3 class="h6 mb-0">Gross Income:</h3>
-          <p id="budget-gross" class="mb-0"></p>
-        </div>
-        <div>
-          <h3 class="h6 mb-0">Duration <small>(Months)</small>:</h3>
-          <p id="budget-duration" class="mb-0"></p>
-        </div>
-      </section>
-
-      <section class="mb-4">
-        <h3 class="d-flex align-items-center">
-          Items
-          <!-- Add item button opens modal (modal partial inserted below) -->
-          <button
-            id="add-item-btn"
-            type="button"
-            class="btn btn-sm btn-primary ms-3"
-            data-bs-toggle="modal"
-            data-bs-target="#addItemModal"
-          >
-            Add item
+      <main class="container py-4">
+        <section id="budget-heading" class="d-flex align-items-center gap-3">
+          <h1 id="budget-title"></h1>
+          <button id="edit-budget-btn" class="btn btn-sm btn-outline-secondary">
+            Edit Budget
           </button>
-        </h3>
+          <button id="delete-budget-btn" class="btn btn-sm btn-outline-danger">
+            Delete Budget
+          </button>
+        </section>
+        <section id="budget-meta" class="mb-3 d-flex gap-4">
+          <div>
+            <h3 class="h6 mb-0">Gross Income:</h3>
+            <p id="budget-gross" class="mb-0"></p>
+          </div>
+          <div>
+            <h3 class="h6 mb-0">Duration <small>(Months)</small>:</h3>
+            <p id="budget-duration" class="mb-0"></p>
+          </div>
+        </section>
 
-        <div id="budget-categories" class="accordion mb-3"></div>
-        <div id="edit-item-modal-container"></div>
+        <section class="mb-4">
+          <h3 class="d-flex align-items-center">
+            Items
+            <!-- Add item button opens modal (modal partial inserted below) -->
+            <button
+              id="add-item-btn"
+              type="button"
+              class="btn btn-sm btn-primary ms-3"
+              data-bs-toggle="modal"
+              data-bs-target="#addItemModal"
+            >
+              Add item
+            </button>
+          </h3>
 
-        <p id="empty-budget-items" class="text-muted" style="display: none">
-          No items yet ...
-        </p>
-      </section>
+          <div id="budget-categories" class="accordion mb-3"></div>
+          <div id="edit-item-modal-container"></div>
 
-      <div id="budget-error" role="alert" class="text-danger"></div>
-    </main>
+          <p id="empty-budget-items" class="text-muted" style="display: none">
+            No items yet ...
+          </p>
+        </section>
 
-    <!-- Placeholder container where the modal will be injected -->
-    <div id="add-item-modal-container"></div>
+        <div id="budget-error" role="alert" class="text-danger"></div>
+      </main>
 
-    <!-- Bootstrap bundle (JS + Popper) -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-..."
-      crossorigin="anonymous"
-      defer
-    ></script>
+      <!-- Placeholder container where the modal will be injected -->
+      <div id="add-item-modal-container"></div>
 
-    <!-- App scripts -->
-    <script type="module" src="/static/js/nav.js" defer></script>
-    <script type="module" src="/static/js/budget.js"></script>
-  </body>
+      <script type="module" src="/static/js/services/auth.js"></script>
+
+      <!-- Bootstrap bundle (JS + Popper) -->
+      <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-..."
+        crossorigin="anonymous"
+        defer
+      ></script>
+
+      <!-- App scripts -->
+      <script type="module" src="/static/js/nav.js" defer></script>
+      <script type="module" src="/static/js/budget.js"></script>
+    </body>
+  </div>
 </html>
