@@ -8,11 +8,6 @@ const ELEMENT_IDS = {
   LOGOUT_LINK: 'logout-link',
 };
 
-// const API_ENDPOINTS = {
-//   AUTHENTICATE: '/api/auth/authenticated',
-//   LOGOUT: '/api/auth/logout',
-// };
-
 const STATIC_RESOURCES = {
   NAV_PARTIAL: '/static/partials/nav.html',
 };
@@ -71,23 +66,6 @@ function initializeNavToggler() {
   });
 }
 
-/**
- * Check authentication state by attempting to access a protected endpoint.
- * credentials: 'include' sends the session cookie. If it's valid, the endpoint
- * returns 200. If there's no session or it's expired, it returns 401/403.
- */
-// async function checkAuthState() {
-//   try {
-//     const res = await fetch(API_ENDPOINTS.AUTHENTICATE, {
-//       credentials: 'include',
-//     });
-//     return res.ok; // true if logged in (200), false if logged out (4xx)
-//   } catch (err) {
-//     console.error('Error checking auth state', err);
-//     return false;
-//   }
-// }
-
 function attachLogoutHandler() {
   const logoutLink = document.getElementById(ELEMENT_IDS.LOGOUT_LINK);
   if (!logoutLink) return;
@@ -125,29 +103,6 @@ function markCurrentPage() {
     }
   });
 }
-
-/**
- * Attach logout handler to the logout link if it exists
- */
-// function attachLogoutHandler() {
-//   const logoutLink = document.getElementById(ELEMENT_IDS.LOGOUT_LINK);
-//   if (!logoutLink) return;
-
-//   logoutLink.addEventListener('click', async (e) => {
-//     e.preventDefault();
-//     try {
-//       await fetch(API_ENDPOINTS.LOGOUT, {
-//         method: 'GET',
-//         credentials: 'include',
-//       });
-//     } catch (err) {
-//       console.error('Error logging out', err);
-//     } finally {
-//       // Always redirect to login, regardless of logout endpoint success
-//       window.location.href = '/login';
-//     }
-//   });
-// }
 
 /**
  * Initialize the navigation bar: load HTML, check auth state,

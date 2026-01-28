@@ -1,5 +1,3 @@
-// TODO figure out if this file is still needed
-
 const API_ENDPOINTS = {
   AUTHENTICATE: '/api/auth/authenticated',
   LOGOUT: '/api/auth/logout',
