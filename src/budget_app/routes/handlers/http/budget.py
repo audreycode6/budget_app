@@ -38,6 +38,10 @@ class BudgetHandler:
 
         try:
             budget = get_budget_by_budget_and_user_id(budget_id, user_id)
+
+            if budget is None:
+                return {"message": "Budget not found or access denied."}, 404
+
             return {"budget": budget}, 200
         except Exception as e:
             print(e)
@@ -48,6 +52,7 @@ class BudgetHandler:
 
         try:
             budgets = get_budgets_by_user_id(user_id)
+
             return {"budgets": budgets}, 200
         except Exception as e:
             print(e)

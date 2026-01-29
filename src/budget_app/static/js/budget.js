@@ -106,6 +106,7 @@ async function loadBudget() {
     if (!budgetId) {
       throw new Error('Invalid budget ID');
     }
+    // TODO i dont think this works when budget is not found
 
     const payload = await fetchBudget(budgetId);
     const budget = payload?.budget ?? payload;

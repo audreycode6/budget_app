@@ -14,7 +14,7 @@ def get_budget_by_budget_and_user_id(budget_id, user_id):
 
     if raw_budget is None:
         print(f"Could not find budget with id: {budget_id} and user_id: {user_id}")
-        return {}
+        return None
 
     return raw_budget_to_budget(raw_budget)
 
