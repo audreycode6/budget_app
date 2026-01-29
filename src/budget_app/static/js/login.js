@@ -1,4 +1,5 @@
 import { displayError, setFormDisabled } from './utils/ui.js';
+import { handlePostLoginRedirect } from './services/auth.js';
 
 /* =========================================================
    Constants
@@ -54,7 +55,7 @@ async function handleLogin(e) {
       throw new Error(data.message || 'Login failed');
     }
 
-    window.location.href = PAGE_ROUTES.BUDGETS;
+    handlePostLoginRedirect();
   } catch (err) {
     console.error('Login failed:', err);
     displayError(ELEMENT_IDS.ERROR, err.message || 'Failed to log in');
