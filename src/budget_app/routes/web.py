@@ -12,6 +12,12 @@ def _send_frontend(filename):
     return send_from_directory(str(FRONTEND_DIR), filename)
 
 
+# Wildcard catch-all route
+@web_blueprint.route("/<path:catch_call>")
+def all_routes(catch_call):
+    return _send_frontend("unavailable_page.html")
+
+
 @web_blueprint.route(
     "/register"
 )  # TODO add flash when successful and redirecting to login
