@@ -34,6 +34,13 @@
   visibility: hidden;
 }
 
+.navbar {
+  background-color: #1da996;
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
 /* Push logout to the right on large screens only */
 @media (min-width: 992px) {
   .logout-item {
