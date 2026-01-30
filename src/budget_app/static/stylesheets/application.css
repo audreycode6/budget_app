@@ -25,9 +25,10 @@
 }
 
 #welcome-intro {
-  border: 30px solid #a8b545;
+  border: 30px solid #88d6ee;
 
-  background-color: #a8b545;
+  background-color: #88d6ee;
+  /* #a8b545; */
 }
 
 .auth-hidden {
@@ -35,7 +36,7 @@
 }
 
 .navbar {
-  background-color: #1da996;
+  background-color: #a8b545;
 }
 
 .navbar-brand {

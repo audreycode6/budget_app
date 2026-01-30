@@ -18,9 +18,7 @@ def all_routes(catch_call):
     return _send_frontend("unavailable_page.html")
 
 
-@web_blueprint.route(
-    "/register"
-)  # TODO add flash when successful and redirecting to login
+@web_blueprint.route("/register")
 def register_page():
     return _send_frontend("register.html")
 
