@@ -1,15 +1,30 @@
 # "Frontend API" only deals with HTML
 from pathlib import Path
 from flask import Blueprint, send_from_directory, current_app
+from budget_app.routes.handlers.http.budget import BudgetHandler
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 web_blueprint = Blueprint("web", __name__)
 
+budget_handler = BudgetHandler()
+
 
 def _send_frontend(filename):
     """convert to string for send_from_directory"""
     return send_from_directory(str(FRONTEND_DIR), filename)
+
+
+def _validate_budget_access(budget_id):
+    """
+    Validates that the user is logged in and budget exists and user has access.
+    Returns True if valid or user isn't logged in, False otherwise.
+    """
+    result, status_code = budget_handler.get_budget({"budget_id": budget_id})
+
+    if result.get("message") == "User not authenticated":
+        return True
+    return status_code == 200
 
 
 # Wildcard catch-all route
@@ -41,6 +56,9 @@ def budgets_page():
 @web_blueprint.route("/budget/<int:budget_id>")
 # TODO fix so that can only see your budget/ error display correctly
 def budget_page(budget_id):
+    if not _validate_budget_access(budget_id):
+        return _send_frontend("unavailable_page.html"), 404
+
     return _send_frontend("budget.html")
 
 
@@ -56,6 +74,9 @@ def create_budget_items_page():
 
 @web_blueprint.route("/budget/<int:budget_id>/edit")
 def edit_budget_page(budget_id):
+    if not _validate_budget_access(budget_id):
+        return _send_frontend("unavailable_page.html"), 404
+
     return _send_frontend("edit_budget.html")
 
 

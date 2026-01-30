@@ -34,15 +34,17 @@ class BudgetHandler:
             return {"message": "No budget_id provided"}, 422
 
         budget_id = body.get("budget_id")
-        user_id = get_session()["id"]
 
         try:
+            user_id = get_session()["id"]
             budget = get_budget_by_budget_and_user_id(budget_id, user_id)
 
             if budget is None:
                 return {"message": "Budget not found or access denied."}, 404
 
             return {"budget": budget}, 200
+        except PermissionError:
+            return {"message": "User not authenticated"}, 401
         except Exception as e:
             print(e)
             return {"message": "Unable to retreive budget."}, 503
