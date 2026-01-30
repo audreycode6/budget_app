@@ -169,9 +169,11 @@ async function loadBudget() {
       },
     });
   } catch (err) {
+    window.location.href = '/not_found';
     console.error('Failed to load budget:', err);
     const errorEl = getElement(ELEMENT_IDS.BUDGET_ERROR);
     displayError(errorEl, err.message || 'Failed to load budget');
+    // TODO fix to not even load th bduegt page, if invalid
   }
 }
 
