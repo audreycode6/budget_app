@@ -28,6 +28,8 @@ async function requireAuth() {
   if (!isAuthenticated) {
     // Store the current page so we can redirect back after login
     sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+    // Store login message
+    sessionStorage.setItem('loginMessage', 'Please login to continue');
     window.location.href = '/login';
     return false;
   }
@@ -60,6 +62,8 @@ async function initAuthCheck() {
     if (!isAuth) {
       // Store intended destination for post-login redirect
       sessionStorage.setItem('redirectAfterLogin', currentPath);
+      // Store login message
+      sessionStorage.setItem('loginMessage', 'Please login to continue');
       window.location.href = '/login';
       return false;
     }
@@ -112,6 +116,7 @@ async function logout() {
 function handlePostLoginRedirect() {
   const redirectPath = sessionStorage.getItem('redirectAfterLogin');
   sessionStorage.removeItem('redirectAfterLogin');
+  sessionStorage.removeItem('loginMessage');
 
   // Default to /budgets if no redirect was stored
   window.location.href = redirectPath || '/budgets';

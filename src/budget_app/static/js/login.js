@@ -76,6 +76,17 @@ function initializeLoginForm() {
 
   form.addEventListener('submit', handleLogin);
 
+  const errorEl = document.getElementById(ELEMENT_IDS.ERROR);
+
+  // Check for login message (from auth redirect)
+  const loginMessage = sessionStorage.getItem('loginMessage');
+  if (loginMessage && errorEl) {
+    errorEl.textContent = loginMessage;
+    errorEl.className = 'text-danger'; // Use info color for auth messages
+    errorEl.style.display = 'block';
+    // Don't remove it yet - it will be cleared on successful login
+  }
+
   // Check for success message from previous page (e.g., after registration)
   const successMessage = localStorage.getItem('successMessage');
   if (successMessage) {
