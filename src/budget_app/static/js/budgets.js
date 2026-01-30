@@ -1,5 +1,6 @@
 import { el } from './utils/dom.js';
 import { displayError } from './utils/ui.js';
+import { formatFloatToUSD } from './utils/format_currency.js';
 
 /* =========================================================
    Constants
@@ -14,33 +15,56 @@ const ELEMENT_IDS = {
    Utilities
 ========================================================= */
 
+// /**
+//  * Creates a budget list item row
+//  * @param {Object} budget - Budget object with id and name
+//  * @returns {HTMLElement} Budget row element
+//  */
+// function createBudgetRow(budget) {
+//   const info = el('div', {}, [
+//     el('div', { class: 'fw-semibold', text: budget.name }),
+//   ]);
+
+//   const actions = el('div', {}, [
+//     el('a', {
+//       href: `/budget/${encodeURIComponent(budget.id)}`,
+//       class: 'btn btn-sm btn-outline-primary',
+//       'aria-label': `View budget ${budget.name}`,
+//       text: 'View',
+//     }),
+//   ]);
+
+//   return el(
+//     'div',
+//     {
+//       class:
+//         'list-group-item d-flex justify-content-between align-items-center',
+//     },
+//     [info, actions],
+//   );
+// }
+
 /**
- * Creates a budget list item row
+ * Creates a budget card element
  * @param {Object} budget - Budget object with id and name
- * @returns {HTMLElement} Budget row element
+ * @returns {HTMLElement} Budget card wrapper element
  */
 function createBudgetRow(budget) {
-  const info = el('div', {}, [
-    el('div', { class: 'fw-semibold', text: budget.name }),
-  ]);
-
-  const actions = el('div', {}, [
+  const cardBody = el('div', { class: 'card-body d-flex flex-column' }, [
+    el('h5', { class: 'card-title', text: budget.name }),
+    el('p', {
+      class: 'card-text text-muted flex-grow-1',
+      text: `Gross Income: ${formatFloatToUSD(budget.gross_income)}`,
+    }),
     el('a', {
       href: `/budget/${encodeURIComponent(budget.id)}`,
-      class: 'btn btn-sm btn-outline-primary',
-      'aria-label': `View budget ${budget.name}`,
-      text: 'View',
+      class: 'btn btn-outline-primary mt-auto',
+      text: 'View Budget',
     }),
   ]);
 
-  return el(
-    'div',
-    {
-      class:
-        'list-group-item d-flex justify-content-between align-items-center',
-    },
-    [info, actions],
-  );
+  const card = el('div', { class: 'card h-100 shadow-sm' }, [cardBody]);
+  return el('div', { class: 'col-12 col-md-6 col-lg-4' }, [card]);
 }
 
 /**
