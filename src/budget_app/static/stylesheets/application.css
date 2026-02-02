@@ -52,24 +52,15 @@
 
 /* Welcome intro section */
 #welcome-intro {
+  margin-bottom: 2rem;
   background: linear-gradient(135deg, #a8b545 0%, #2570bd 100%);
   color: black;
-  padding: 3rem !important;
+  padding: 1.5rem !important;
   border-radius: 12px;
-}
-
-#welcome-intro h1 {
-  font-weight: 700;
-}
-
-#welcome-intro .lead {
-  font-size: 1.1rem;
-  opacity: 0.95;
+  justify-content: center;
 }
 
 #welcome-intro ul {
-  display: flex;
-  margin-top: 1.5rem;
   color: white;
 }
 
