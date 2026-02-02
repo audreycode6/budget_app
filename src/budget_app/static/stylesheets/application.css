@@ -20,8 +20,14 @@
   padding-bottom: 10px;
 }
 
+#budget-categories .accordion-button {
+  background-color: #a8b545;
+  color: white;
+  font-weight: bold;
+}
 .list-group-item:hover {
-  background-color: #edf1ee;
+  background-color: #dfecf2ae;
+  /* #d5e3f2; */
 }
 
 .auth-hidden {
@@ -29,7 +35,7 @@
 }
 
 .navbar {
-  background-color: white;
+  background-color: #d5e3f2;
 }
 
 .navbar-brand {
@@ -62,12 +68,13 @@
 }
 
 #welcome-intro ul {
+  display: flex;
   margin-top: 1.5rem;
   color: white;
 }
 
 #welcome-intro li {
-  padding: 0.3rem 0;
+  padding: 1.1rem;
   font-size: 1rem;
 }
 
@@ -178,7 +185,7 @@
 .alert-info {
   border-radius: 8px;
   border-left: 5px solid #7fe3f4;
-  background-color: #f7fafc;
+  background-color: #dfecf2ae;
   color: #2d3748;
 }
 
@@ -189,7 +196,8 @@
 
 /* Call to action section */
 section.text-center.py-5 {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  background: #d5e3f2;
+  /* background: linear-gradient(135deg, #f7fafc 0%, #d5e3f2 100%); */
   border-radius: 12px;
   margin-top: 3rem;
 }
