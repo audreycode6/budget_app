@@ -1,5 +1,5 @@
 <!doctype html>
-<html land="en">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>BudgeTing</title>
@@ -7,36 +7,193 @@
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      integrity="sha384-..."
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="/static/stylesheets/application.css" />
   </head>
   <body>
     <div id="navbar"></div>
-    <section id="welcome-intro" class="d-flex align-items-center gap-3">
-      <h1>Welcome to BudgeTing!</h1>
-      <p>
-        A Python/Flask application backed by PostgreSQL that allows users to
-        create and manage budgets across different time horizons (monthly or
-        annually). Users can: - create and edit budgets - track gross income,
-        deductions, bills, savings, and debt - demo budget creation without an
-        account (persistence requires authentication)
-      </p>
+
+    <section id="welcome-intro" class="container py-5">
+      <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+          <h1 class="display-4 mb-3">Welcome to BudgeTing!</h1>
+          <p class="lead mb-4">
+            A Python/Flask application backed by PostgreSQL that allows users to
+            create and manage budgets across different time horizons (monthly or
+            annually).
+          </p>
+          <div class="row text-start">
+            <div class="col-md-6">
+              <ul class="list-unstyled">
+                <li>✓ Create and edit budgets</li>
+                <li>✓ Track gross income & deductions</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="list-unstyled">
+                <li>✓ Manage bills, savings, and debt</li>
+                <li>✓ Demo without an account</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
+
     <main class="container py-4">
-      <section class="mb-4">
-        <h3>Demo</h3>
-        <p class="text-muted">
-          This demo resets when you leave the page. Sign in to save budgets.
+      <!-- Demo Section -->
+      <section class="mb-5">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Try It Now - Create a Demo Budget</h3>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info mb-4" role="alert">
+              <strong>Demo Mode:</strong>
+              <a href="/register" class="alert-link">Sign up</a> to save budgets
+              permanently!
+            </div>
+
+            <!-- Demo Budget Form -->
+            <form id="demo-budget-form">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="demo-name" class="form-label">Budget Name</label>
+                  <input
+                    id="demo-name"
+                    name="name"
+                    type="text"
+                    class="form-control"
+                    placeholder="My First Budget"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="demo-gross-income" class="form-label">
+                    Gross Income
+                    <small class="text-muted">- before deductions</small>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input
+                      id="demo-gross-income"
+                      name="gross_income"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      class="form-control"
+                      placeholder="5000.00"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="demo-duration" class="form-label">
+                    Duration
+                    <small class="text-muted">- monthly or yearly budget</small>
+                  </label>
+                  <select
+                    id="demo-duration"
+                    name="month_duration"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select duration...</option>
+                    <option value="1">1 month</option>
+                    <option value="12">1 year</option>
+                  </select>
+                </div>
+
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    Create Demo Budget
+                  </button>
+                </div>
+              </div>
+
+              <div
+                id="demo-error"
+                class="text-danger mt-3"
+                role="alert"
+                style="display: none"
+              ></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section class="mb-5">
+        <h3 class="mb-4">How It Works</h3>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">1. Create a Budget</h5>
+                <p class="card-text">
+                  Set up your budget with a name, income amount, and choose
+                  between monthly or yearly tracking.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">2. Add Budget Items</h5>
+                <p class="card-text">
+                  Categorize expenses like bills, groceries, savings, and debt.
+                  Track where your money goes.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">3. Monitor & Adjust</h5>
+                <p class="card-text">
+                  See your remaining balance in real-time. Edit items as needed
+                  to stay on track.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Existing Demo Budgets (if any) -->
+      <section id="existing-demo-budgets" style="display: none">
+        <h3 class="mb-3">Your Demo Budgets</h3>
+        <div id="demo-budgets-list" class="list-group mb-4"></div>
+        <button id="clear-demo-data-btn" class="btn btn-outline-danger btn-sm">
+          Clear All Demo Data
+        </button>
+      </section>
+
+      <!-- Call to Action -->
+      <section class="text-center py-5">
+        <h3 class="mb-3">Ready to save your budgets?</h3>
+        <p class="lead mb-4">
+          Create an account to save and access your budgets from anywhere.
         </p>
+        <div class="d-flex gap-3 justify-content-center">
+          <a href="/register" class="btn btn-outline-primary btn-lg"
+            >Sign Up for Free</a
+          >
+          <a href="/login" class="btn btn-outline-primary btn-lg">Log In</a>
+        </div>
       </section>
     </main>
 
     <!-- Bootstrap bundle (JS + Popper) -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-..."
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
       defer
     ></script>
