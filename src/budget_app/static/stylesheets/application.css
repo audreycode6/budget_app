@@ -27,7 +27,6 @@
 }
 .list-group-item:hover {
   background-color: #dfecf2ae;
-  /* #d5e3f2; */
 }
 
 .auth-hidden {
@@ -41,6 +40,7 @@
 .navbar-brand {
   font-weight: bold;
 }
+
 /* Push logout to the right on large screens only */
 @media (min-width: 992px) {
   .logout-item {
