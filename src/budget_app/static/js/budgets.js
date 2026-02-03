@@ -15,35 +15,6 @@ const ELEMENT_IDS = {
    Utilities
 ========================================================= */
 
-// /**
-//  * Creates a budget list item row
-//  * @param {Object} budget - Budget object with id and name
-//  * @returns {HTMLElement} Budget row element
-//  */
-// function createBudgetRow(budget) {
-//   const info = el('div', {}, [
-//     el('div', { class: 'fw-semibold', text: budget.name }),
-//   ]);
-
-//   const actions = el('div', {}, [
-//     el('a', {
-//       href: `/budget/${encodeURIComponent(budget.id)}`,
-//       class: 'btn btn-sm btn-outline-primary',
-//       'aria-label': `View budget ${budget.name}`,
-//       text: 'View',
-//     }),
-//   ]);
-
-//   return el(
-//     'div',
-//     {
-//       class:
-//         'list-group-item d-flex justify-content-between align-items-center',
-//     },
-//     [info, actions],
-//   );
-// }
-
 /**
  * Creates a budget card element
  * @param {Object} budget - Budget object with id and name

@@ -20,6 +20,7 @@
       <div id="navbar"></div>
 
       <main class="container py-4" style="max-width: 720px">
+        <div id="error"></div>
         <h1 class="display-4 mb-3">Edit Budget</h1>
 
         <form id="edit-budget-form" novalidate>
@@ -72,14 +73,6 @@
             <a id="cancel-link" class="btn btn-secondary" href="#"> Cancel </a>
           </div>
         </form>
-
-        <!-- Error display -->
-        <div
-          id="error"
-          class="text-danger mt-3"
-          role="alert"
-          aria-live="polite"
-        ></div>
       </main>
 
       <script type="module" src="/static/js/services/auth.js"></script>

@@ -446,11 +446,11 @@ class EditBudget(BudgetDataFixture):
             edit_budget_attributes(1, 10, {"name": "test_dont_dupe"})
 
     def test_invalid_gross_income_value(self):
-        error_message_negative_num = "gross_income must be a non negative number."
+        error_message_negative_num = "Gross income must be a non negative number."
         with self.assertRaisesRegex(ValueError, error_message_negative_num):
             edit_budget_attributes(1, 10, {"gross_income": "-123"})
 
-        expected_error_not_num = "gross_income must be a valid number."
+        expected_error_not_num = "Gross income must be a valid number."
         with self.assertRaisesRegex(ValueError, expected_error_not_num):
             edit_budget_attributes(1, 10, {"gross_income": ""})
 

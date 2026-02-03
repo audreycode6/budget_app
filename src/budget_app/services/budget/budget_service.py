@@ -134,7 +134,7 @@ def edit_budget_attributes(budget_id, user_id, attributes_to_edit):
         if attribute == "gross_income":
             error_message = validate_positive_float(new_value)
             if error_message:
-                raise ValueError(f"{attribute} {error_message}")
+                raise ValueError(f"Gross income {error_message}")
 
         if attribute == "month_duration":
             error_message = validate_month_duration(new_value)

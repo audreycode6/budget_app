@@ -13,6 +13,7 @@ import { setupEditItemModal } from './modals/edit_item_modal.js';
 import { formatCategoryLabel } from './components/budget_categories.js';
 import { formatFloatToUSD } from './utils/format_currency.js';
 import { getTotalExpenses, calculateNetIncome } from './utils/net_income.js';
+import { displayError } from './utils/ui.js';
 
 /* =========================================================
    Constants
@@ -21,7 +22,7 @@ const ELEMENT_IDS = {
   BUDGET_TITLE: 'budget-title',
   BUDGET_GROSS: 'budget-gross',
   BUDGET_DURATION: 'budget-duration',
-  BUDGET_ERROR: 'budget-error',
+  BUDGET_ERROR: 'error',
   BUDGET_CATEGORIES: 'budget-categories',
   EMPTY_MESSAGE: 'empty-budget-items',
   NET_INCOME_DIV: 'net-income',
@@ -71,21 +72,6 @@ function getElement(id) {
     console.warn(`Element not found: ${id}`);
   }
   return el;
-}
-
-/**
- * Displays or hides error message element
- * @param {HTMLElement | null} errorEl - The error element
- * @param {string} message - Error message to display (or empty to hide)
- */
-function displayError(errorEl, message = '') {
-  if (!errorEl) return;
-  if (message) {
-    errorEl.textContent = message;
-    errorEl.style.display = 'block';
-  } else {
-    errorEl.style.display = 'none';
-  }
 }
 
 /**
@@ -258,7 +244,10 @@ function setupDeleteBudgetButton() {
       window.location.href = '/budgets';
     } catch (err) {
       console.error('Delete budget failed:', err);
-      alert(err.message || 'Failed to delete budget.');
+      displayError(
+        ELEMENT_IDS.BUDGET_ERROR,
+        err.message || 'Failed to delete budget',
+      );
       setElementDisabled(deleteBtn, false);
       deleteBtn.textContent = originalText;
     }

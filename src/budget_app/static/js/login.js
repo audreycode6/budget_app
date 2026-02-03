@@ -81,7 +81,7 @@ function initializeLoginForm() {
   // Check for login message (from auth redirect)
   const loginMessage = sessionStorage.getItem('loginMessage');
   if (loginMessage && errorEl) {
-    displayError(ELEMENT_IDS.ERROR, loginMessage, 'success');
+    displayError(ELEMENT_IDS.ERROR, loginMessage, 'warning');
   }
 
   // Check for success message from previous page (e.g., after registration)

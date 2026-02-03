@@ -77,11 +77,6 @@ async function handleEditBudget(e) {
   const form = e.target;
   const budgetId = getBudgetIdFromUrl();
 
-  if (!budgetId) {
-    displayError(ELEMENT_IDS.ERROR, 'Invalid budget URL');
-    return;
-  }
-
   const body = {
     budget_id: budgetId,
     name: document.getElementById(ELEMENT_IDS.NAME).value,
