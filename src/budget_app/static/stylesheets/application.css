@@ -299,3 +299,60 @@ section.text-center.py-5 .btn-primary {
     margin-bottom: 1rem;
   }
 }
+
+/* Consistent form styling for create budget page */
+#create-budget-form .form-control,
+#create-budget-form .form-select,
+#edit-budget-form .form-control,
+#edit-budget-form .form-select {
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.2s;
+}
+
+#create-budget-form .form-control:focus,
+#create-budget-form .form-select:focus,
+#edit-budget-form .form-control:focus,
+#edit-budget-form .form-select:focus {
+  border-color: #a8b545;
+  box-shadow: 0 0 0 0.2rem rgba(168, 181, 69, 0.15);
+}
+
+/* Special handling for input group (gross income field) */
+#create-budget-form .input-group .form-control,
+#edit-budget-form .input-group .form-control {
+  border-radius: 0 8px 8px 0;
+}
+
+#create-budget-form .input-group .input-group-text,
+#edit-budget-form .input-group .input-group-text {
+  border-radius: 8px 0 0 8px;
+  border: 2px solid #e2e8f0;
+  background-color: #f8f9fa;
+}
+
+#create-budget-form .input-group:focus-within .input-group-text,
+#edit-budget-form .input-group:focus-within .input-group-text {
+  border-color: #a8b545;
+}
+
+/* Modal styling to match theme */
+#add-item-form .modal-header,
+#edit-item-form .modal-header {
+  background: #2570bd;
+  color: white;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+#add-item-form .modal-header .btn-close,
+#edit-item-form .modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+#add-item-form .modal-content,
+#edit-item-form .modal-content {
+  border-radius: 8px;
+  border: none;
+}
