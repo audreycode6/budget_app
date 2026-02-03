@@ -14,55 +14,69 @@
     <body>
       <div id="navbar"></div>
       <main class="container py-4">
-        <h1 class="display-4 mb-3">Create a Budget</h1>
-        <form id="create-budget-form">
-          <section id="budget-attribute-form">
-            <div>
-              <label for="name">
-                Budget Name
-                <input id="name" name="name" placeholder="Cool Budget Name" />
-              </label>
-            </div>
-            <div>
-              <label for="gross_income">
-                Gross Income
-                <small><em class="text-muted">- before deductions </em></small>
-                $
-                <input
-                  id="gross_income"
-                  name="gross_income"
-                  min="0"
-                  type="number"
-                  placeholder="1234"
-                />
-              </label>
-            </div>
-            <div class="mb-3">
-              <label for="month_duration" class="form-label"
-                >Duration
-                <small class="text-muted"
-                  ><em
-                    >- choose whether this budget represents one month or one
-                    full year</em
+        <section class="mb-5">
+          <h1 class="display-4 mb-3">Create a Budget</h1>
+          <div class="card-body">
+            <form id="create-budget-form">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="name" class="form-label">
+                    Budget Name
+                    <input
+                      id="name"
+                      name="name"
+                      class="form-control"
+                      placeholder="Cool Budget Name"
+                      required
+                    />
+                  </label>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="gross_income" class="form-label">
+                    Gross Income
+                    <small class="text-muted">- before deductions </small>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input
+                      id="gross_income"
+                      name="gross_income"
+                      min="0"
+                      type="number"
+                      placeholder="1234"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="month_duration" class="form-label"
+                    >Duration
+                    <small class="text-muted"
+                      >- monthly or yearly budget
+                    </small>
+                  </label>
+                  <select
+                    id="month_duration"
+                    name="month_duration"
+                    class="form-select"
+                    required
                   >
-                </small>
-              </label>
-              <select
-                id="month_duration"
-                name="month_duration"
-                class="form-select"
-                required
-              >
-                <option value="">Select</option>
-                <option value="1">1 month</option>
-                <option value="12">1 year</option>
-              </select>
-            </div>
-          </section>
-          <button type="submit" class="btn btn-primary btn-lg">
-            Create Budget
-          </button>
-        </form>
+                    <option value="">Select duration...</option>
+                    <option value="1">1 month</option>
+                    <option value="12">1 year</option>
+                  </select>
+                </div>
+
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    Create Budget
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
 
         <div id="error" role="alert" class="text-danger"></div>
       </main>

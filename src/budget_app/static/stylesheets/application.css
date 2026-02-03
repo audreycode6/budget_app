@@ -87,7 +87,7 @@
 }
 
 /* Form inputs */
-#demo-budget-form .form-label {
+/* #demo-budget-form .form-label {
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
@@ -102,9 +102,9 @@
 
 #demo-budget-form .form-control:focus,
 #demo-budget-form .form-select:focus {
-  border-color: #2570bd;
+  border-color: #a8b545;
   box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
-}
+} */
 
 /* Submit button */
 #demo-submit-btn {
