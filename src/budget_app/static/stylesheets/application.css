@@ -1,3 +1,65 @@
+#budget-meta {
+  background-color: #cfd4a5;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.budget-meta-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.budget-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  min-height: 80px;
+  flex: 1 1 250px; /* Grow, shrink, base width of 250px */
+  min-width: 200px; /* Minimum width before wrapping */
+}
+
+.budget-meta-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.budget-meta-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .budget-meta-item {
+    min-height: 70px;
+    flex: 1 1 100%; /* Stack on mobile */
+  }
+
+  .budget-meta-value {
+    font-size: 1.25rem;
+  }
+}
+
+/* When there are only 2 items visible, ensure they share space evenly */
+.budget-meta-container:has(
+    .budget-meta-item:nth-child(3)[style*='display: none']
+  )
+  .budget-meta-item {
+  flex: 1 1 calc(50% - 0.5rem);
+}
+
 #budget-meta > div {
   display: flex;
   align-items: baseline;
@@ -21,12 +83,14 @@
 }
 
 #budget-categories .accordion-button {
-  background-color: #02b090;
+  background-color: #769dc5;
+  /* #02b090; */
   color: white;
   font-weight: bold;
 }
 .list-group-item:hover {
-  background-color: #dfecf2ae;
+  background-color: #d5e3f2;
+  /* #dfecf2ae; */
 }
 
 .auth-hidden {
@@ -34,7 +98,8 @@
 }
 
 .navbar {
-  background-color: #d5e3f2;
+  background-color: #cfd4a5;
+  /* #d5e3f2; */
 }
 
 .navbar-brand {
