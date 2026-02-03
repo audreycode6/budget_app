@@ -12,6 +12,7 @@ import { bindItemActions } from './components/item_actions.js';
 import { setupEditItemModal } from './modals/edit_item_modal.js';
 import { formatCategoryLabel } from './components/budget_categories.js';
 import { formatFloatToUSD } from './utils/format_currency.js';
+import { getTotalExpenses, calculateNetIncome } from './utils/net_income.js';
 
 /* =========================================================
    Constants
@@ -23,6 +24,8 @@ const ELEMENT_IDS = {
   BUDGET_ERROR: 'budget-error',
   BUDGET_CATEGORIES: 'budget-categories',
   EMPTY_MESSAGE: 'empty-budget-items',
+  NET_INCOME_DIV: 'net-income',
+  NET_INCOME: 'budget-net-income',
   EDIT_BUDGET_BTN: 'edit-budget-btn',
   DELETE_BUDGET_BTN: 'delete-budget-btn',
   ADD_ITEM_FORM: 'add-item-form',
@@ -106,13 +109,14 @@ async function loadBudget() {
     if (!budgetId) {
       throw new Error('Invalid budget ID');
     }
-    // TODO i dont think this works when budget is not found
 
     const payload = await fetchBudget(budgetId);
     const budget = payload?.budget ?? payload;
 
     const errorEl = getElement(ELEMENT_IDS.BUDGET_ERROR);
     const emptyMsg = getElement(ELEMENT_IDS.EMPTY_MESSAGE);
+    const netIncomeDiv = getElement(ELEMENT_IDS.NET_INCOME_DIV);
+    const netIncomeEl = getElement(ELEMENT_IDS.NET_INCOME);
     const categoriesContainer = getElement(ELEMENT_IDS.BUDGET_CATEGORIES);
 
     // Clear any previous errors
@@ -131,11 +135,27 @@ async function loadBudget() {
 
     // Handle empty state
     if (!budget.items || budget.items.length === 0) {
-      if (emptyMsg) emptyMsg.style.display = 'block';
+      if (emptyMsg)
+        ((emptyMsg.style.display = 'block'),
+          (netIncomeDiv.style.display = 'none'));
       return;
     }
 
-    if (emptyMsg) emptyMsg.style.display = 'none';
+    if (emptyMsg)
+      ((emptyMsg.style.display = 'none'),
+        (netIncomeDiv.style.display = 'block'));
+
+    // Calculate and display net income
+    const totalExpenses = getTotalExpenses(budget);
+    const { netIncome, isInNegative } = calculateNetIncome(
+      budget.gross_income,
+      totalExpenses,
+    );
+
+    if (netIncomeEl) {
+      netIncomeEl.textContent = formatFloatToUSD(netIncome);
+      netIncomeEl.style.color = isInNegative ? 'red' : 'green';
+    }
 
     // Build category accordions
     const grouped = groupItemsByCategory(budget.items);
@@ -173,7 +193,6 @@ async function loadBudget() {
     console.error('Failed to load budget:', err);
     const errorEl = getElement(ELEMENT_IDS.BUDGET_ERROR);
     displayError(errorEl, err.message || 'Failed to load budget');
-    // TODO fix to not even load th bduegt page, if invalid
   }
 }
 

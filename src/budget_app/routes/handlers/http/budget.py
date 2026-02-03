@@ -41,7 +41,7 @@ class BudgetHandler:
 
             if budget is None:
                 return {"message": "Budget not found or access denied."}, 404
-
+            print(f"TEST {budget}")
             return {"budget": budget}, 200
         except PermissionError:
             return {"message": "User not authenticated"}, 401
