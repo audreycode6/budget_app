@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg">
   <div class="container">
-    <a class="navbar-brand" href="/">BudgeTing</a>
+    <a class="navbar-brand">BudgeTing</a>
 
     <button
       class="navbar-toggler"
@@ -16,10 +16,9 @@
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mb-2 mb-lg-0 w-100">
-        <li class="nav-item">
+        <li class="nav-item" data-auth="logged-out" hidden>
           <a class="nav-link" data-path="/" href="/">Home</a>
         </li>
-
         <li class="nav-item" data-auth="logged-out" hidden>
           <a class="nav-link" data-path="/register" href="/register">
             Create Account
@@ -28,8 +27,9 @@
         <li class="nav-item" data-auth="logged-out" hidden>
           <a class="nav-link" data-path="/login" href="/login">Log In</a>
         </li>
+
         <li class="nav-item" data-auth="logged-in" hidden>
-          <a class="nav-link" data-path="/budgets" href="/budgets">Budgets</a>
+          <a class="nav-link" data-path="/budgets" href="/budgets">Home</a>
         </li>
         <li class="nav-item logout-item" data-auth="logged-in" hidden>
           <a class="nav-link text-danger" href="#" id="logout-link">Log Out</a>
