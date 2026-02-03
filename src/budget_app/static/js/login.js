@@ -81,10 +81,7 @@ function initializeLoginForm() {
   // Check for login message (from auth redirect)
   const loginMessage = sessionStorage.getItem('loginMessage');
   if (loginMessage && errorEl) {
-    errorEl.textContent = loginMessage;
-    errorEl.className = 'text-danger'; // Use info color for auth messages
-    errorEl.style.display = 'block';
-    // Don't remove it yet - it will be cleared on successful login
+    displayError(ELEMENT_IDS.ERROR, loginMessage, 'success');
   }
 
   // Check for success message from previous page (e.g., after registration)
@@ -93,9 +90,7 @@ function initializeLoginForm() {
     // Display success message at top of page
     const errorEl = document.getElementById(ELEMENT_IDS.ERROR);
     if (errorEl) {
-      errorEl.textContent = successMessage;
-      errorEl.className = 'text-success'; // Change color to green for success
-      errorEl.style.display = 'block';
+      displayError(ELEMENT_IDS.ERROR, successMessage, 'success');
     }
     // Clear the message so it doesn't show again
     localStorage.removeItem('successMessage');

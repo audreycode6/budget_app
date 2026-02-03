@@ -1,14 +1,17 @@
 /**
- * Displays or hides error message by element ID
+ * Displays or hides error message by element ID with Bootstrap alert styling
  * @param {string} elementId - The error element ID
  * @param {string} message - Error message to display (or empty to hide)
+ * @param {string} type - Bootstrap alert type: 'danger', 'warning', 'success', 'info' (default: 'danger')
  */
-export function displayError(elementId, message = '') {
+export function displayError(elementId, message = '', type = 'danger') {
   const errorEl = document.getElementById(elementId);
   if (!errorEl) return;
 
   if (message) {
     errorEl.textContent = message;
+    errorEl.className = `alert alert-${type}`;
+    errorEl.setAttribute('role', 'alert');
     errorEl.style.display = 'block';
   } else {
     errorEl.style.display = 'none';
