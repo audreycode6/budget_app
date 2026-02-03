@@ -1,5 +1,6 @@
 #budget-meta {
-  background-color: #cfd4a5;
+  background-color: #d5e3f2;
+  /* #cfd4a5; */
   border-radius: 8px;
   padding: 1.5rem;
   border: 1px solid #e2e8f0;
@@ -150,26 +151,6 @@
   font-size: 1.5rem;
   font-weight: 600;
 }
-
-/* Form inputs */
-/* #demo-budget-form .form-label {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-#demo-budget-form .form-control,
-#demo-budget-form .form-select {
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-  padding: 0.75rem 1rem;
-  transition: border-color 0.2s;
-}
-
-#demo-budget-form .form-control:focus,
-#demo-budget-form .form-select:focus {
-  border-color: #a8b545;
-  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
-} */
 
 /* Submit button */
 #demo-submit-btn {
@@ -340,7 +321,7 @@ section.text-center.py-5 .btn-primary {
 /* Modal styling to match theme */
 #add-item-form .modal-header,
 #edit-item-form .modal-header {
-  background: #2570bd;
+  background: #a8b545;
   color: white;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
