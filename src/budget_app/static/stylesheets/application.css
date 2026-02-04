@@ -172,11 +172,11 @@
 }
 
 /* Push logout to the right on large screens only */
-@media (min-width: 992px) {
+/* @media (min-width: 992px) {
   .logout-item {
     margin-left: auto;
   }
-}
+} */
 
 /* Additional styles for homepage demo section */
 
