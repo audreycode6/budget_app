@@ -69,71 +69,161 @@
         <div class="row g-4">
           <!-- Card 1 -->
           <div class="col-md-4">
-            <div class="card h-100 step-card">
+            <div class="card h-100">
               <div class="card-body">
                 <h5 class="card-title">1. Create a Budget</h5>
                 <p class="card-text">
                   Set up your budget with a name, income amount, and choose
                   between monthly or yearly tracking.
                 </p>
-                <!-- Add image container -->
-                <div class="step-demo">
-                  <img
-                    src="/static/demos/full_create_budget.gif"
-                    alt="Creating a budget demo"
-                    class="step-image"
-                    loading="lazy"
-                  />
-                </div>
+                <button
+                  class="btn btn-outline-primary btn-sm mt-2"
+                  data-bs-toggle="modal"
+                  data-bs-target="#demoModal1"
+                >
+                  View Demo
+                </button>
               </div>
             </div>
           </div>
 
           <!-- Card 2 -->
           <div class="col-md-4">
-            <div class="card h-100 step-card">
+            <div class="card h-100">
               <div class="card-body">
                 <h5 class="card-title">2. Add Budget Items</h5>
                 <p class="card-text">
                   Categorize expenses like bills, groceries, savings, and debt.
                   Track where your money goes.
                 </p>
-                <!-- Add image container -->
-                <div class="step-demo">
-                  <img
-                    src="/static/demos/full_create_budget.gif"
-                    alt="Creating a budget demo"
-                    class="step-image"
-                    loading="lazy"
-                  />
-                </div>
+                <button
+                  class="btn btn-outline-primary btn-sm mt-2"
+                  data-bs-toggle="modal"
+                  data-bs-target="#demoModal2"
+                >
+                  View Demo
+                </button>
               </div>
             </div>
           </div>
 
           <!-- Card 3 -->
           <div class="col-md-4">
-            <div class="card h-100 step-card">
+            <div class="card h-100">
               <div class="card-body">
                 <h5 class="card-title">3. Monitor & Adjust</h5>
                 <p class="card-text">
                   See your remaining balance in real-time. Edit items as needed
                   to stay on track.
                 </p>
-                <!-- Add image container -->
-                <div class="step-demo">
-                  <img
-                    src="/static/demos/full_create_budget.gif"
-                    alt="Creating a budget demo"
-                    class="step-image"
-                    loading="lazy"
-                  />
-                </div>
+                <button
+                  class="btn btn-outline-primary btn-sm mt-2"
+                  data-bs-toggle="modal"
+                  data-bs-target="#demoModal3"
+                >
+                  View Demo
+                </button>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      <!-- Modal 1: Create Budget -->
+      <div
+        class="modal fade"
+        id="demoModal1"
+        tabindex="-1"
+        aria-labelledby="demoModal1Label"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="demoModal1Label">
+                Create a Budget Demo
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body text-center">
+              <img
+                src="/static/demos/full_create_budget.gif"
+                alt="Creating a budget demo"
+                class="img-fluid rounded"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 2: Add Items -->
+      <div
+        class="modal fade"
+        id="demoModal2"
+        tabindex="-1"
+        aria-labelledby="demoModal2Label"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="demoModal2Label">
+                Add Budget Items Demo
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body text-center">
+              <img
+                src="/static/demos/add-items.gif"
+                alt="Adding budget items demo"
+                class="img-fluid rounded"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 3: Monitor -->
+      <div
+        class="modal fade"
+        id="demoModal3"
+        tabindex="-1"
+        aria-labelledby="demoModal3Label"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="demoModal3Label">
+                Monitor & Adjust Demo
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body text-center">
+              <img
+                src="/static/demos/monitor.gif"
+                alt="Monitoring budget demo"
+                class="img-fluid rounded"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Call to Action -->
       <section class="text-center py-5">
