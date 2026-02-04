@@ -9,6 +9,7 @@ const ELEMENT_IDS = {
   BUDGETS_LIST: 'budgets-list',
   EMPTY_MESSAGE: 'empty_budgets',
   ERROR: 'error',
+  USER_GREETING: 'user-greeting',
 };
 
 /* =========================================================
@@ -79,7 +80,7 @@ async function loadBudgets() {
     const response = await fetch('/api/budgets', { credentials: 'include' });
 
     const data = await response.json();
-    const { budgets } = data;
+    const { budgets, username } = data;
 
     list.innerHTML = '';
 
@@ -87,6 +88,14 @@ async function loadBudgets() {
       throw new Error(
         data.message || `Failed to load budgets (${response.status})`,
       );
+    }
+
+    // Display username greeting if available
+    if (username) {
+      const greetingEl = document.getElementById(ELEMENT_IDS.USER_GREETING);
+      if (greetingEl) {
+        greetingEl.textContent = `Hello, ${username}!`;
+      }
     }
 
     // Handle empty state

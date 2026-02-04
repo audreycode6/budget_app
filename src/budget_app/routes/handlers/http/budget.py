@@ -41,7 +41,6 @@ class BudgetHandler:
 
             if budget is None:
                 return {"message": "Budget not found or access denied."}, 404
-            print(f"TEST {budget}")
             return {"budget": budget}, 200
         except PermissionError:
             return {"message": "User not authenticated"}, 401
@@ -51,11 +50,11 @@ class BudgetHandler:
 
     def get_budgets(self):
         user_id = get_session()["id"]
-
         try:
             budgets = get_budgets_by_user_id(user_id)
-
-            return {"budgets": budgets}, 200
+            # username = get_session().get("username")
+            username = get_session().get("username")
+            return {"budgets": budgets, "username": username}, 200
         except Exception as e:
             print(e)
             return {"message": "Unable to retreive budget(s)."}, 503
