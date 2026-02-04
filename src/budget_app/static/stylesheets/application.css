@@ -1,3 +1,66 @@
+.step-card {
+  position: relative;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.step-demo {
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f9fa;
+  height: 180px; /* Reduced height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* For the ::before pseudo-element */
+}
+
+.step-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.step-card:hover .step-image {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Placeholder text when not hovering */
+.step-demo::before {
+  content: 'Hover to see demo';
+  position: absolute;
+  color: #6c757d;
+  font-size: 0.9rem;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Important: prevents blocking hover */
+}
+
+.step-card:hover .step-demo::before {
+  opacity: 0;
+}
+
+/* Ensure cards maintain equal height on larger screens */
+@media (min-width: 768px) {
+  .step-card {
+    min-height: 100%;
+  }
+}
+
 #budget-meta {
   background-color: #d5e3f2;
   /* #cfd4a5; */
