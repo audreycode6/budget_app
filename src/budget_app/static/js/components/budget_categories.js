@@ -10,6 +10,12 @@ export function groupItemsByCategory(items) {
     groups[item.category].total += Number(item.total ?? 0);
     groups[item.category].items.push(item);
   });
+
+  // Sort items within each category by total (highest to lowest)
+  Object.values(groups).forEach((categoryData) => {
+    categoryData.items.sort((a, b) => b.total - a.total);
+  });
+
   return groups;
 }
 
