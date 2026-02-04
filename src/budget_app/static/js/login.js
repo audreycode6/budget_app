@@ -31,8 +31,8 @@ async function handleLogin(e) {
 
   const form = e.target;
   const credentials = {
-    username: document.getElementById(ELEMENT_IDS.USERNAME).value,
-    password: document.getElementById(ELEMENT_IDS.PASSWORD).value,
+    username: document.getElementById(ELEMENT_IDS.USERNAME).value.trim(),
+    password: document.getElementById(ELEMENT_IDS.PASSWORD).value.trim(),
   };
 
   // Show loading state

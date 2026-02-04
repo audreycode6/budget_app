@@ -36,7 +36,9 @@ class AuthHandler:
             return {"message": "Username and/or password must be provided."}, 422
 
         try:
-            user_data = authenticate_user(body["username"], body["password"])
+            user_data = authenticate_user(
+                body["username"].strip(), body["password"].strip()
+            )
 
             if user_data:
                 session["user_id"] = user_data
@@ -53,8 +55,8 @@ class AuthHandler:
             return {"message": "Username and/or password must be provided."}, 422
 
         try:
-            username = body["username"]
-            password = body["password"]
+            username = body["username"].strip()
+            password = body["password"].strip()
 
             if not username or not password:
                 return {"message": "Username and/or password must not be empty."}, 422
