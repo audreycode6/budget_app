@@ -21,19 +21,19 @@ class RawBudgetToBudget(unittest.TestCase):
             "id": 1,
             "name": "mock_name",
             "month_duration": 1,
-            "gross_income": "$3,500.00",
+            "gross_income": 3500.0,
             "items": [
                 {
                     "id": 1,
                     "name": "Rent",
                     "category": "bills",
-                    "total": "$1,200.00",
+                    "total": 1200.0,
                 },
                 {
                     "id": 2,
                     "name": "Groceries",
                     "category": "food",
-                    "total": "$400.00",
+                    "total": 400.0,
                 },
             ],
         }

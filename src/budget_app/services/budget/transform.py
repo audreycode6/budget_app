@@ -1,6 +1,3 @@
-from budget_app.utils import format_float_to_usd
-
-
 def raw_budget_to_budget(raw_budget):
     """
     Transform a Budget SQLAlchemy model instance into a serializable dict.
