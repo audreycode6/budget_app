@@ -1,43 +1,8 @@
 import unittest
 from .utils import (
-    format_float_to_usd,
     validate_request_body_keys_exist,
     stringify_attributes,
 )
-
-
-class FormatFloatToUsd(unittest.TestCase):
-    """
-    take in num and return
-    with 2 leading decimals with $
-    """
-
-    def test_sucess(self):
-        response = format_float_to_usd(123)
-        self.assertEqual(response, "$123.00")
-
-    def test_negative_number(self):
-        response = format_float_to_usd(-123)
-        self.assertEqual(response, "$-123.00")
-
-    def test_with_2_decimal_places(self):
-        response = format_float_to_usd(123.45)
-        self.assertEqual(response, "$123.45")
-
-    # if more than 2 decimal points provided
-    #  rounds to nearest decimal point
-    def test_decimal_round_up(self):
-        response = format_float_to_usd(123.456)
-        self.assertEqual(response, "$123.46")
-
-    def test_decimal_round_down(self):
-        response = format_float_to_usd(123.451)
-        self.assertEqual(response, "$123.45")
-
-    def test_4plus_digits(self):
-        # add commas for 4+ digits
-        response = format_float_to_usd(1234567)
-        self.assertEqual(response, "$1,234,567.00")
 
 
 class ValidateRequestBodyKeysExist(unittest.TestCase):
