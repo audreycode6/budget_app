@@ -160,44 +160,6 @@
   font-size: 1rem;
 }
 
-/* Demo form card */
-.card.shadow-sm {
-  border: none;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.card-header.bg-primary {
-  background: linear-gradient(135deg, #a8b545 0%, #2570bd 100%) !important;
-  padding: 1.5rem;
-}
-
-.card-header h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-/* Submit button */
-#demo-submit-btn {
-  border-radius: 8px;
-  padding: 0.75rem 2rem;
-  font-weight: 600;
-  background: linear-gradient(135deg, #a8b545 0%, #2570bd 100%);
-  border: none;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-}
-
-#demo-submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-#demo-submit-btn:active {
-  transform: translateY(0);
-}
-
 /* Feature cards */
 .card.h-100 {
   border: 2px solid #e2e8f0;
@@ -214,44 +176,6 @@
 }
 
 .card-title {
-  color: #2570bd;
-  font-weight: 600;
-}
-
-/* Demo budgets list */
-#demo-budgets-list .list-group-item {
-  border-radius: 8px !important;
-  border: 2px solid #e2e8f0;
-  margin-bottom: 0.75rem;
-  transition: all 0.2s;
-}
-
-#demo-budgets-list .list-group-item:hover {
-  border-color: #2570bd;
-  transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-}
-
-#demo-budgets-list h5 {
-  color: #2d3748;
-  font-weight: 600;
-}
-
-/* Clear button */
-#clear-demo-data-btn {
-  border-radius: 8px;
-  padding: 0.5rem 1.5rem;
-}
-
-/* Alert styling */
-.alert-info {
-  border-radius: 8px;
-  border-left: 5px solid #7fe3f4;
-  background-color: #dfecf2ae;
-  color: #2d3748;
-}
-
-.alert-info .alert-link {
   color: #2570bd;
   font-weight: 600;
 }
@@ -277,21 +201,6 @@ section.text-center.py-5 .btn-lg {
 section.text-center.py-5 .btn-primary {
   background: linear-gradient(135deg, #a8b545 0%, #2570bd 100%);
   border: none;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  #welcome-intro {
-    padding: 2rem 0 !important;
-  }
-
-  #welcome-intro h1 {
-    font-size: 2rem;
-  }
-
-  #demo-budget-form .row.g-3 > div {
-    margin-bottom: 1rem;
-  }
 }
 
 /* Consistent form styling for create budget page */
