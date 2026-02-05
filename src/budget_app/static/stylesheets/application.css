@@ -28,7 +28,6 @@
 
 #budget-meta {
   background-color: #d5e3f2;
-  /* #cfd4a5; */
   border-radius: 8px;
   padding: 1.5rem;
   border: 1px solid #e2e8f0;
@@ -114,13 +113,11 @@
 
 #budget-categories .accordion-button {
   background-color: #769dc5;
-  /* #02b090; */
   color: white;
   font-weight: bold;
 }
 .list-group-item:hover {
   background-color: #d5e3f2;
-  /* #dfecf2ae; */
 }
 
 .auth-hidden {
@@ -129,7 +126,6 @@
 
 .navbar {
   background-color: #cfd4a5;
-  /* #d5e3f2; */
 }
 
 .navbar-brand {
@@ -263,7 +259,6 @@
 /* Call to action section */
 section.text-center.py-5 {
   background: #d5e3f2;
-  /* background: linear-gradient(135deg, #f7fafc 0%, #d5e3f2 100%); */
   border-radius: 12px;
   margin-top: 3rem;
 }
@@ -283,17 +278,6 @@ section.text-center.py-5 .btn-primary {
   background: linear-gradient(135deg, #a8b545 0%, #2570bd 100%);
   border: none;
 }
-/* .btn-outline-primary {
-  border: 2px solid #a8b545;
-  background: white;
-  color: #a8b545;
-} */
-/* 
-.btn-outline-primary:hover {
-  border: 2px solid #a8b545;
-  background: #a8b545;
-  color: white;
-} */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
