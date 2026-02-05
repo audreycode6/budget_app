@@ -1,3 +1,4 @@
+from decimal import Decimal
 import unittest
 
 from budget_app import create_app
@@ -111,19 +112,19 @@ class GetBudgetByBudgetAndUserId(BudgetDataFixture):
             "id": self.raw_budget.id,
             "name": "mock_name",
             "month_duration": 1,
-            "gross_income": "$3,500.00",
+            "gross_income": 3500.0,
             "items": [
                 {
                     "id": self.item1.id,
                     "name": "Rent",
                     "category": "bills",
-                    "total": "$1,200.00",
+                    "total": 1200.0,
                 },
                 {
                     "id": self.item2.id,
                     "name": "Groceries",
                     "category": "bills",
-                    "total": "$400.00",
+                    "total": 400.0,
                 },
             ],
         }
@@ -131,15 +132,15 @@ class GetBudgetByBudgetAndUserId(BudgetDataFixture):
 
     def test_invalid_args(self):
         response = get_budget_by_budget_and_user_id(2, 2)
-        self.assertEqual(response, {})
+        self.assertEqual(response, None)
 
     def test_invalid_budget_id(self):
         response = get_budget_by_budget_and_user_id(2, 10)
-        self.assertEqual(response, {})
+        self.assertEqual(response, None)
 
     def test_invalid_user_id(self):
         response = get_budget_by_budget_and_user_id(self.raw_budget.id, 2)
-        self.assertEqual(response, {})
+        self.assertEqual(response, None)
 
 
 class GetBudgetsByUserId(BudgetDataFixture):
@@ -180,19 +181,19 @@ class GetBudgetsByUserId(BudgetDataFixture):
                 "id": self.raw_budget.id,
                 "name": "mock_name",
                 "month_duration": 1,
-                "gross_income": "$3,500.00",
+                "gross_income": 3500.0,
                 "items": [
                     {
                         "id": self.item1.id,
                         "name": "Rent",
                         "category": "bills",
-                        "total": "$1,200.00",
+                        "total": 1200.0,
                     },
                     {
                         "id": self.item2.id,
                         "name": "Groceries",
                         "category": "bills",
-                        "total": "$400.00",
+                        "total": 400.0,
                     },
                 ],
             },
@@ -200,13 +201,13 @@ class GetBudgetsByUserId(BudgetDataFixture):
                 "id": self.raw_budget2.id,
                 "name": "mock_name2",
                 "month_duration": 12,
-                "gross_income": "$123,456.00",
+                "gross_income": 123456.0,
                 "items": [
                     {
                         "id": 3,
                         "name": "401k",
                         "category": "deductions",
-                        "total": "$250.00",
+                        "total": 250.0,
                     }
                 ],
             },
@@ -222,7 +223,7 @@ class GetBudgetsByUserId(BudgetDataFixture):
                 "id": self.raw_budget3.id,
                 "name": "mock_name3",
                 "month_duration": 12,
-                "gross_income": "$246,810.00",
+                "gross_income": 246810.0,
                 "items": [],
             }
         ]
@@ -251,7 +252,7 @@ class CreateNewBudget(BudgetDataFixture):
         expected_error = "Budget name must not be empty."
         with self.assertRaisesRegex(ValueError, expected_error):
             create_new_budget(
-                user_id=10, name=None, month_duration_raw="1", gross_income_raw="1234"
+                user_id=10, name=None, month_duration_raw="1", gross_income="1234"
             )
 
     def test_name_already_exists_error(self):
@@ -261,7 +262,7 @@ class CreateNewBudget(BudgetDataFixture):
                 user_id=10,
                 name="mock_name",
                 month_duration_raw="1",
-                gross_income_raw="123",
+                gross_income="123",
             )
 
     def test_invalid_month_duration(self):
@@ -272,7 +273,7 @@ class CreateNewBudget(BudgetDataFixture):
                 user_id=10,
                 name="test_invalid_month",
                 month_duration_raw="3",
-                gross_income_raw="123",
+                gross_income="123",
             )
 
         expected_error_invalid_value = (
@@ -285,7 +286,7 @@ class CreateNewBudget(BudgetDataFixture):
                 user_id=10,
                 name="test_invalid_month",
                 month_duration_raw="1.5",
-                gross_income_raw="123",
+                gross_income="123",
             )
 
     def test_invalid_gross_income(self):
@@ -295,7 +296,7 @@ class CreateNewBudget(BudgetDataFixture):
                 user_id=10,
                 name="test_invalid_gross",
                 month_duration_raw="1",
-                gross_income_raw="-23",
+                gross_income="-23",
             )
 
         expected_error_not_num = "Gross income must be a valid number."
@@ -304,7 +305,7 @@ class CreateNewBudget(BudgetDataFixture):
                 user_id=10,
                 name="test_invalid_gross",
                 month_duration_raw="1",
-                gross_income_raw="one hundred",
+                gross_income="one hundred",
             )
 
     def test_success(self):
@@ -312,7 +313,7 @@ class CreateNewBudget(BudgetDataFixture):
             user_id=10,
             name="test_success",
             month_duration_raw="1",
-            gross_income_raw="1234",
+            gross_income="1234",
         )
         self.assertIsInstance(response, int)
         formatted_budget = get_budget_by_budget_and_user_id(response, 10)
@@ -383,8 +384,9 @@ class CreateNewBudgetItem(BudgetDataFixture):
             "id": 3,
             "name": "test_success",
             "category": "savings",
-            "total": "$1,234.00",
+            "total": Decimal("1234.00"),
         }
+
         self.assertIn(expected_item, budget_items)
 
 
@@ -479,7 +481,7 @@ class EditBudget(BudgetDataFixture):
 
         self.assertEqual(budget.get("name"), "test_success")
         self.assertEqual(budget.get("month_duration"), 12)
-        self.assertEqual(budget.get("gross_income"), "$22,222.00")
+        self.assertEqual(budget.get("gross_income"), 22222.0)
 
     def test_success_one_attribute(self):
         response = edit_budget_attributes(
@@ -494,7 +496,7 @@ class EditBudget(BudgetDataFixture):
         self.assertEqual(budget.get("name"), "test_success")  # changed
         # attributes stayed the same
         self.assertEqual(budget.get("month_duration"), 1)
-        self.assertEqual(budget.get("gross_income"), "$3,500.00")
+        self.assertEqual(budget.get("gross_income"), 3500.0)
 
 
 class EditBudgetItem(BudgetDataFixture):
@@ -539,7 +541,7 @@ class EditBudgetItem(BudgetDataFixture):
             "id": 1,
             "name": "Rent",
             "category": "bills",
-            "total": "$1,200.00",
+            "total": Decimal("1200.00"),
         }
         self.assertIn(original_item, budget_items)
 
@@ -552,7 +554,7 @@ class EditBudgetItem(BudgetDataFixture):
             "id": 1,
             "name": "test_success",
             "category": "savings",
-            "total": "$123.00",
+            "total": Decimal("123.00"),
         }
         self.assertIn(expected_item, budget_items)
 
@@ -563,7 +565,7 @@ class EditBudgetItem(BudgetDataFixture):
             "id": 1,
             "name": "Rent",
             "category": "bills",
-            "total": "$1,200.00",
+            "total": Decimal("1200.00"),
         }
 
         self.assertIn(original_item, budget_items)
@@ -575,7 +577,7 @@ class EditBudgetItem(BudgetDataFixture):
             "id": 1,
             "name": "test_success",  # changed attribute
             "category": "bills",  # unchanged
-            "total": "$1,200.00",  # unchanged
+            "total": Decimal("1200.00"),  # unchanged
         }
         self.assertIn(expected_item, budget_items)
 
