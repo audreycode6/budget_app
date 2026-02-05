@@ -115,9 +115,7 @@ def edit_budget_attributes(budget_id, user_id, attributes_to_edit):
     budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
     if not budget:
         print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
-        raise ValueError(
-            "Invalid budget."
-        )  # TODO mayve MAKE a custom exception class instead of using valueerror
+        raise ValueError("Invalid budget.")
 
     for attribute, new_value in attributes_to_edit.items():
         # Validate new_value

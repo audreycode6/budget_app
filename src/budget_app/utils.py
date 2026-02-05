@@ -14,6 +14,3 @@ def stringify_attributes(list_of_attributes):
     return formatted join of attributes
     """
     return ", ".join(list_of_attributes)
-
-
-""" TODO unit test for these funcs, bottom up"""

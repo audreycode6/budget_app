@@ -13,17 +13,6 @@ from budget_app.services.budget.budget_service import (
 )
 from budget_app.utils import validate_request_body_keys_exist, stringify_attributes
 
-"""TODO check
-
-- add service call assertions 
-    mock_create_new_budget.assert_called_once_with(
-            1, "Test Budget", 1, 1000
-        )
-- Assert “service not called” on validation failures
-    If a function should return early, assert that downstream dependencies were NOT called.
-    mock_create_new_budget.assert_not_called()
-"""
-
 
 class BudgetHandler:
     BUDGET_ATTRIBUTES = ["name", "gross_income", "month_duration"]
@@ -52,7 +41,6 @@ class BudgetHandler:
         user_id = get_session()["id"]
         try:
             budgets = get_budgets_by_user_id(user_id)
-            # username = get_session().get("username")
             username = get_session().get("username")
             return {"budgets": budgets, "username": username}, 200
         except Exception as e:
@@ -84,7 +72,7 @@ class BudgetHandler:
             print(e)
             return {"message": "Unable to fetch budget."}, 503
 
-    def get_item_categories_list(self):  # TODO check and add test ..?
+    def get_item_categories_list(self):
         return get_budget_item_category_list()
 
     def create_budget_item(self, body):

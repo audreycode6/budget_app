@@ -43,7 +43,7 @@ def login_page():
     return _send_frontend("login.html")
 
 
-@web_blueprint.route("/logout")  # TODO change to logged out view of demo/login page
+@web_blueprint.route("/logout")
 def logout_page():
     return _send_frontend("login.html")
 
@@ -54,7 +54,6 @@ def budgets_page():
 
 
 @web_blueprint.route("/budget/<int:budget_id>")
-# TODO fix so that can only see your budget/ error display correctly
 def budget_page(budget_id):
     if not _validate_budget_access(budget_id):
         return _send_frontend("unavailable_page.html"), 404
@@ -85,7 +84,6 @@ def delete_budget_page():
     return _send_frontend("budgets.html")
 
 
-# TODO index home page - demo and intro
 @web_blueprint.route("/")
 def index_page():
     return _send_frontend("index.html")
