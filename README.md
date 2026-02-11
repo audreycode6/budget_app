@@ -1,12 +1,35 @@
-# BudgeTing
+# $ BudgeTing $
 
 ### A Python/Flask application backed by PostgreSQL that allows users to create and manage budgets across different time horizons (monthly or annually).
 
-### Users can:
+### Features
 
-- _create and edit budgets_
-- _track gross income, deductions, bills, savings, and debt_
-- _demo budget creation without an account (persistence requires authentication)_
+- **Multi-timeframe budgets** - Create, edit, and delete monthly or annual budgets
+- **Income tracking** - Log gross income and view automatic calculations of expenses by category and net income after deductions
+- **Expense management** - Create, update, and remove expenses across bills, savings, and debt categories
+- **User authentication** - Secure signup/login with session management and error handling
+
+## Demo
+
+### User Authentication
+
+![User authentication](src/budget_app/static/demos/account_creation.gif)
+
+### Budget Creation
+
+![Budget creation](src/budget_app/static/demos/budget_creation.gif)
+
+### Error Handling
+
+![Budget creation](src/budget_app/static/demos/handle_bad_request.gif)
+
+### Tech Stack
+
+**Backend:** Python 3.12+, Flask, SQLAlchemy, Flask-Migrate  
+**Database:** PostgreSQL  
+**Testing:** unittest  
+**Dev Tools:** Poetry
+**Frontend:** HTML, CSS, JavaScript _(currently minimal, focus is backend)_
 
 # Local Development
 
@@ -92,7 +115,6 @@ This project uses Flask-Migrate (Alembic) to manage schema changes.
 
 1. **Intial setup:**
    Create the migrations/ folder (only run once at setup): `poetry run flask --app budget_app.app db init`
-
    - **Model definitions**: `models.py` (_i.e however your app organizes SQLAlchemy models_) holds the schema for the table structures, (user, budget, budget_item), to add to the db. Changes to these models require generating a new migration.
 
 2. **Generate a new migration**:
@@ -155,3 +177,15 @@ This project uses explicit `__init__.py` files to define Python packages and sup
 # Deployment Setup
 
 (brief explanation of what the production environment will use)
+
+## License
+
+This project is licensed under the MIT License.see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+This is a portfolio project, but feedback is welcome! Open an issue or submit a PR.
+
+## Author
+
+**Audrey** - [GitHub](https://github.com/audreycode6) | [LinkedIn](https://www.linkedin.com/in/audrey-theriault-allaire/)
