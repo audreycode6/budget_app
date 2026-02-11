@@ -1,7 +1,7 @@
 [project]
 name = "budget-app"
 version = "0.1.0"
-description = "Users can create and edit budgets for different durations (monthly/annually)."
+description = "Flask budget tracking app with PostgreSQL. Create monthly/annual budgets, track income, bills, savings, and debt."
 authors = [
     {name = "Audrey Theriault-Allaire",email = "audrey2699@gmail.com"}
 ]
