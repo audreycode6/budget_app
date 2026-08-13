@@ -190,6 +190,9 @@ _Before you start, make sure PostgreSQL is running and verify your database exis
 
 ### Running Tests
 
+> [NOTE!]
+> The test suite requires no database; service tests use in-memory SQLite.
+
 The CLI internally invokes `unittest` with project-specific defaults. Explicit `__init__.py` files define the Python packages, which is what makes unittest discovery and absolute imports work.
 
 Run **all tests** (with verbosity `-v`):
