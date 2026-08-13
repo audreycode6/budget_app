@@ -1,8 +1,8 @@
 # $ BudgeTing $
 
-### A Python/Flask application backed by PostgreSQL that allows users to create and manage budgets across different time horizons (monthly or annually).
+_Full-Stack Budgeting App_
 
-### Features
+## Features
 
 - **Multi-timeframe budgets** - Create, edit, and delete monthly or annual budgets
 - **Income tracking** - Log gross income and view automatic calculations of expenses by category and net income after deductions
@@ -23,15 +23,57 @@
 
 ![Budget creation](src/budget_app/static/demos/handle_bad_request.gif)
 
-### Tech Stack
+## Tech Stack
 
 **Backend:** Python 3.12+, Flask, SQLAlchemy, Flask-Migrate  
 **Database:** PostgreSQL  
 **Testing:** unittest  
-**Dev Tools:** Poetry
+**Dev Tools:** Poetry  
 **Frontend:** HTML, CSS, JavaScript _(currently minimal, focus is backend)_
 
-# Local Development
+## Deployment
+
+This project ran in production on an AWS EC2 instance (us-west-2) with a custom domain pointed at it through Namecheap DNS. The instance has since been terminated to avoid ongoing hosting cost, so there is no live URL at the moment. The demo GIFs above show the app in use.
+
+I chose EC2 over a managed host on purpose. It gives you a bare Linux machine and nothing else, so I had to set up every layer myself and see what a managed host normally does on your behalf.
+
+### Production setup
+
+**Scope**: A solo portfolio project with no meaningful traffic, which shaped several of the choices below.
+
+**Host**: AWS EC2, provisioned and configured manually over SSH.
+
+**App server**: Flask's built-in development server, run directly on the instance.
+
+**Database**: PostgreSQL installed and configured on the same instance.
+
+**Schema**: Alembic migrations applied against the production database with `poetry run app db-upgrade`.
+
+**DNS**: Namecheap A record pointing the domain at the instance's public IP.
+
+**Configuration**: `DATABASE_URL` and `SECRET_KEY` set as environment variables on the server. See `.env.sample` for the shape.
+
+### What I would change
+
+Getting it deployed and reachable was the goal, and it worked. Here is what I would do differently, in rough order of how much it matters:
+
+- **Serve it over HTTPS.** The site ran on plain HTTP, so passwords and session cookies crossed the network in readable form.
+
+  _Proposed fix:_ Put a reverse proxy in front of the app to handle TLS. Nginx with a Let's Encrypt certificate is the conventional pairing; Caddy is simpler since it renews certificates on its own. I would do this alongside the next item, since the proxy forwards to the app server.
+
+- **Serve it with a production WSGI server.** I used Flask's built-in server, which prints a startup warning telling you not to. I ignored it since traffic was near zero, but the issue isn't only speed: it's single-threaded by default and makes no security or robustness guarantees.
+
+  _Proposed fix:_ Flask's deployment docs list a few options. Gunicorn looks like the standard pick for Flask on Linux, so that's where I'd start.
+
+- **Run it under a process manager.** I started the app by hand over SSH, so a crash or a reboot would have taken the site down until I noticed.
+
+  _Proposed fix:_ A systemd service, so it starts at boot and restarts on failure.
+
+- **Reconsider where I host it.** EC2 hands you a machine and leaves everything above it to you, which is why this list exists.
+
+  _Next time:_ Platforms like Render, Railway, and Fly.io include HTTPS, restarts, and deploys from GitHub by default. I don't regret starting on EC2 since seeing the layers was the point, but I'd probably start there instead.
+
+## Local Development
 
 **Requirements:**
 
@@ -41,13 +83,7 @@
 
 **Typical Development Workflow:**
 
-1. Install project dependencies and create `.env`:
-
-```shell
-poetry install
-cp .env.sample .env
-# edit .env to set DATABASE_URL and SECRET_KEY
-```
+1. Install project dependencies and create `.env`.
 
 2. Start PostgreSQL and create the database (_see **PostgreSQL Setup** below_)
 3. Apply migrations:
@@ -60,27 +96,26 @@ poetry run app db-upgrade
 4. Start the server: `poetry run app start`
 5. Run tests as you develop: `poetry run app test`
 
-## Dependency Management (Poetry)
+### Dependency Management (Poetry)
 
 This project uses [Poetry](https://python-poetry.org/docs/) for dependency management and packaging.
 
-1. Install dependencies: `poetry install`
-2. To create new project: `poetry new project_name`
+1. Install and create new project.
 
-## PostgreSQL Setup (macOS + Homebrew)
+### PostgreSQL Setup (macOS + Homebrew)
 
 1. Install [PostgreSQL](https://www.postgresql.org/).
 2. Start the service: `brew services start postgresql@14` _replace postgresql@14 with your own version_
 3. At initial setup, create the database: `createdb budget_db`
 
-## Environment Variables
+### Environment Variables
 
 Create a `.env` file using `.env.sample` as a reference.
 
 Required variables:
 
 - **DATABASE_URL**:
-  - The `DATABASE_URL` environment variable tells SQLAlchemy where your database lives and how to connect to it. It’s used by Flask to establish a connection when the app starts, as well as by Alembic during migrations. _During deployment, replace this with your production database URL provided by your hosting service._
+  - The `DATABASE_URL` environment variable tells SQLAlchemy where your database lives and how to connect to it. It’s used by Flask to establish a connection when the app starts, as well as by Alembic during migrations.
   - `DATABASE_URL=postgresql://username:pw@localhost:5432/budget_db`
     - `username` your PostgreSQL username
     - `:pw` pw for PostgreSQL or remove if no pw
@@ -89,7 +124,7 @@ Required variables:
   - Flask uses to keep track of state in session and display flash messages
   - `SECRET_KEY=secret_key`, replace `secret_key` value with your own private key.
 
-## CLI Commands
+### CLI Commands
 
 This project provides a helper CLI exposed via Poetry to standardize common development tasks
 (running the server, tests, and database migrations).
@@ -111,47 +146,51 @@ This project uses Flask-Migrate (Alembic) to manage schema changes.
 
 **Migrations Usage:**
 
-- _Before you start, make sure PostgreSQL is running and verify your database exists._
+_Before you start, make sure PostgreSQL is running and verify your database exists._
 
-1. **Intial setup:**
-   Create the migrations/ folder (only run once at setup): `poetry run flask --app budget_app.app db init`
-   - **Model definitions**: `models.py` (_i.e however your app organizes SQLAlchemy models_) holds the schema for the table structures, (user, budget, budget_item), to add to the db. Changes to these models require generating a new migration.
+- **Initial setup:**
 
-2. **Generate a new migration**:
+  Create the migrations/ folder (only run once at setup):
 
-```shell
-poetry run app db-migrate -m "Note about new changes"
-```
+  ```shell
+  poetry run flask --app budget_app.app db init
+  ```
 
-- _After generating migrations, commit the new files in the migrations/ directory so others and CI pick them up._
+  - **Model definitions**: `models.py` (_i.e however your app organizes SQLAlchemy models_) holds the schema for the table structures, (user, budget, budget_item), to add to the db. Changes to these models require generating a new migration.
 
-4. **Apply migrations**:
+- **Generate a new migration**:
 
-```shell
-poetry run app db-upgrade
-```
+  ```shell
+  poetry run app db-migrate -m "Note about new changes"
+  ```
 
-5. **Rollback** (_optional_):
+  _After generating migrations, commit the new files in the migrations/ directory so others and CI pick them up._
 
-```shell
-poetry run app db-downgrade
-```
+- **Apply migrations**:
 
-- Reverts the most recent migration (useful for testing or undoing structural changes).
+  ```shell
+  poetry run app db-upgrade
+  ```
 
-6. **View current migration history**:
-   `poetry run flask --app budget_app.app db history`
-   - Lists all migrations applied and pending, in chronological order.
+- **Rollback** (_optional_):
 
-### Running the Server
+  ```shell
+  poetry run app db-downgrade
+  ```
 
-```shell
-poetry run app start
-```
+  - Reverts the most recent migration (useful for testing or undoing structural changes).
+
+- **View current migration history**:
+
+  ```shell
+  poetry run flask --app budget_app.app db history
+  ```
+
+  - Lists all migrations applied and pending, in chronological order.
 
 ### Running Tests
 
-- _The CLI internally invokes `unittest` with project-specific defaults._
+The CLI internally invokes `unittest` with project-specific defaults. Explicit `__init__.py` files define the Python packages, which is what makes unittest discovery and absolute imports work.
 
 Run **all tests** (with verbosity `-v`):
 
@@ -165,26 +204,18 @@ Run a **specific test module**:
 poetry run app test-module <module path here>
 ```
 
-- auth_test.py ex: `poetry run app test-module budget_app.routes.handlers.http.auth_test`
+- testing `auth_test.py` example: `poetry run app test-module budget_app.routes.handlers.http.auth_test`
 
-### Project Structure Notes
-
-This project uses explicit `__init__.py` files to define Python packages and support unittest discovery and absolute imports.
-
-- _A future refactor may adopt [pytest](https://docs.pytest.org/en/stable/) for lighter-weight test discovery._
-
-<TODO>
-# Deployment Setup
-
-(brief explanation of what the production environment will use)
+> [!NOTE]
+> A future refactor may adopt [pytest](https://docs.pytest.org/en/stable/) for lighter-weight test discovery.
 
 ## License
 
-This project is licensed under the MIT License.see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
-This is a portfolio project, but feedback is welcome! Open an issue or submit a PR.
+This is a portfolio project, feedback is welcome! Open an issue or submit a PR.
 
 ## Author
 
