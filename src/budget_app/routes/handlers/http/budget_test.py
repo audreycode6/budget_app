@@ -395,6 +395,11 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
             self.assertEqual(
                 TestEditBudgetItem.EDITED_BUDGET_ITEM_OBJ, response["budget"]
             )
+            # The session user_id must reach the service. A mock cannot verify
+            # the ownership check itself, but it can verify the wiring.
+            mock_edit_budget_item_attributes.assert_called_once_with(
+                1, 1, 1, {"name": "new name", "category": "bills", "total": 1234}
+            )
 
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_item_attributes")
     def test_value_error_raised(
@@ -510,6 +515,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.delete_budget_item(
                 {"item_id": 1, "budget_id": 1}
             )
@@ -517,6 +523,9 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
             self.assertEqual(
                 "Budget item in Category: 'bills' and with Name: 'internet' and its contents has been deleted.",
                 response["message"],
+            )
+            mock_delete_budget_item_by_item_and_budget_ids.assert_called_once_with(
+                1, 1, 1
             )
 
     @patch(f"{BUDGET_HANDLER_PATH}.delete_budget_item_by_item_and_budget_ids")
@@ -529,6 +538,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.delete_budget_item(
                 {"item_id": 1, "budget_id": None}
             )
@@ -545,6 +555,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
+            session["user_id"] = {"id": 1}
             response, status = self.handler.delete_budget_item(
                 {"item_id": 1, "budget_id": 1}
             )

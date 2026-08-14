@@ -145,7 +145,7 @@ class BudgetHandler:
 
         try:
             budget_item_id = edit_budget_item_attributes(
-                item_id, budget_id, attributes_to_update
+                item_id, budget_id, user_id, attributes_to_update
             )
             updated_budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget_item_id": budget_item_id, "budget": updated_budget}, 200
@@ -183,10 +183,11 @@ class BudgetHandler:
 
         item_id = body.get("item_id")
         budget_id = body.get("budget_id")
+        user_id = get_session()["id"]
 
         try:
             item_description = delete_budget_item_by_item_and_budget_ids(
-                item_id, budget_id
+                item_id, budget_id, user_id
             )
             return {
                 "message": f"Budget item in {item_description} and its contents has been deleted."

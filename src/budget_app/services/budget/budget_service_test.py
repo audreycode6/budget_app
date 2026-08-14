@@ -469,7 +469,8 @@ class EditBudget(BudgetDataFixture):
 
 class EditBudgetItem(BudgetDataFixture):
     """
-    edit_budget_item takes in: item_id, budget_id, attributes_edit (json request body/ i.e. dict)
+    edit_budget_item takes in: item_id, budget_id, user_id,
+    attributes_edit (json request body/ i.e. dict)
     updates existing budget_item based on attributes to edit and returns the budget_item.id
     OR if invalid args it raises a ValueError with an applicable error message"""
 
@@ -478,29 +479,50 @@ class EditBudgetItem(BudgetDataFixture):
 
     def test_invalid_budget_item(self):
         with self.assertRaisesRegex(ValueError, "Invalid budget item."):
-            edit_budget_item_attributes(12, 1, {"name": "foo"})  # invalid item_id
+            edit_budget_item_attributes(12, 1, 10, {"name": "foo"})  # invalid item_id
 
         with self.assertRaisesRegex(ValueError, "Invalid budget item."):
-            edit_budget_item_attributes(1, 12, {"name": "foo"})  # invalid budget_id
+            edit_budget_item_attributes(1, 12, 10, {"name": "foo"})  # invalid budget_id
+
+    def test_item_belonging_to_another_user(self):
+        """item_id and budget_id are both real and consistent
+        with each other, and the caller simply is not the owner."""
+        attacker_budget = self.create_budget(
+            user_id=20, name="attacker_budget", month_duration="1", gross_income="3500"
+        )
+        db.session.commit()
+
+        # victim's item_id + victim's budget_id, attacker's user_id
+        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+            edit_budget_item_attributes(1, 1, 20, {"name": "pwned"})
+
+        # victim's item_id + attacker's own budget_id
+        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+            edit_budget_item_attributes(1, attacker_budget.id, 20, {"name": "pwned"})
+
+        db.session.expire_all()
+        victim_item = db.session.get(BudgetItem, 1)
+        self.assertEqual("Rent", victim_item.name)
+        self.assertEqual(Decimal("1200.00"), victim_item.total)
 
     def test_missing_name_value(self):
         with self.assertRaisesRegex(ValueError, "New name must not be empty."):
-            edit_budget_item_attributes(1, 1, {"name": ""})
+            edit_budget_item_attributes(1, 1, 10, {"name": ""})
 
     def test_invalid_category(self):
         with self.assertRaisesRegex(
             ValueError, "Category: 'invalid_category' is not valid"
         ):
-            edit_budget_item_attributes(1, 1, {"category": "invalid_category"})
+            edit_budget_item_attributes(1, 1, 10, {"category": "invalid_category"})
 
     def test_invalid_total_value(self):
         error_message_negative_num = "Total must be a non negative number."
         with self.assertRaisesRegex(ValueError, error_message_negative_num):
-            edit_budget_item_attributes(1, 1, {"total": "-123"})
+            edit_budget_item_attributes(1, 1, 10, {"total": "-123"})
 
         expected_error_not_num = "Total must be a valid number."
         with self.assertRaisesRegex(ValueError, expected_error_not_num):
-            edit_budget_item_attributes(1, 1, {"total": ""})
+            edit_budget_item_attributes(1, 1, 10, {"total": ""})
 
     def test_success_all_attributes(self):
         # original budget_item
@@ -515,7 +537,7 @@ class EditBudgetItem(BudgetDataFixture):
 
         # edit budget_item
         edit_budget_item_attributes(
-            1, 1, {"name": "test_success", "category": "savings", "total": "123"}
+            1, 1, 10, {"name": "test_success", "category": "savings", "total": "123"}
         )
         budget_items = get_budget_by_budget_and_user_id(1, 10).get("items")
         expected_item = {
@@ -539,7 +561,7 @@ class EditBudgetItem(BudgetDataFixture):
         self.assertIn(original_item, budget_items)
 
         # edit budget_item
-        edit_budget_item_attributes(1, 1, {"name": "test_success"})
+        edit_budget_item_attributes(1, 1, 10, {"name": "test_success"})
         budget_items = get_budget_by_budget_and_user_id(1, 10).get("items")
         expected_item = {
             "id": 1,
@@ -578,7 +600,7 @@ class DeleteBudget(BudgetDataFixture):
 
 class DeleteBudgetItem(BudgetDataFixture):
     """
-    delete_budget_item takes in: item_id, budget_id
+    delete_budget_item takes in: item_id, budget_id, user_id
     and deletes the budget_item from the budget if valid args
     and returns a description of the item deleted
     OR raises ValueError with message of invalid budget item
@@ -589,17 +611,36 @@ class DeleteBudgetItem(BudgetDataFixture):
 
     def test_invalid_budget_item(self):
         with self.assertRaisesRegex(ValueError, "Invalid budget item."):
-            delete_budget_item_by_item_and_budget_ids(12, 1)  # invalid item_id
+            delete_budget_item_by_item_and_budget_ids(12, 1, 10)  # invalid item_id
 
         with self.assertRaisesRegex(ValueError, "Invalid budget item."):
-            delete_budget_item_by_item_and_budget_ids(1, 3)  # invalid budget_id
+            delete_budget_item_by_item_and_budget_ids(1, 3, 10)  # invalid budget_id
+
+    def test_item_belonging_to_another_user(self):
+        """The IDOR case: item_id and budget_id are both real and consistent
+        with each other, and the caller simply is not the owner."""
+        attacker_budget = self.create_budget(
+            user_id=20, name="attacker_budget", month_duration="1", gross_income="3500"
+        )
+        db.session.commit()
+
+        # victim's item_id + victim's budget_id, attacker's user_id
+        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+            delete_budget_item_by_item_and_budget_ids(1, 1, 20)
+
+        # victim's item_id + attacker's own budget_id
+        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+            delete_budget_item_by_item_and_budget_ids(1, attacker_budget.id, 20)
+
+        db.session.expire_all()
+        self.assertIsNotNone(db.session.get(BudgetItem, 1))
 
     def test_success(self):
         # check budget_item exists
         budget_item = BudgetItem.query.filter_by(id=1, budget_id=1).first()
         self.assertIsNotNone(budget_item)
 
-        response = delete_budget_item_by_item_and_budget_ids(1, 1)
+        response = delete_budget_item_by_item_and_budget_ids(1, 1, 10)
         item_description = "Category: 'bills' and with Name: 'Rent'"
         self.assertEqual(response, item_description)
 
