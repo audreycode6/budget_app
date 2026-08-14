@@ -95,3 +95,35 @@ class CrossUserAuthorizationTest(DatabaseTestCase):
 
         db.session.expire_all()
         self.assertIsNotNone(db.session.get(BudgetItem, self.victim.item_id))
+
+    def test_user_can_edit_their_own_budget_item(self):
+        response = self.victim.client.post(
+            "/api/budget/item/edit",
+            json={
+                "item_id": self.victim.item_id,
+                "budget_id": self.victim.budget_id,
+                "name": "foo",
+                "total": 9999,
+            },
+        )
+
+        self.assertEqual(200, response.status_code)
+
+        db.session.expire_all()
+        item = db.session.get(BudgetItem, self.victim.item_id)
+        self.assertEqual("foo", item.name)
+        self.assertEqual(9999, float(item.total))
+
+    def test_user_can_delete_their_own_budget_item(self):
+        response = self.victim.client.post(
+            "/api/budget/item/delete",
+            json={
+                "item_id": self.victim.item_id,
+                "budget_id": self.victim.budget_id,
+            },
+        )
+
+        self.assertEqual(200, response.status_code)
+
+        db.session.expire_all()
+        self.assertIsNone(db.session.get(BudgetItem, self.victim.item_id))
