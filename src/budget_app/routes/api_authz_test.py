@@ -20,12 +20,12 @@ class CrossUserAuthorizationTest(DatabaseTestCase):
         item_name,
         item_total,
         gross_income=2345,
-        duration=1,
+        month_duration=1,
         item_category="bills",
     ):
         """
         registers, logs in, creates a budget, creates an item,
-          and returns client, budget_id, item_id
+        and returns namespace containing: client, budget_id, item_id
         """
         client = self.app.test_client()
         registered = client.post(
@@ -44,7 +44,7 @@ class CrossUserAuthorizationTest(DatabaseTestCase):
             json={
                 "name": f"{username} budget",
                 "gross_income": gross_income,
-                "month_duration": duration,
+                "month_duration": month_duration,
             },
         )
         self.assertEqual(200, budget.status_code, budget.get_json())
