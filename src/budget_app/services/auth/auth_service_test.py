@@ -8,41 +8,8 @@ from budget_app.services.auth.auth_service import (
     remove_user_from_session,
 )
 from ...models import User
-from budget_app import create_app
-from ...extensions import db
 
-
-class BaseTestCase(unittest.TestCase):
-    """
-    Creates an application context object,
-    activates that context, telling Flask “everything that runs now belongs to this app.”
-    Creates all database tables inside that context.
-    """
-
-    def setUp(self):
-        self.app = create_app(
-            {
-                "TESTING": True,
-                "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-                "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-            }
-        )
-        self.client = self.app.test_client()
-
-        self.context = self.app.app_context()  # creates an application context object
-        self.context.push()  # activates that context
-        db.create_all()
-
-    def tearDown(self):
-        """
-        Clear the current database session,
-        drops all tables (each test starts fresh with a clean in-memory DB).
-        Deactivates the app context,so Flask doesn’t think your test app is
-        still active after the test ends.
-        """
-        db.session.remove()  # clears current database session
-        db.drop_all()  # drops all tables
-        self.context.pop()  # deactivates the app context
+from budget_app.testing import DatabaseTestCase as BaseTestCase
 
 
 class CreateUser(BaseTestCase):

@@ -1,7 +1,6 @@
 from decimal import Decimal
 import unittest
 
-from budget_app import create_app
 from budget_app.models import Budget, BudgetItem
 from budget_app.services.budget.budget_service import (
     attributes_to_update_dict,
@@ -14,44 +13,13 @@ from budget_app.services.budget.budget_service import (
     get_budget_by_budget_and_user_id,
     get_budgets_by_user_id,
 )
+from budget_app.testing import DatabaseTestCase
 from ...extensions import db
 import re
 
 
-class BaseTestCase(unittest.TestCase):
-    """
-    Creates an application context object,
-    activates that context, telling Flask “everything that runs now belongs to this app.”
-    Creates all database tables inside that context.
-    Without an application context object, Flask wouldn’t
-    know which app you’re referring to when you interact
-    with things like the database or configuration
-    """
-
-    def setUp(self):
-        self.app = create_app(
-            {
-                "TESTING": True,
-                "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-                "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-            }
-        )
-        self.client = self.app.test_client()
-
-        self.context = self.app.app_context()
-        self.context.push()  # activates that context
-        db.create_all()
-
-    def tearDown(self):
-        """
-        Clear the current database session,
-        drops all tables (each test starts fresh with a clean in-memory DB).
-        Deactivates the app context,so Flask doesn’t think your test app is
-        still active after the test ends.
-        """
-        db.session.remove()  # clears current database session
-        db.drop_all()  # drops all tables
-        self.context.pop()  # deactivates the app context
+class BaseTestCase(DatabaseTestCase):
+    """Adds Budget/BudgetItem data factories on top of the in-memory DB fixture."""
 
     def create_budget(self, user_id, name, month_duration, gross_income):
         budget = Budget(

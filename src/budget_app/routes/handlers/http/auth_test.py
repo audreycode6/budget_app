@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from flask import session
 
-from budget_app import create_app
+from budget_app.testing import make_test_app
 from budget_app.routes.handlers.http.auth import AuthHandler
 
 AUTH_HANDLER_PATH = "budget_app.routes.handlers.http.auth"
@@ -11,7 +11,7 @@ AUTH_HANDLER_PATH = "budget_app.routes.handlers.http.auth"
 
 class BaseAuthHandlerTest(unittest.TestCase):
     def setUp(self):
-        self.app = create_app({"TESTING": True})
+        self.app = make_test_app()
         self.handler = AuthHandler()
 
 
