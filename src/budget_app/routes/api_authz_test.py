@@ -1,0 +1,97 @@
+"""Cross-user authorization. Real routes, real DB, two real users."""
+
+from types import SimpleNamespace
+from budget_app.testing import DatabaseTestCase
+from ..extensions import db
+from ..models import BudgetItem
+
+
+class CrossUserAuthorizationTest(DatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.victim = self.seed_user("victim", item_name="rent", item_total=123)
+
+        self.attacker = self.seed_user("attacker", item_name="gas", item_total=67)
+
+    def seed_user(
+        self,
+        username,
+        item_name,
+        item_total,
+        gross_income=2345,
+        duration=1,
+        item_category="bills",
+    ):
+        """
+        registers, logs in, creates a budget, creates an item,
+          and returns client, budget_id, item_id
+        """
+        client = self.app.test_client()
+        registered = client.post(
+            "/api/auth/register",
+            json={"username": username, "password": f"pw-{username}"},
+        )
+        self.assertEqual(200, registered.status_code, registered.get_json())
+
+        login = client.post(
+            "/api/auth/login", json={"username": username, "password": f"pw-{username}"}
+        )
+        self.assertEqual(200, login.status_code, login.get_json())
+
+        budget = client.post(
+            "/api/budget/create",
+            json={
+                "name": f"{username} budget",
+                "gross_income": gross_income,
+                "month_duration": duration,
+            },
+        )
+        self.assertEqual(200, budget.status_code, budget.get_json())
+        budget_id = budget.get_json()["budget"]["id"]
+
+        item = client.post(
+            "/api/budget/item/create",
+            json={
+                "name": item_name,
+                "category": item_category,
+                "total": item_total,
+                "budget_id": budget_id,
+            },
+        )
+        self.assertEqual(200, item.status_code, item.get_json())
+        item_id = item.get_json()["budget_item_id"]
+
+        return SimpleNamespace(client=client, budget_id=budget_id, item_id=item_id)
+
+    def test_user_cannot_edit_another_users_budget_item(self):
+        response = self.attacker.client.post(
+            "/api/budget/item/edit",
+            json={
+                "item_id": self.victim.item_id,
+                "budget_id": self.victim.budget_id,
+                "name": "foo",
+                "total": 9999,
+            },
+        )
+
+        self.assertEqual(404, response.status_code)
+
+        db.session.expire_all()
+        item = db.session.get(BudgetItem, self.victim.item_id)
+        self.assertEqual("rent", item.name)
+        self.assertEqual(123.0, float(item.total))
+
+    def test_user_cannot_delete_another_users_budget_item(self):
+        response = self.attacker.client.post(
+            "/api/budget/item/delete",
+            json={
+                "item_id": self.victim.item_id,
+                "budget_id": self.victim.budget_id,
+            },
+        )
+
+        self.assertEqual(404, response.status_code)
+
+        db.session.expire_all()
+        self.assertIsNotNone(db.session.get(BudgetItem, self.victim.item_id))
