@@ -56,7 +56,7 @@ class TestGetBudget(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.get_budget(
                 BaseBudgetHandlerTest.VALID_GET_BUDGET_BODY
             )
@@ -75,7 +75,7 @@ class TestGetBudget(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.get_budget(
                 BaseBudgetHandlerTest.VALID_GET_BUDGET_BODY
             )
@@ -98,7 +98,7 @@ class TestGetBudgets(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.get_budgets()
             self.assertEqual(status, 200)
             self.assertEqual(
@@ -110,7 +110,7 @@ class TestGetBudgets(BaseBudgetHandlerTest):
         mock_get_budgets_by_user_id.side_effect = Exception("service unavailable")
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.get_budgets()
             self.assertEqual(status, 503)
             self.assertIn("Unable to retreive budget(s).", response["message"])
@@ -131,7 +131,7 @@ class TestCreateBudget(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.create_budget(
                 BaseBudgetHandlerTest.VALID_CREATE_BUDGET_BODY
             )
@@ -158,7 +158,7 @@ class TestCreateBudget(BaseBudgetHandlerTest):
         mock_create_new_budget.side_effect = ValueError("bad request")
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.create_budget(
                 BaseBudgetHandlerTest.VALID_CREATE_BUDGET_BODY
             )
@@ -173,7 +173,7 @@ class TestCreateBudget(BaseBudgetHandlerTest):
         mock_create_new_budget.side_effect = Exception("service unavailable")
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.create_budget(
                 BaseBudgetHandlerTest.VALID_CREATE_BUDGET_BODY
             )
@@ -195,7 +195,7 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.create_budget_item(
                 BaseBudgetHandlerTest.VALID_BUDGET_ITEM_BODY
             )
@@ -214,7 +214,7 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
         mock_create_new_budget_item.side_effect = ValueError("Bad request")
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.create_budget_item(
                 BaseBudgetHandlerTest.VALID_BUDGET_ITEM_BODY
             )
@@ -229,7 +229,7 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
         mock_create_new_budget_item.side_effect = Exception("Service unavailable")
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.create_budget_item(
                 BaseBudgetHandlerTest.VALID_BUDGET_ITEM_BODY
             )
@@ -276,7 +276,7 @@ class TestEditBudget(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.edit_budget(
                 TestEditBudget.VALID_EDIT_BUDGET_BODY
             )
@@ -307,7 +307,7 @@ class TestEditBudget(BaseBudgetHandlerTest):
         mock_edit_budget_attributes.side_effect = ValueError("Bad request")
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.edit_budget(
                 {
                     "budget_id": 1,
@@ -326,7 +326,7 @@ class TestEditBudget(BaseBudgetHandlerTest):
         mock_edit_budget_attributes.side_effect = Exception("Service unavailable")
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.edit_budget(
                 TestEditBudget.VALID_EDIT_BUDGET_BODY
             )
@@ -386,7 +386,7 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
             TestEditBudgetItem.EDITED_BUDGET_ITEM_OBJ
         )
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.edit_budget_item(
                 TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY
             )
@@ -408,7 +408,7 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
     ):
         mock_edit_budget_item_attributes.side_effect = ValueError("Bad request")
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.edit_budget_item(
                 {
                     "item_id": 1,
@@ -429,7 +429,7 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
         mock_edit_budget_item_attributes.side_effect = Exception("Service unavailable")
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.edit_budget_item(
                 TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY
             )
@@ -452,7 +452,7 @@ class TestDeleteBudget(BaseBudgetHandlerTest):
         mock_delete_budget_by_budget_and_user_ids.return_value = "my budget name"
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.delete_budget({"budget_id": 1})
             self.assertEqual(200, status)
             self.assertIn(
@@ -470,7 +470,7 @@ class TestDeleteBudget(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.delete_budget({"budget_id": None})
             self.assertEqual(422, status)
             self.assertIn(
@@ -488,7 +488,7 @@ class TestDeleteBudget(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.delete_budget({"budget_id": 1})
             self.assertEqual(503, status)
             self.assertIn(
@@ -515,7 +515,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.delete_budget_item(
                 {"item_id": 1, "budget_id": 1}
             )
@@ -538,7 +538,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.delete_budget_item(
                 {"item_id": 1, "budget_id": None}
             )
@@ -555,7 +555,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
         )
 
         with self.app.test_request_context():
-            session["user_id"] = {"id": 1}
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
             response, status = self.handler.delete_budget_item(
                 {"item_id": 1, "budget_id": 1}
             )
