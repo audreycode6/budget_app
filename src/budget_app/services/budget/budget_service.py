@@ -1,8 +1,10 @@
+from budget_app.errors import NotFoundError
 from budget_app.services.budget.transform import raw_budget_to_budget
 from budget_app.services.budget.validate_input import (
     validate_month_duration,
     validate_positive_float,
 )
+from ...errors import NotFoundError
 from ...models import Budget, BudgetItem
 from ...extensions import db
 
@@ -150,7 +152,7 @@ def edit_budget_attributes(budget_id, user_id, attributes_to_edit):
 def get_owned_budget_item(item_id, budget_id, user_id):
     """
     Return the BudgetItem only if it belongs to a budget owned by user_id,
-    otherwise raise ValueError.
+    otherwise raise NotFoundError.
     """
     budget_item = (
         BudgetItem.query.join(Budget, BudgetItem.budget_id == Budget.id)
@@ -166,7 +168,7 @@ def get_owned_budget_item(item_id, budget_id, user_id):
             f"No budget item with id: {item_id} in budget_id: {budget_id} "
             f"owned by user_id: {user_id}"
         )
-        raise ValueError("Invalid budget item.")
+        raise NotFoundError("Budget item not found.")
 
     return budget_item
 
@@ -217,11 +219,6 @@ def delete_budget_item_by_item_and_budget_ids(item_id, budget_id, user_id):
     # Retrieve the budget item to delete
     budget_item = get_owned_budget_item(item_id, budget_id, user_id)
 
-    item_description = (
-        f"Category: '{budget_item.category}' and with Name: '{budget_item.name}'"
-    )
-
     # Delete the object
     db.session.delete(budget_item)
     db.session.commit()
-    return item_description

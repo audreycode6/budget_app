@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from flask import session
 
+from budget_app.errors import NotFoundError
 from budget_app.testing import make_test_app
 from budget_app.routes.handlers.http.budget import BudgetHandler
 
@@ -422,6 +423,23 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
             self.assertEqual("Bad request", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_item_attributes")
+    def test_not_found_error_raised(
+        self,
+        mock_edit_budget_item_attributes,
+    ):
+        mock_edit_budget_item_attributes.side_effect = NotFoundError(
+            "Budget item not found."
+        )
+
+        with self.app.test_request_context():
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+            response, status = self.handler.edit_budget_item(
+                TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY
+            )
+            self.assertEqual(404, status)
+            self.assertEqual("Budget item not found.", response["message"])
+
+    @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_item_attributes")
     def test_exception_raised(
         self,
         mock_edit_budget_item_attributes,
@@ -510,9 +528,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
         self,
         mock_delete_budget_item_by_item_and_budget_ids,
     ):
-        mock_delete_budget_item_by_item_and_budget_ids.return_value = (
-            "Category: 'bills' and with Name: 'internet'"
-        )
+        mock_delete_budget_item_by_item_and_budget_ids.return_value = None
 
         with self.app.test_request_context():
             session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
@@ -521,7 +537,7 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
             )
             self.assertEqual(200, status)
             self.assertEqual(
-                "Budget item in Category: 'bills' and with Name: 'internet' and its contents has been deleted.",
+                "Budget item has been deleted.",
                 response["message"],
             )
             mock_delete_budget_item_by_item_and_budget_ids.assert_called_once_with(
@@ -544,6 +560,23 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
             )
             self.assertEqual(422, status)
             self.assertEqual("Bad request", response["message"])
+
+    @patch(f"{BUDGET_HANDLER_PATH}.delete_budget_item_by_item_and_budget_ids")
+    def test_not_found_error_raised(
+        self,
+        mock_delete_budget_item_by_item_and_budget_ids,
+    ):
+        mock_delete_budget_item_by_item_and_budget_ids.side_effect = NotFoundError(
+            "Budget item not found."
+        )
+
+        with self.app.test_request_context():
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+            response, status = self.handler.delete_budget_item(
+                {"item_id": 1, "budget_id": 1}
+            )
+            self.assertEqual(404, status)
+            self.assertEqual("Budget item not found.", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.delete_budget_item_by_item_and_budget_ids")
     def test_exception_raised(

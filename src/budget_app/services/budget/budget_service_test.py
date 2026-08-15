@@ -2,6 +2,7 @@ from decimal import Decimal
 import unittest
 
 from budget_app.models import Budget, BudgetItem
+from budget_app.errors import NotFoundError
 from budget_app.services.budget.budget_service import (
     attributes_to_update_dict,
     create_new_budget,
@@ -472,16 +473,17 @@ class EditBudgetItem(BudgetDataFixture):
     edit_budget_item takes in: item_id, budget_id, user_id,
     attributes_edit (json request body/ i.e. dict)
     updates existing budget_item based on attributes to edit and returns the budget_item.id
-    OR if invalid args it raises a ValueError with an applicable error message"""
+    OR if invalid credentials (budget_id, user_id) raise NotFoundError
+    OR if invalid attributes it raises a ValueError with an applicable error message"""
 
     def setUp(self):
         super().setUp()
 
     def test_invalid_budget_item(self):
-        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget item not found.")):
             edit_budget_item_attributes(12, 1, 10, {"name": "foo"})  # invalid item_id
 
-        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget item not found.")):
             edit_budget_item_attributes(1, 12, 10, {"name": "foo"})  # invalid budget_id
 
     def test_item_belonging_to_another_user(self):
@@ -493,11 +495,11 @@ class EditBudgetItem(BudgetDataFixture):
         db.session.commit()
 
         # victim's item_id + victim's budget_id, attacker's user_id
-        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget item not found.")):
             edit_budget_item_attributes(1, 1, 20, {"name": "pwned"})
 
         # victim's item_id + attacker's own budget_id
-        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget item not found.")):
             edit_budget_item_attributes(1, attacker_budget.id, 20, {"name": "pwned"})
 
         db.session.expire_all()
@@ -602,22 +604,22 @@ class DeleteBudgetItem(BudgetDataFixture):
     """
     delete_budget_item takes in: item_id, budget_id, user_id
     and deletes the budget_item from the budget if valid args
-    and returns a description of the item deleted
-    OR raises ValueError with message of invalid budget item
+    and returns None
+    OR raises NotFoundError if the item does not exist or is not the caller's
     """
 
     def setUp(self):
         super().setUp()
 
     def test_invalid_budget_item(self):
-        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget item not found.")):
             delete_budget_item_by_item_and_budget_ids(12, 1, 10)  # invalid item_id
 
-        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget item not found.")):
             delete_budget_item_by_item_and_budget_ids(1, 3, 10)  # invalid budget_id
 
     def test_item_belonging_to_another_user(self):
-        """The IDOR case: item_id and budget_id are both real and consistent
+        """item_id and budget_id are both real and consistent
         with each other, and the caller simply is not the owner."""
         attacker_budget = self.create_budget(
             user_id=20, name="attacker_budget", month_duration="1", gross_income="3500"
@@ -625,11 +627,11 @@ class DeleteBudgetItem(BudgetDataFixture):
         db.session.commit()
 
         # victim's item_id + victim's budget_id, attacker's user_id
-        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget item not found.")):
             delete_budget_item_by_item_and_budget_ids(1, 1, 20)
 
         # victim's item_id + attacker's own budget_id
-        with self.assertRaisesRegex(ValueError, "Invalid budget item."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget item not found.")):
             delete_budget_item_by_item_and_budget_ids(1, attacker_budget.id, 20)
 
         db.session.expire_all()
@@ -641,8 +643,7 @@ class DeleteBudgetItem(BudgetDataFixture):
         self.assertIsNotNone(budget_item)
 
         response = delete_budget_item_by_item_and_budget_ids(1, 1, 10)
-        item_description = "Category: 'bills' and with Name: 'Rent'"
-        self.assertEqual(response, item_description)
+        self.assertIsNone(response)
 
         # check budget_item no longer exists
         budget_item = BudgetItem.query.filter_by(id=1, budget_id=1).first()

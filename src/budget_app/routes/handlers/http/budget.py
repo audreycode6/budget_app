@@ -1,3 +1,4 @@
+from budget_app.errors import NotFoundError
 from budget_app.services.auth.auth_service import get_session
 from budget_app.services.budget.budget_service import (
     attributes_to_update_dict,
@@ -149,6 +150,9 @@ class BudgetHandler:
             )
             updated_budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget_item_id": budget_item_id, "budget": updated_budget}, 200
+        except NotFoundError as e:
+            print(e)
+            return {"message": str(e)}, 404
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
@@ -186,12 +190,12 @@ class BudgetHandler:
         user_id = get_session()["id"]
 
         try:
-            item_description = delete_budget_item_by_item_and_budget_ids(
-                item_id, budget_id, user_id
-            )
-            return {
-                "message": f"Budget item in {item_description} and its contents has been deleted."
-            }, 200
+            delete_budget_item_by_item_and_budget_ids(item_id, budget_id, user_id)
+            return {"message": "Budget item has been deleted."}, 200
+
+        except NotFoundError as e:
+            print(e)
+            return {"message": str(e)}, 404
 
         except ValueError as e:
             print(e)

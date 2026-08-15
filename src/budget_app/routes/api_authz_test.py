@@ -127,3 +127,48 @@ class CrossUserAuthorizationTest(DatabaseTestCase):
 
         db.session.expire_all()
         self.assertIsNone(db.session.get(BudgetItem, self.victim.item_id))
+
+    def test_delete_response_does_not_echo_item_details(self):
+        response = self.victim.client.post(
+            "/api/budget/item/delete",
+            json={
+                "item_id": self.victim.item_id,
+                "budget_id": self.victim.budget_id,
+            },
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            "Budget item has been deleted.", response.get_json()["message"]
+        )
+        self.assertNotIn("rent", response.get_data(as_text=True).lower())
+
+    def test_unauthenticated_user_cannot_edit_budget_item(self):
+        response = self.client.post(
+            "/api/budget/item/edit",
+            json={
+                "item_id": self.victim.item_id,
+                "budget_id": self.victim.budget_id,
+                "name": "foo",
+            },
+        )
+
+        self.assertEqual(401, response.status_code)
+
+        db.session.expire_all()
+        item = db.session.get(BudgetItem, self.victim.item_id)
+        self.assertEqual("rent", item.name)
+
+    def test_unauthenticated_user_cannot_delete_budget_item(self):
+        response = self.client.post(
+            "/api/budget/item/delete",
+            json={
+                "item_id": self.victim.item_id,
+                "budget_id": self.victim.budget_id,
+            },
+        )
+
+        self.assertEqual(401, response.status_code)
+
+        db.session.expire_all()
+        self.assertIsNotNone(db.session.get(BudgetItem, self.victim.item_id))
