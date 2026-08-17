@@ -162,6 +162,15 @@ class CrossUserAuthorizationTest(DatabaseTestCase):
         )
         self.assertNotIn("rent", response.get_data(as_text=True).lower())
 
+    def test_unauthenticated_user_cannot_read_a_budget(self):
+        response = self.client.get(f"/api/budget/{self.victim.budget_id}")
+
+        self.assertEqual(401, response.status_code)
+        self.assertEqual(
+            "You must be authenticated to use this route.",
+            response.get_json()["message"],
+        )
+
     def test_unauthenticated_user_cannot_edit_budget_item(self):
         response = self.client.post(
             "/api/budget/item/edit",

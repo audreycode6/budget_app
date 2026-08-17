@@ -33,6 +33,9 @@ class BudgetHandler:
                 return {"message": "Budget not found or access denied."}, 404
             return {"budget": budget}, 200
         except PermissionError:
+            # Reachable despite @login_required on the route: web.py's
+            # _validate_budget_access calls this handler directly, bypassing
+            # the decorator, and matches on this exact message.
             return {"message": "User not authenticated"}, 401
         except Exception as e:
             print(e)

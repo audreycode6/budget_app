@@ -70,6 +70,7 @@ BUDGET ROUTES
 
 
 @api_blueprint.route("/api/budget/<int:budget_id>", methods=["GET"])
+@auth_handler.login_required
 def get_budget_by_id(budget_id):
     return budget_handler.get_budget({"budget_id": budget_id})
 
