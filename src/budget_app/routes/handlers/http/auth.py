@@ -7,6 +7,7 @@ from budget_app.services.auth.auth_service import (
     remove_user_from_session,
 )
 from budget_app.utils import validate_request_body_keys_exist
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class AuthHandler:
@@ -46,7 +47,7 @@ class AuthHandler:
             else:
                 return {"message": "Invalid username or password."}, 401
 
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Failed to authenticate user."}, 503
 
@@ -66,7 +67,7 @@ class AuthHandler:
             else:
                 return {"message": "Username already exists."}, 422
 
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Failed to register user."}, 503
 

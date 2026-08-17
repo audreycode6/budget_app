@@ -6,6 +6,7 @@ from flask import session
 from budget_app.errors import NotFoundError
 from budget_app.testing import make_test_app
 from budget_app.routes.handlers.http.budget import BudgetHandler
+from sqlalchemy.exc import SQLAlchemyError
 
 BUDGET_HANDLER_PATH = "budget_app.routes.handlers.http.budget"
 
@@ -71,8 +72,8 @@ class TestGetBudget(BaseBudgetHandlerTest):
         self,
         mock_get_budget_by_budget_and_user_id,
     ):
-        mock_get_budget_by_budget_and_user_id.side_effect = Exception(
-            "service unavailable"
+        mock_get_budget_by_budget_and_user_id.side_effect = SQLAlchemyError(
+            "database connection failed"
         )
 
         with self.app.test_request_context():
@@ -108,7 +109,9 @@ class TestGetBudgets(BaseBudgetHandlerTest):
 
     @patch(f"{BUDGET_HANDLER_PATH}.get_budgets_by_user_id")
     def test_exception_raised(self, mock_get_budgets_by_user_id):
-        mock_get_budgets_by_user_id.side_effect = Exception("service unavailable")
+        mock_get_budgets_by_user_id.side_effect = SQLAlchemyError(
+            "database connection failed"
+        )
 
         with self.app.test_request_context():
             session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
@@ -171,7 +174,9 @@ class TestCreateBudget(BaseBudgetHandlerTest):
         self,
         mock_create_new_budget,
     ):
-        mock_create_new_budget.side_effect = Exception("service unavailable")
+        mock_create_new_budget.side_effect = SQLAlchemyError(
+            "database connection failed"
+        )
 
         with self.app.test_request_context():
             session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
@@ -242,7 +247,9 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
         self,
         mock_create_new_budget_item,
     ):
-        mock_create_new_budget_item.side_effect = Exception("Service unavailable")
+        mock_create_new_budget_item.side_effect = SQLAlchemyError(
+            "database connection failed"
+        )
 
         with self.app.test_request_context():
             session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
@@ -354,7 +361,9 @@ class TestEditBudget(BaseBudgetHandlerTest):
         self,
         mock_edit_budget_attributes,
     ):
-        mock_edit_budget_attributes.side_effect = Exception("Service unavailable")
+        mock_edit_budget_attributes.side_effect = SQLAlchemyError(
+            "database connection failed"
+        )
 
         with self.app.test_request_context():
             session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
@@ -470,11 +479,35 @@ class TestEditBudgetItem(BaseBudgetHandlerTest):
             self.assertEqual("Budget item not found.", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_item_attributes")
+    def test_type_error_propagates(self, mock_edit_budget_item_attributes):
+        """
+        Programming errors must escape, not become a 503.
+
+        TypeError stands in for the whole category of bugs the handler can no
+        longer catch now that it only catches SQLAlchemyError.
+        This is the failure that reached production as
+        "Unable to update budget item." (503)
+        when edit_budget_item_attributes gained a user_id parameter and this
+        handler's call site was not updated.
+        """
+        mock_edit_budget_item_attributes.side_effect = TypeError(
+            "missing 1 required positional argument: 'user_id'"
+        )
+
+        with self.app.test_request_context():
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+
+            with self.assertRaises(TypeError):
+                self.handler.edit_budget_item(TestEditBudgetItem.EDIT_BUDGET_ITEM_BODY)
+
+    @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_item_attributes")
     def test_exception_raised(
         self,
         mock_edit_budget_item_attributes,
     ):
-        mock_edit_budget_item_attributes.side_effect = Exception("Service unavailable")
+        mock_edit_budget_item_attributes.side_effect = SQLAlchemyError(
+            "database connection failed"
+        )
 
         with self.app.test_request_context():
             session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
@@ -546,8 +579,8 @@ class TestDeleteBudget(BaseBudgetHandlerTest):
         self,
         mock_delete_budget_by_budget_and_user_ids,
     ):
-        mock_delete_budget_by_budget_and_user_ids.side_effect = Exception(
-            "Service unavailable"
+        mock_delete_budget_by_budget_and_user_ids.side_effect = SQLAlchemyError(
+            "database connection failed"
         )
 
         with self.app.test_request_context():
@@ -628,8 +661,8 @@ class TestDeleteBudgetItem(BaseBudgetHandlerTest):
         self,
         mock_delete_budget_item_by_item_and_budget_ids,
     ):
-        mock_delete_budget_item_by_item_and_budget_ids.side_effect = Exception(
-            "Service unavailable"
+        mock_delete_budget_item_by_item_and_budget_ids.side_effect = SQLAlchemyError(
+            "database connection failed"
         )
 
         with self.app.test_request_context():

@@ -5,6 +5,7 @@ from flask import session
 
 from budget_app.testing import make_test_app
 from budget_app.routes.handlers.http.auth import AuthHandler
+from sqlalchemy.exc import SQLAlchemyError
 
 AUTH_HANDLER_PATH = "budget_app.routes.handlers.http.auth"
 
@@ -53,7 +54,9 @@ class TestAuthenticate(BaseAuthHandlerTest):
 
     @patch(f"{AUTH_HANDLER_PATH}.authenticate_user")
     def test_service_exception(self, mock_authenticate_user):
-        mock_authenticate_user.side_effect = Exception("service unavailable")
+        mock_authenticate_user.side_effect = SQLAlchemyError(
+            "database connection failed"
+        )
 
         with self.app.test_request_context():
             response, status = self.handler.authenticate(
@@ -101,7 +104,7 @@ class TestRegister(BaseAuthHandlerTest):
 
     @patch(f"{AUTH_HANDLER_PATH}.create_user")
     def test_service_exception(self, mock_create_user):
-        mock_create_user.side_effect = Exception("service unavailable")
+        mock_create_user.side_effect = SQLAlchemyError("database connection failed")
 
         with self.app.test_request_context():
             response, status = self.handler.register(

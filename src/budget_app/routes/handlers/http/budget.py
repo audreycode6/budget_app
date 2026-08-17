@@ -13,6 +13,7 @@ from budget_app.services.budget.budget_service import (
     get_budgets_by_user_id,
 )
 from budget_app.utils import validate_request_body_keys_exist, stringify_attributes
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class BudgetHandler:
@@ -37,7 +38,7 @@ class BudgetHandler:
             # _validate_budget_access calls this handler directly, bypassing
             # the decorator, and matches on this exact message.
             return {"message": "User not authenticated"}, 401
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Unable to retreive budget."}, 503
 
@@ -47,7 +48,7 @@ class BudgetHandler:
             budgets = get_budgets_by_user_id(user_id)
             username = get_session().get("username")
             return {"budgets": budgets, "username": username}, 200
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Unable to retreive budget(s)."}, 503
 
@@ -72,7 +73,7 @@ class BudgetHandler:
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Unable to fetch budget."}, 503
 
@@ -104,7 +105,7 @@ class BudgetHandler:
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Unable to fetch budget item."}, 503
 
@@ -132,7 +133,7 @@ class BudgetHandler:
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Unable to update budget."}, 503
 
@@ -164,7 +165,7 @@ class BudgetHandler:
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Unable to update budget item."}, 503
 
@@ -189,7 +190,7 @@ class BudgetHandler:
             print(e)
             return {"message": str(e)}, 422
 
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             return {"message": "Unable to delete budget."}, 503
 
@@ -213,6 +214,6 @@ class BudgetHandler:
             print(e)
             return {"message": str(e)}, 422
 
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
-            return {"message": "Unable to delete budget."}, 503
+            return {"message": "Unable to delete budget item."}, 503
