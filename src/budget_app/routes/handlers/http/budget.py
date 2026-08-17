@@ -68,7 +68,6 @@ class BudgetHandler:
                 user_id, name, month_duration_raw, gross_income
             )
             budget = get_budget_by_budget_and_user_id(budget_id, user_id)
-            print(budget)
             return {"budget": budget}, 200
         except ValueError as e:
             print(e)
