@@ -95,7 +95,9 @@ class BudgetHandler:
             )
             budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget": budget, "budget_item_id": budget_item_id}, 200
-
+        except NotFoundError as e:
+            print(e)
+            return {"message": str(e)}, 404
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
@@ -121,6 +123,9 @@ class BudgetHandler:
             budget_id = edit_budget_attributes(budget_id, user_id, attributes_to_update)
             updated_budget = get_budget_by_budget_and_user_id(budget_id, user_id)
             return {"budget_id": budget_id, "budget": updated_budget}, 200
+        except NotFoundError as e:
+            print(e)
+            return {"message": str(e)}, 404
         except ValueError as e:
             print(e)
             return {"message": str(e)}, 422
@@ -172,6 +177,10 @@ class BudgetHandler:
             return {
                 "message": f"Budget '{budget_name}' and its contents has been deleted"
             }, 200
+
+        except NotFoundError as e:
+            print(e)
+            return {"message": str(e)}, 404
 
         except ValueError as e:
             print(e)

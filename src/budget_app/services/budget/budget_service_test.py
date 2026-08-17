@@ -67,7 +67,8 @@ class BudgetDataFixture(BaseTestCase):
 class GetBudgetByBudgetAndUserId(BudgetDataFixture):
     """
     get_budget takes in a budget_id and user_id and
-    returns a dictionary of the formatted budget, OR empty dict if not a valid budget
+    returns a dictionary of the formatted budget,
+    OR empty dict if not a valid budget
     """
 
     def setUp(self):
@@ -295,18 +296,33 @@ class CreateNewBudgetItem(BudgetDataFixture):
     (all string types except ids)
     and creates a new budget_item for the budget if valid arg values and returns
     the new budget_item id
-    OR if invalid arg values it raises ValueError with applicapable error message
+    OR if invalid credentials (budget_id, user_id) raise NotFoundError
+    OR if invalid arg values it raises ValueError with applicable error message
     """
 
     def setUp(self):
         super().setUp()
 
     def test_invalid_budget(self):
-        error_message = "Invalid budget."
-        with self.assertRaisesRegex(ValueError, error_message):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget not found.")):
             create_new_budget_item(
                 name="test", category="savings", total="1234", budget_id=4, user_id=10
             )
+
+    def test_budget_belonging_to_another_user(self):
+        """budget_id is real; the caller is a real user who simply is not the owner."""
+        self.create_budget(
+            user_id=20, name="attacker budget", month_duration="1", gross_income="3500"
+        )
+        db.session.commit()
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget not found.")):
+            create_new_budget_item(
+                name="pwned", category="savings", total="1234", budget_id=1, user_id=20
+            )
+
+        db.session.expire_all()
+        victim_item = BudgetItem.query.filter_by(budget_id=1, name="pwned").first()
+        self.assertIsNone(victim_item)
 
     def test_missing_name(self):
         error_message = "Budget item name must not be empty."
@@ -390,18 +406,36 @@ class EditBudget(BudgetDataFixture):
     """
     edit_budget takes in: budget_id, user_id, attributes_edit (json request body/ i.e. dict)
     updates existing budget based on attributes to edit and returns the budget.id
-    OR if invalid args it raises a ValueError with an applicable error message
+    OR if invalid credentials it raises NotFoundError
+    OR if invalid arg values it raises ValueError with applicable error message
     """
 
     def setUp(self):
         super().setUp()
 
     def test_invalid_budget(self):
-        with self.assertRaisesRegex(ValueError, "Invalid budget."):  # invalid budget_id
+        with self.assertRaisesRegex(
+            NotFoundError, re.escape("Budget not found.")
+        ):  # invalid budget_id
             edit_budget_attributes(2, 10, {"name": "test_invalid_budget"})
 
-        with self.assertRaisesRegex(ValueError, "Invalid budget."):  # invalid_user
+        with self.assertRaisesRegex(
+            NotFoundError, re.escape("Budget not found.")
+        ):  # invalid_user
             edit_budget_attributes(1, 1, {"name": "test_invalid_budget"})
+
+    def test_budget_belonging_to_another_user(self):
+        """budget_id is real; the caller is a real user who simply is not the owner."""
+        self.create_budget(
+            user_id=20, name="attacker budget", month_duration="1", gross_income="3500"
+        )
+        db.session.commit()
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget not found.")):
+            edit_budget_attributes(1, 20, {"name": "attaaack"})
+        db.session.expire_all()
+        victim_budget = db.session.get(Budget, 1)
+        self.assertEqual("mock_name", victim_budget.name)
+        self.assertEqual(Decimal("3500.00"), victim_budget.gross_income)
 
     def test_missing_name_value(self):
         with self.assertRaisesRegex(ValueError, "New name must not be empty."):
@@ -579,18 +613,30 @@ class DeleteBudget(BudgetDataFixture):
     delete_budget takes in: budget_id, user_id
     and deletes the budget and all its items if valid args
     and returns the budget's name
-    OR raises ValueError with message of invalid budget
+    OR raises NotFoundError if invalid credentials
     """
 
     def setUp(self):
         super().setUp()
 
     def test_invalid_budget(self):
-        with self.assertRaisesRegex(ValueError, "Invalid budget."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget not found.")):
             delete_budget_by_budget_and_user_ids(12, 10)  # invalid budget_id
 
-        with self.assertRaisesRegex(ValueError, "Invalid budget."):
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget not found.")):
             delete_budget_by_budget_and_user_ids(1, 12)  # invalid user_id
+
+    def test_budget_belonging_to_another_user(self):
+        """budget_id is real; the caller is a real user who simply is not the owner."""
+        self.create_budget(
+            user_id=20, name="attacker budget", month_duration="1", gross_income="3500"
+        )
+        db.session.commit()
+        with self.assertRaisesRegex(NotFoundError, re.escape("Budget not found.")):
+            delete_budget_by_budget_and_user_ids(1, 20)
+        db.session.expire_all()
+        budget = Budget.query.filter_by(id=1, user_id=10).first()
+        self.assertIsNotNone(budget)
 
     def test_success(self):
         response = delete_budget_by_budget_and_user_ids(1, 10)
@@ -605,7 +651,7 @@ class DeleteBudgetItem(BudgetDataFixture):
     delete_budget_item takes in: item_id, budget_id, user_id
     and deletes the budget_item from the budget if valid args
     and returns None
-    OR raises NotFoundError if the item does not exist or is not the caller's
+    OR raises NotFoundError if invalid credentials
     """
 
     def setUp(self):

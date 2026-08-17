@@ -4,7 +4,6 @@ from budget_app.services.budget.validate_input import (
     validate_month_duration,
     validate_positive_float,
 )
-from ...errors import NotFoundError
 from ...models import Budget, BudgetItem
 from ...extensions import db
 
@@ -77,10 +76,7 @@ def create_new_budget_item(name, category, total, budget_id, user_id):
     Validate user inputs: name and cost, raise error if invalid
     else insert items into budget_item and return new budget item id
     """
-    budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
-    if not budget:
-        print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
-        raise ValueError("Invalid budget.")
+    get_owned_budget(budget_id, user_id)
     if not name:
         raise ValueError("Budget item name must not be empty.")
 
@@ -114,10 +110,7 @@ def attributes_to_update_dict(body, list_of_attributes):
 
 
 def edit_budget_attributes(budget_id, user_id, attributes_to_edit):
-    budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
-    if not budget:
-        print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
-        raise ValueError("Invalid budget.")
+    budget = get_owned_budget(budget_id, user_id)
 
     for attribute, new_value in attributes_to_edit.items():
         # Validate new_value
@@ -147,6 +140,18 @@ def edit_budget_attributes(budget_id, user_id, attributes_to_edit):
     db.session.commit()
 
     return budget.id
+
+
+def get_owned_budget(budget_id, user_id):
+    """
+    Return the Budget only if it belongs to user_id, otherwise raise NotFoundError.
+    """
+    budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
+
+    if not budget:
+        print(f"No budget with id: {budget_id} owned by user_id: {user_id}")
+        raise NotFoundError("Budget not found.")
+    return budget
 
 
 def get_owned_budget_item(item_id, budget_id, user_id):
@@ -202,11 +207,7 @@ def edit_budget_item_attributes(item_id, budget_id, user_id, attributes_to_edit)
 
 def delete_budget_by_budget_and_user_ids(budget_id, user_id):
     # Retrieve the budget to delete
-    budget = Budget.query.filter_by(id=budget_id, user_id=user_id).first()
-    if not budget:
-        print(f"Budget_id: {budget_id}, doesn't belong to user with user_id {user_id}")
-        raise ValueError("Invalid budget.")
-
+    budget = get_owned_budget(budget_id, user_id)
     budget_name = budget.name
 
     # Delete the object

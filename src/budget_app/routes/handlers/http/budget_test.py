@@ -223,6 +223,21 @@ class TestCreateBudgetItem(BaseBudgetHandlerTest):
             self.assertIn("Bad request", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.create_new_budget_item")
+    def test_not_found_error_raised(
+        self,
+        mock_create_new_budget_item,
+    ):
+        mock_create_new_budget_item.side_effect = NotFoundError("Budget not found.")
+
+        with self.app.test_request_context():
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+            response, status = self.handler.create_budget_item(
+                BaseBudgetHandlerTest.VALID_BUDGET_ITEM_BODY
+            )
+            self.assertEqual(404, status)
+            self.assertEqual("Budget not found.", response["message"])
+
+    @patch(f"{BUDGET_HANDLER_PATH}.create_new_budget_item")
     def test_exception_raised(
         self,
         mock_create_new_budget_item,
@@ -318,6 +333,21 @@ class TestEditBudget(BaseBudgetHandlerTest):
             )
             self.assertEqual(422, status)
             self.assertEqual("Bad request", response["message"])
+
+    @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_attributes")
+    def test_not_found_error_raised(
+        self,
+        mock_edit_budget_attributes,
+    ):
+        mock_edit_budget_attributes.side_effect = NotFoundError("Budget not found.")
+
+        with self.app.test_request_context():
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+            response, status = self.handler.edit_budget(
+                TestEditBudget.VALID_EDIT_BUDGET_BODY
+            )
+            self.assertEqual(404, status)
+            self.assertEqual("Budget not found.", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.edit_budget_attributes")
     def test_exception_raised(
@@ -495,6 +525,21 @@ class TestDeleteBudget(BaseBudgetHandlerTest):
                 "Bad request",
                 response["message"],
             )
+
+    @patch(f"{BUDGET_HANDLER_PATH}.delete_budget_by_budget_and_user_ids")
+    def test_not_found_error_raised(
+        self,
+        mock_delete_budget_by_budget_and_user_ids,
+    ):
+        mock_delete_budget_by_budget_and_user_ids.side_effect = NotFoundError(
+            "Budget not found."
+        )
+
+        with self.app.test_request_context():
+            session["user_id"] = BaseBudgetHandlerTest.SESSION_USER_ID_SHAPE
+            response, status = self.handler.delete_budget({"budget_id": 1})
+            self.assertEqual(404, status)
+            self.assertEqual("Budget not found.", response["message"])
 
     @patch(f"{BUDGET_HANDLER_PATH}.delete_budget_by_budget_and_user_ids")
     def test_exception_raised(
