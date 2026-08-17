@@ -66,7 +66,6 @@ class CrossUserAuthorizationTest(DatabaseTestCase):
 
     def test_user_cannot_create_item_in_another_users_budget(self):
         # attacker POSTs /api/budget/item/create with the VICTIM's budget_id
-        #       and a distinctive item name
         response = self.attacker.client.post(
             "/api/budget/item/create",
             json={
@@ -78,7 +77,6 @@ class CrossUserAuthorizationTest(DatabaseTestCase):
         )
         self.assertEqual(404, response.status_code)
         db.session.expire_all()
-        # : query BudgetItem for that name in the victim's budget, assert None
 
         attacker_item = BudgetItem.query.filter_by(
             budget_id=self.victim.budget_id, name="attacker item"
