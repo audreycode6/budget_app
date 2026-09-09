@@ -3,8 +3,13 @@
 venv/
 ENV/
 env/
-*.env
-.DS_Store
 
+# Local secrets - .env.sample is the tracked template
+.env
+.env.*
+!.env.sample
+
+.DS_Store
 .vscode
-__pycache__
+__pycache__/
+*.pyc

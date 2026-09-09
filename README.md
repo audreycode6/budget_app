@@ -81,26 +81,53 @@ Getting it deployed and reachable was the goal, and it worked. Here is what I wo
 - Poetry
 - PostgreSQL
 
-**Typical Development Workflow:**
+**First-time setup:**
 
-1. Install project dependencies and create `.env`.
+1. Install project dependencies:
 
-2. Start PostgreSQL and create the database (_see **PostgreSQL Setup** below_)
-3. Apply migrations:
+   ```shell
+   poetry install
+   ```
 
-```shell
-poetry run app db-migrate -m "Initial migration"
-poetry run app db-upgrade
-```
+2. Start PostgreSQL and create the database (_see **PostgreSQL Setup** below_):
 
-4. Start the server: `poetry run app start`
-5. Run tests as you develop: `poetry run app test`
+   ```shell
+   createdb budget_db
+   ```
+
+3. Create your `.env` (_see **Environment Variables** below_):
+
+   ```shell
+   cp .env.sample .env
+   ```
+
+   Then edit `DATABASE_URL` to match your own PostgreSQL user and database.
+
+4. Apply the existing migrations to build the schema:
+
+   ```shell
+   poetry run app db-upgrade
+   ```
+
+   > This repo already contains its migrations in `migrations/versions/`. You do **not** run `db-migrate` during setup — that command _generates_ a new migration from model changes, and on a fresh clone it has nothing to generate.
+
+5. Start the server: `poetry run app start` (defaults to http://localhost:3000)
+
+**Day-to-day:**
+
+- Run the server: `poetry run app start`
+- Run tests as you develop: `poetry run app test`
+- After changing `models.py`, generate and apply a migration (_see **Database Migrations** below_)
 
 ### Dependency Management (Poetry)
 
 This project uses [Poetry](https://python-poetry.org/docs/) for dependency management and packaging.
 
-1. Install and create new project.
+- Install the project and its dependencies into a virtualenv: `poetry install`
+- Add a new dependency: `poetry add <package>`
+- Run anything inside the virtualenv: `poetry run <command>`
+
+Poetry creates the virtualenv for you; there is no need to make one by hand. The `app` command used throughout this README is the CLI entry point declared under `[tool.poetry.scripts]` in `pyproject.toml`, which is why it only exists after `poetry install`.
 
 ### PostgreSQL Setup (macOS + Homebrew)
 
@@ -110,19 +137,29 @@ This project uses [Poetry](https://python-poetry.org/docs/) for dependency manag
 
 ### Environment Variables
 
-Create a `.env` file using `.env.sample` as a reference.
+Create a `.env` file using `.env.sample` as a reference: `cp .env.sample .env`.
 
 Required variables:
 
 - **DATABASE_URL**:
-  - The `DATABASE_URL` environment variable tells SQLAlchemy where your database lives and how to connect to it. It’s used by Flask to establish a connection when the app starts, as well as by Alembic during migrations.
+  - Tells SQLAlchemy where your database lives and how to connect to it. Used by Flask when the app starts, and by Alembic during migrations.
   - `DATABASE_URL=postgresql://username:pw@localhost:5432/budget_db`
-    - `username` your PostgreSQL username
-    - `:pw` pw for PostgreSQL or remove if no pw
+    - `username` your PostgreSQL role — on a Homebrew install this is usually your macOS username, not `postgres`
+    - `:pw` your password, or omit the `:pw` entirely if your local setup has no password (e.g. `postgresql://audrey@localhost:5432/budget_db`)
     - `/budget_db` your database name
 - **SECRET_KEY**:
-  - Flask uses to keep track of state in session and display flash messages
+  - Used by Flask to sign the session cookie and carry flash messages. Any non-guessable string works locally; use a real random value in production.
   - `SECRET_KEY=secret_key`, replace `secret_key` value with your own private key.
+- **APP_PORT**:
+  - Port the development server binds to. Defaults to `3000` in `.env.sample`.
+
+#### Troubleshooting
+
+**`FATAL: role "<name>" does not exist`** — a long SQLAlchemy/psycopg2 traceback ending in this line means `DATABASE_URL` names a PostgreSQL role that isn't on your machine. It is a config problem, not a broken install: the placeholder from `.env.sample` was left in place, or the username doesn't match your actual role. Fix the username in `.env` and re-run.
+
+**`FATAL: database "<name>" does not exist`** — same idea, for the database half of the URL. Run `createdb budget_db`.
+
+**`connection refused` on port 5432** — PostgreSQL isn't running. Start it (`brew services start postgresql@14`) and confirm with `pg_isready`.
 
 ### CLI Commands
 
@@ -148,17 +185,17 @@ This project uses Flask-Migrate (Alembic) to manage schema changes.
 
 _Before you start, make sure PostgreSQL is running and verify your database exists._
 
-- **Initial setup:**
+- **Setting up a cloned repo:**
 
-  Create the migrations/ folder (only run once at setup):
+  The `migrations/` directory is committed, so there is nothing to initialize. Just apply what's already there:
 
   ```shell
-  poetry run flask --app budget_app.app db init
+  poetry run app db-upgrade
   ```
 
   - **Model definitions**: `models.py` (_i.e however your app organizes SQLAlchemy models_) holds the schema for the table structures, (user, budget, budget_item), to add to the db. Changes to these models require generating a new migration.
 
-- **Generate a new migration**:
+- **Generate a new migration** (_only after changing `models.py`_):
 
   ```shell
   poetry run app db-migrate -m "Note about new changes"
@@ -188,9 +225,17 @@ _Before you start, make sure PostgreSQL is running and verify your database exis
 
   - Lists all migrations applied and pending, in chronological order.
 
+- **Check which revision your database is currently at**:
+
+  ```shell
+  poetry run flask --app budget_app.app db current
+  ```
+
+  - Useful when you are unsure whether your local database is up to date with `migrations/versions/`.
+
 ### Running Tests
 
-> [NOTE!]
+> [!NOTE]
 > The test suite requires no database; service tests use in-memory SQLite.
 
 The CLI internally invokes `unittest` with project-specific defaults. Explicit `__init__.py` files define the Python packages, which is what makes unittest discovery and absolute imports work.
