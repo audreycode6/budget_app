@@ -1,0 +1,3 @@
+budget-thing.site, www.budget-thing.site {
+  reverse_proxy web:3000
+}
