@@ -2,6 +2,8 @@
 
 _Full-Stack Budgeting App_
 
+**Live:** https://budget-thing.site
+
 ## Features
 
 - **Multi-timeframe budgets** - Create, edit, and delete monthly or annual budgets
@@ -21,7 +23,7 @@ _Full-Stack Budgeting App_
 
 ### Error Handling
 
-![Budget creation](src/budget_app/static/demos/handle_bad_request.gif)
+![Error handling](src/budget_app/static/demos/handle_bad_request.gif)
 
 ## Tech Stack
 
@@ -29,49 +31,48 @@ _Full-Stack Budgeting App_
 **Database:** PostgreSQL  
 **Testing:** unittest  
 **Dev Tools:** Poetry  
+**Deployment:** Docker Compose, gunicorn, Caddy, AWS Lightsail  
 **Frontend:** HTML, CSS, JavaScript _(currently minimal, focus is backend)_
 
 ## Deployment
 
-This project ran in production on an AWS EC2 instance (us-west-2) with a custom domain pointed at it through Namecheap DNS. The instance has since been terminated to avoid ongoing hosting cost, so there is no live URL at the moment. The demo GIFs above show the app in use.
-
-I chose EC2 over a managed host on purpose. It gives you a bare Linux machine and nothing else, so I had to set up every layer myself and see what a managed host normally does on your behalf.
-
 ### Production setup
 
-**Scope**: A solo portfolio project with no meaningful traffic, which shaped several of the choices below.
+- **Host:** AWS Lightsail (Ubuntu, 1 GB RAM, static IP, 2 GB swap file). The firewall opens only ports 22 (SSH, to manage the server), 80 (HTTP, which Caddy redirects to HTTPS and Let's Encrypt uses to verify the domain) and 443 (HTTPS). Everything else stays closed.
+- **HTTPS (`caddy`):** Caddy is the only service exposed to the internet. It gets and renews a Let's Encrypt certificate automatically, redirects HTTP to HTTPS, and forwards requests to the app. The domains are set in `Caddyfile`.
+- **App (`web`):** Built from `Dockerfile` and served by gunicorn with 2 workers. Its port is bound to `127.0.0.1`, so it can only be reached through Caddy.
+- **Database (`db`):** Postgres 17 in its own container. Data lives in the `pgdata` volume, so it survives restarts and rebuilds.
+- **Restarts:** Every service uses `restart: unless-stopped`, so Docker brings it back after a crash or reboot.
+- **DNS:** Namecheap A records for `@` and `www`, both pointing at the static IP.
+- **Secrets:** Kept in `.env.docker` on the server (see `.env.sample`).
 
-**Host**: AWS EC2, provisioned and configured manually over SSH.
+### Running the production setup
 
-**App server**: Flask's built-in development server, run directly on the instance.
+[Docker](https://docs.docker.com/get-started/docker-overview/) packages the app with its Python version and dependencies into an image, so it runs the same way on my Mac and on the server, and the server needs nothing installed but Docker. `docker-compose.yml` defines the 3 containers above (`web`, `db`, `caddy`), and Compose starts them together with one command.
 
-**Database**: PostgreSQL installed and configured on the same instance.
+> [!NOTE]
+> For day-to-day coding and tests without Docker, see **Local Development**.
 
-**Schema**: Alembic migrations applied against the production database with `poetry run app db-upgrade`.
+**Locally**, create `.env.docker` from `.env.sample` and keep `SESSION_COOKIE_SECURE=false` to be able to log in over plain HTTP. Then start the app and database and apply migrations:
 
-**DNS**: Namecheap A record pointing the domain at the instance's public IP.
+```shell
+docker compose up -d --build web db   # leaves out caddy, which needs the real domain
+docker compose run --rm web flask --app budget_app.app db upgrade
+```
 
-**Configuration**: `DATABASE_URL` and `SECRET_KEY` set as environment variables on the server. See `.env.sample` for the shape.
+The app runs at http://localhost:3000.
 
-### What I would change
+**On the server**, SSH in and deploy or update from the repo folder:
 
-Getting it deployed and reachable was the goal, and it worked. Here is what I would do differently, in rough order of how much it matters:
+```shell
+ssh -i <your-key>.pem ubuntu@<static-ip>
+cd ~/budget_app
+git pull
+docker compose up -d --build          # starts all 3 services, including caddy
+docker compose run --rm web flask --app budget_app.app db upgrade   # safe every deploy; only applies new migrations
+```
 
-- **Serve it over HTTPS.** The site ran on plain HTTP, so passwords and session cookies crossed the network in readable form.
-
-  _Proposed fix:_ Put a reverse proxy in front of the app to handle TLS. Nginx with a Let's Encrypt certificate is the conventional pairing; Caddy is simpler since it renews certificates on its own. I would do this alongside the next item, since the proxy forwards to the app server.
-
-- **Serve it with a production WSGI server.** I used Flask's built-in server, which prints a startup warning telling you not to. I ignored it since traffic was near zero, but the issue isn't only speed: it's single-threaded by default and makes no security or robustness guarantees.
-
-  _Proposed fix:_ Flask's deployment docs list a few options. Gunicorn looks like the standard pick for Flask on Linux, so that's where I'd start.
-
-- **Run it under a process manager.** I started the app by hand over SSH, so a crash or a reboot would have taken the site down until I noticed.
-
-  _Proposed fix:_ A systemd service, so it starts at boot and restarts on failure.
-
-- **Reconsider where I host it.** EC2 hands you a machine and leaves everything above it to you, which is why this list exists.
-
-  _Next time:_ Platforms like Render, Railway, and Fly.io include HTTPS, restarts, and deploys from GitHub by default. I don't regret starting on EC2 since seeing the layers was the point, but I'd probably start there instead.
+The app is now live and secured with HTTPS. Only the containers that changed are replaced, so the site is down for a few seconds at most. The data and `.env.docker` are left untouched, and migrations run while the site stays up.
 
 ## Local Development
 
@@ -101,7 +102,7 @@ Getting it deployed and reachable was the goal, and it worked. Here is what I wo
    cp .env.sample .env
    ```
 
-   Then edit `DATABASE_URL` to match your own PostgreSQL user and database.
+   Then edit `DATABASE_URL`: change the host from `db` to `localhost`, and match your own PostgreSQL user and database.
 
 4. Apply the existing migrations to build the schema:
 
@@ -147,11 +148,16 @@ Required variables:
     - `username` your PostgreSQL role — on a Homebrew install this is usually your macOS username, not `postgres`
     - `:pw` your password, or omit the `:pw` entirely if your local setup has no password (e.g. `postgresql://audrey@localhost:5432/budget_db`)
     - `/budget_db` your database name
+  - Under Docker Compose, the host is `db` (the database service name) instead of `localhost`.
 - **SECRET_KEY**:
   - Used by Flask to sign the session cookie and carry flash messages. Any non-guessable string works locally; use a real random value in production.
   - `SECRET_KEY=secret_key`, replace `secret_key` value with your own private key.
 - **APP_PORT**:
   - Port the development server binds to. Defaults to `3000` in `.env.sample`.
+- **SESSION_COOKIE_SECURE**:
+  - Makes the session cookie HTTPS-only. Set `true` in production. Keep `false` locally, or you can't log in over plain HTTP.
+- **POSTGRES_USER**, **POSTGRES_PASSWORD**, **POSTGRES_DB** (_Docker only_):
+  - Used by the `db` container to create the database user and database on first start. They must match the values in `DATABASE_URL`. Not needed without Docker.
 
 #### Troubleshooting
 
@@ -178,8 +184,7 @@ To see the command options/ description: `poetry run app -h`
 
 ### Database Migrations
 
-This project uses Flask-Migrate (Alembic) to manage schema changes.
-[Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) (which uses [Alembic](https://alembic.sqlalchemy.org/en/latest/tutorial.html) under the hood) tracks these schema changes.
+This project uses [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) (which uses [Alembic](https://alembic.sqlalchemy.org/en/latest/tutorial.html) under the hood) to manage schema changes.
 
 **Migrations Usage:**
 
