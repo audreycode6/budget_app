@@ -16,11 +16,15 @@ def create_app(test_config=None, verboseLogs=False):
         SECRET_KEY=os.getenv("SECRET_KEY"),
         SQLALCHEMY_DATABASE_URI=os.getenv("DATABASE_URL"),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true",
     )
 
     # Override for testing if provided
     if test_config:
         app.config.update(test_config)
+
+    if not app.config["SECRET_KEY"]:
+        raise RuntimeError("SECRET_KEY is not set")
 
     # Initialize extensions
     if verboseLogs:
