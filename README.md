@@ -29,9 +29,9 @@ _Full-Stack Budgeting App_
 
 **Backend:** Python 3.12+, Flask, SQLAlchemy, Flask-Migrate  
 **Database:** PostgreSQL  
-**Testing:** unittest  
+**Testing:** unittest, run by GitHub Actions on every pull request  
 **Dev Tools:** Poetry  
-**Deployment:** Docker Compose, gunicorn, Caddy, AWS Lightsail  
+**Deployment:** Docker Compose, gunicorn, Caddy, AWS Lightsail, GitHub Actions (CI/CD)  
 **Frontend:** HTML, CSS, JavaScript _(currently minimal, focus is backend)_
 
 ## Deployment
@@ -67,12 +67,16 @@ The app runs at http://localhost:3000.
 ```shell
 ssh -i <your-key>.pem ubuntu@<static-ip>
 cd ~/budget_app
-git pull
+git pull --ff-only
 docker compose up -d --build          # starts all 3 services, including caddy
 docker compose run --rm web flask --app budget_app.app db upgrade   # safe every deploy; only applies new migrations
 ```
 
 The app is now live and secured with HTTPS. Only the containers that changed are replaced, so the site is down for a few seconds at most. The data and `.env.docker` are left untouched, and migrations run while the site stays up.
+
+### Automatic Deploys
+
+Every merge into `main` deploys itself. In `.github/workflows/ci.yml`, the deploy job waits for the test job to pass, then connects to the server over SSH with a key used only for deploys, and runs the same commands as above, plus `docker image prune -f` to remove the old image each rebuild leaves behind. The key and the server's details are stored as repository secrets (`SSH_PRIVATE_KEY`, `SSH_HOST`, `SSH_USER`, `SSH_KNOWN_HOSTS`).
 
 ## Local Development
 

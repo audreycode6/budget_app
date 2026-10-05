@@ -27,3 +27,36 @@ jobs:
 
       - name: Run tests
         run: poetry run app test -v
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Set up SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Deploy to Lightsail
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" 'bash -s' <<'EOF'
+          set -e
+          cd ~/budget_app
+          git pull --ff-only
+          docker compose up -d --build
+          docker compose run --rm web flask --app budget_app.app db upgrade
+          docker image prune -f
+          EOF
