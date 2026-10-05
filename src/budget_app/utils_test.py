@@ -33,7 +33,7 @@ class StringifyAttributes(unittest.TestCase):
 
     def test_successful_stringify(self):
         response = stringify_attributes(self.list_of_attributes)
-        self.assertEqual(response, "foo, bar, baz")
+        self.assertEqual(response, "foo, bar, baz, oops")
 
 
 if __name__ == "__main__":
